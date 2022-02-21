@@ -1,0 +1,21 @@
+.gitignore/
+.vscode/
+.idea/
+.pytest_cache/
+dist/
+build/
+venv/
+
+.DS_Store
+results/
+.idea
+
+# Byte-compiled / optimized / DLL files
+*/__pycache__
+*.py[cod]
+
+# C extensions
+*.so
+
+# Distribution files.
+*/expam.egg*
