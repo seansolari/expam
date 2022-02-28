@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Additional Dependencies (optional) &mdash; expam 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Tutorials" href="tutorials/index.html" />
+    <link rel="prev" title="Available commands" href="commands.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> expam
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="commands.html">Documentation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Additional Dependencies (optional)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#setting-up-a-conda-environment">Setting up a conda environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#additional-software">Additional Software</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#installing-mashtree">Installing Mashtree</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#installing-mash">Installing Mash</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#installing-rapidnj">Installing RapidNJ</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#installing-quicktree">Installing QuickTree</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">expam</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Additional Dependencies (optional)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/dependencies.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="additional-dependencies-optional">
+<h1>Additional Dependencies (optional)<a class="headerlink" href="#additional-dependencies-optional" title="Permalink to this headline"></a></h1>
+<section id="setting-up-a-conda-environment">
+<h2>Setting up a conda environment<a class="headerlink" href="#setting-up-a-conda-environment" title="Permalink to this headline"></a></h2>
+<p>Conda is an incredibly convenient tool to keep all packages and tools used by expam
+in the same place, isolating it from all other tools on your computer.</p>
+<p>See <a class="reference external" href="https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html">here</a> for
+instructions on how to install Conda. Conda searches online repositories for the software
+you ask it to install. There are certain repositories you should let Conda know about, which
+contain a lot of useful bioinformatics software.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda config --add channels defaults
+<span class="gp">$ </span>conda config --add channels bioconda
+<span class="gp">$ </span>conda config --add channels conda-forge
+</pre></div>
+</div>
+<p>We now create the conda environment, and call it <strong>expam</strong>.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda create --name expam <span class="nv">python</span><span class="o">=</span><span class="m">3</span>.8
+</pre></div>
+</div>
+<p>You enter the environment using <code class="code docutils literal notranslate"><span class="pre">conda</span> <span class="pre">activate</span></code>, at which point your console will indicate
+you are in an environment by adding (expam) to the start of each line. All applications
+installed using Conda from within this environment will only be accessible upon entering
+the environment. You can leave the environment using <code class="code docutils literal notranslate"><span class="pre">conda</span> <span class="pre">deactivate</span></code>.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda activate expam
+<span class="gp gp-VirtualEnv">(expam)</span> <span class="gp">$ </span>conda list
+
+<span class="gp"># </span>packages <span class="k">in</span> environment at /opt/anaconda3/envs/test:
+<span class="gp">#</span>
+<span class="gp"># </span>Name                    Version                   Build  Channel
+<span class="go">ca-certificates           2021.10.8            h033912b_0    conda-forge</span>
+<span class="go">libcxx                    12.0.1               habf9029_0    conda-forge</span>
+<span class="go">libffi                    3.4.2                h0d85af4_5    conda-forge</span>
+<span class="go">libzlib                   1.2.11            h9173be1_1013    conda-forge</span>
+<span class="go">ncurses                   6.2                  h2e338ed_4    conda-forge</span>
+<span class="go">openssl                   3.0.0                h0d85af4_2    conda-forge</span>
+<span class="go">pip                       21.3.1             pyhd8ed1ab_0    conda-forge</span>
+<span class="go">python                    3.8.12          h43ca1e7_2_cpython    conda-forge</span>
+<span class="go">python_abi                3.8                      2_cp38    conda-forge</span>
+<span class="go">readline                  8.1                  h05e3726_0    conda-forge</span>
+<span class="go">setuptools                59.1.1           py38h50d1736_0    conda-forge</span>
+<span class="go">sqlite                    3.36.0               h23a322b_2    conda-forge</span>
+<span class="go">tk                        8.6.11               h5dbffcc_1    conda-forge</span>
+<span class="go">wheel                     0.37.0             pyhd8ed1ab_1    conda-forge</span>
+<span class="go">xz                        5.2.5                haf1e3a3_1    conda-forge</span>
+<span class="go">zlib                      1.2.11            h9173be1_1013    conda-forge</span>
+<span class="gp gp-VirtualEnv">(expam)</span> <span class="gp">$ </span>conda deactivate
+<span class="gp">$</span>
+</pre></div>
+</div>
+</section>
+<section id="additional-software">
+<h2>Additional Software<a class="headerlink" href="#additional-software" title="Permalink to this headline"></a></h2>
+<p>If you wish to build your own tree for a custom collection of genomes using the <strong>expam</strong>
+interface, you will need some tools. See <a class="reference internal" href="tutorials/tree.html"><span class="doc">Tutorial Three</span></a> for a
+tutorial on how to build trees using the <strong>expam</strong> interface, this should make you aware
+of which software you will need. Brief instructions for installing all possible
+software are shown below.</p>
+<p>Note: whenever the tutorials mention a ‘local installation’ of some tool, this simply
+means that the tool should be available from a call in the console. Installing any required
+tools within the environment using the following commands will satisfy this.</p>
+<section id="installing-mashtree">
+<h3>Installing Mashtree<a class="headerlink" href="#installing-mashtree" title="Permalink to this headline"></a></h3>
+<p><a class="reference external" href="https://github.com/lskatz/mashtree">Mashtree GitHub</a></p>
+<p>Mashtree requires a local installation of mash. Run the following commands in succession.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda install mash
+<span class="gp">$ </span>conda install mashtree
+</pre></div>
+</div>
+</section>
+<section id="installing-mash">
+<h3>Installing Mash<a class="headerlink" href="#installing-mash" title="Permalink to this headline"></a></h3>
+<p><a class="reference external" href="https://github.com/marbl/Mash">Mash GitHub</a></p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda install mash
+</pre></div>
+</div>
+</section>
+<section id="installing-rapidnj">
+<h3>Installing RapidNJ<a class="headerlink" href="#installing-rapidnj" title="Permalink to this headline"></a></h3>
+<p><a class="reference external" href="https://birc.au.dk/software/rapidnj/">RapidNJ homepage</a></p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda install rapidnj
+</pre></div>
+</div>
+</section>
+<section id="installing-quicktree">
+<h3>Installing QuickTree<a class="headerlink" href="#installing-quicktree" title="Permalink to this headline"></a></h3>
+<p><a class="reference external" href="https://github.com/khowe/quicktree">QuickTree GitHub</a></p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda install quicktree
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="commands.html" class="btn btn-neutral float-left" title="Available commands" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tutorials/index.html" class="btn btn-neutral float-right" title="Tutorials" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, seansolari.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

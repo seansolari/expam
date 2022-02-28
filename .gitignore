@@ -3,8 +3,9 @@
 .idea/
 .pytest_cache/
 dist/
-build/
+./build/
 venv/
+.venv/
 
 .DS_Store
 results/

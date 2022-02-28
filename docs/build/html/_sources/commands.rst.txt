@@ -1,0 +1,287 @@
+Available commands
+==================
+
+Setting the default database
+----------------------------
+The EXPAM_DEFAULT_DB environment variable defines expam's default database.
+
+.. code-block:: console
+
+    $ expam default_db -db DB_NAME
+    export EXPAM_DEFAULT_DB=PATH_TO_DB
+
+As a shortcut, 
+
+.. code-block:: console
+
+    $ expam default_db -db DB_NAME >> ~/.bash_profile
+
+sets the environment variable each time you open bash console.
+
+
+Create a new database
+---------------------
+
+.. code-block:: console
+
+    $ expam create -db DB_NAME
+
+
+Set build parameters
+^^^^^^^^^^^^^^^^^^^^
+Set the build parameters for some database.
+
+.. code-block:: console
+
+    $ expam set -db DB_NAME [args...]
+
+.. option:: -k <int>, --kmer <int>
+
+    K-mer size for building database.
+
+    .. note::
+
+        A k-mer length of 31 is often used, and is probably good for most bacterial genomes.
+
+
+.. option:: -n <int>, --n_processes <int>
+
+    Number of processes to distribute building work amongst.
+
+    .. note::
+
+        Using more processes decreases the build time but increases the amount of computer
+        resources used during build. 
+        
+        The following short python excerpt will tell you the **max** number of processes.
+
+        .. code-block:: python
+
+            >>> import multiprocessing
+            >>> multiprocessing.cpu_count()
+            8
+
+.. option:: -p <file path>, --phylogeny <file path>
+
+    Path to |newick_link| detailing tree of reference sequences.
+
+.. |newick_link| raw:: html
+
+    <a href="https://en.wikipedia.org/wiki/Newick_format" target="_blank">Newick file</a>
+
+
+Example
+"""""""
+
+.. code-block:: console
+
+    $ expam set -db /path/to/db -k 31 -n 12 -p /home/seansolari/tree.nwk
+
+
+Add/Remove sequences
+^^^^^^^^^^^^^^^^^^^^
+Add reference sequences to the database.
+
+.. code-block:: console
+
+    $ expam add -db DB_NAME [args...]
+    $ expam remove -db DB_NAME [args...]
+
+
+.. option:: -d <file path>, --directory <file path>
+
+    Add sequence at **file path** to the database.
+
+    .. note::
+
+        File path can be a file, or a folder.
+
+        If a folder, expam will add all sequences within this folder.
+
+.. option:: --first_n <int>
+
+    *(optional)*
+
+    Add first **n** (order same as appears in `ls`) sequences from directory into the database.
+
+.. option:: --group <str>
+
+    *(optional)*
+
+    Add sequences to particular sequence group.
+
+    See :doc:`Tutorial 1 <tutorials/quickstart>` for details.
+
+
+Examples
+""""""""
+
+.. code-block:: console
+
+    $ expam add -db /path/to/db -d /path/to/sequence.fna
+    Added 1 sequence from /path/to/sequence.fna!
+
+    $ expam add -db /path/to/db -d /path/to/folder/
+    Added 19 sequences from /path/to/folder!
+
+
+Printing database parameters
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Print current database configuration.
+
+.. code-block:: console
+
+    $ expam print -db DB_NAME
+    <<< expam configuration file: DB_NAME >>>
+
+    phylogeny       -->     None
+    k               -->     31
+    n               -->     12
+    sketch          -->     None
+    pile            -->     512
+
+    ----------------
+    group name: default
+            k               -->     None
+            sketch          -->     None
+            sequences       -->     9
+
+
+Build a database
+----------------
+When all parameters have been set, a database can be built.
+
+.. code-block:: console
+
+    $ expam build -db DB_NAME
+
+
+Classification
+--------------
+
+Classify
+^^^^^^^^
+Run metagenomic reads against a succesfully built database. See :doc:`Tutorial 2 <tutorials/classify>` form details.
+
+.. code-block:: console
+
+    $ expam run -db DB_NAME [args...]
+
+.. option:: -d <file path>, --directory <file path>
+
+    Path containing fasta/fastq files to be classified. 
+
+    .. note::
+
+        Path here can either be a single file, or a folder in which case expam
+        will process all sequence files in this folder.
+
+.. option:: --paired
+
+    To be supplied when sample files contained paired-end reads.
+
+.. option:: --name <string>
+
+    Name of results folder.
+
+.. option:: --taxonomy
+
+    Convert phylogenetic results to taxonomic results.
+
+    .. note:: 
+
+        This requires taxonomic information for all reference sequences, see the
+        :ref:`download_taxonomy <download taxonomy>` command.
+
+.. option:: --cpm <int>, --cutoff <int>
+
+    Apply cutoff to read count. *cpm* is short for counts-per-million, and takes priority if both *cpm*
+    and *cutoff* are supplied.
+
+.. option:: --phyla
+
+    Colour phylotree results by phyla.
+
+.. option:: --keep_zeros
+
+    Keep nodes in output where no reads have been assigned.
+
+.. option:: --ignore_names
+
+    Don't plot names of reference genomes in output phylotree.
+
+.. option:: --colour_list <hex string> <hex string> ...
+
+    List of colours to use when plotting groups in phylotree.
+
+.. option:: --group <sample name> <sample name> ...
+
+    Space-separated list of sample files to be treated as a single group in phylotree.
+
+    .. note::
+
+        You may also supply a hex colour code directly after the *--group* flag
+        to assign some colour code to this group of samples.
+
+        .. code-block:: console
+
+            $ expam run ... --group #FF0000 sample_one sample_two
+
+.. option:: --alpha <float>
+
+    Percentage requirement for classification subtrees (see :doc:`Tutorial 1 <tutorials/quickstart>`
+    and :doc:`Tutorial 2 <tutorials/classify>`).
+
+
+Example
+"""""""
+
+.. code-block:: console
+
+    $ expam run -db DB_NAME -d /path/to/paired/reads --paired --name paired_reads_analysis --taxonomy
+
+.. _download taxonomy:
+
+Download taxonomic data
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Download taxonomic metadata associated with all sequences used to build the database.
+
+.. code-block:: console
+
+    $ expam download_taxonomy -db mydb
+
+.. note::
+    This command can only be run after the database has been built. This is because
+    **expam** first finds NCBI accession IDs or explicit taxon IDs in the header of each
+    reference sequence, and uses these to search against the NCBI Entrez database.
+
+.. note::
+    The NCBI taxonomic ID of a reference sequence can be explicitly stated in the format
+
+    .. code-block:: text
+        
+        > accessionid or metadata|taxid:TAXID|
+
+    For instance,
+
+    .. code-block:: text
+
+        >NZ_RJQC00000000.1|taxid:2486576|
+
+    If both accession ID and taxon ID are supplied, taxon ID takes precedence.
+
+Convert results to taxonomy
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Translate phylogenetic classification output to NCBI taxonomy.
+
+.. code-block:: console
+
+    $ expam to_taxonomy --db DB_NAME
+
+Example
+"""""""
+
+
+

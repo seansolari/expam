@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quickstart &mdash; expam 0.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Classifying" href="classify.html" />
+    <link rel="prev" title="Tutorials" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> expam
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../commands.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dependencies.html">Additional Dependencies (optional)</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorials</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Quickstart</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#creating-a-database">Creating a database</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#add-reference-sequences">Add reference sequences</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#specify-build-parameters">Specify build parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#build-a-tree-for-the-reference-database">Build a tree for the reference database</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#running-classifications">Running classifications</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#classified-counts-csv">classified_counts.csv</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#gcf-000005845-2-asm584v2-genomic-gz-1-csv">GCF_000005845.2_ASM584v2_genomic.gz_1.csv</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#raw-gcf-000005845-2-asm584v2-genomic-gz-1-csv">raw/GCF_000005845.2_ASM584v2_genomic.gz_1.csv</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#running-paired-data">Running paired data</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="classify.html">Classifying</a></li>
+<li class="toctree-l2"><a class="reference internal" href="graphical.html">Graphical output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tree.html">expam’s Tree module</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">expam</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="index.html">Tutorials</a> &raquo;</li>
+      <li>Quickstart</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorials/quickstart.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="quickstart">
+<h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline"></a></h1>
+<section id="creating-a-database">
+<h2>Creating a database<a class="headerlink" href="#creating-a-database" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>We create a database called <code class="code docutils literal notranslate"><span class="pre">test</span></code>.</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam create -db <span class="nb">test</span>
+<span class="go">Successfully created directories /Users/seansolari/Documents/Databases/test/phylogeny!</span>
+<span class="go">Fresh database configuration generated!</span>
+<span class="go">Logs path /Users/seansolari/Documents/Databases/test/logs created!</span>
+<span class="go">Made path /Users/seansolari/Documents/Databases/test/database.</span>
+<span class="go">Made path /Users/seansolari/Documents/Databases/test/results.</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>This database will be located in the current directory, in a folder called <code class="code docutils literal notranslate"><span class="pre">test</span></code>.</p></li>
+</ul>
+<section id="add-reference-sequences">
+<h3>Add reference sequences<a class="headerlink" href="#add-reference-sequences" title="Permalink to this headline"></a></h3>
+<p>We now add sequences to our new database.</p>
+<ul>
+<li><p>We have supplied sequences with the source:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Reference genomes: <code class="code docutils literal notranslate"><span class="pre">../expam/test/data/sequence/</span></code>,</p></li>
+<li><p>Reads (for later): <code class="code docutils literal notranslate"><span class="pre">../expam/test/data/reads/</span></code>.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>Add these sequences to our database <code class="code docutils literal notranslate"><span class="pre">test</span></code>.</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam add -db <span class="nb">test</span> -d ~/Documents/expam/test/data/sequences
+<span class="go">Added 6 files from /Users/seansolari/Documents/expam/test/data/sequences/.</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>expam</strong> can handle both compressed and uncompressed sequences files and
+automatically detects how it should open most regular sequence files.</p>
+</div>
+</section>
+<section id="specify-build-parameters">
+<h3>Specify build parameters<a class="headerlink" href="#specify-build-parameters" title="Permalink to this headline"></a></h3>
+<ul class="simple">
+<li><p>These are bacterial genomes, so <code class="code docutils literal notranslate"><span class="pre">k=31</span></code> should work fine.</p></li>
+<li><p>We’ll use 4 processes to speed up the build.</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam <span class="nb">set</span> -db <span class="nb">test</span> -k <span class="m">31</span> -n <span class="m">4</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="build-a-tree-for-the-reference-database">
+<h2>Build a tree for the reference database<a class="headerlink" href="#build-a-tree-for-the-reference-database" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>Expam needs a tree with the phylogenetic relationship between your sequences.</p></li>
+<li><p>We’ll make a tree out of <code class="code docutils literal notranslate"><span class="pre">mash</span></code> distances.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">sourmash</span></code> is a portable Python version of <code class="code docutils literal notranslate"><span class="pre">mash</span></code> (you can install it with <a class="reference external" href="https://pypi.org/project/sourmash/">pip</a>).</p></li>
+<li><p>We’ll use a sketch size of <code class="code docutils literal notranslate"><span class="pre">s=1000</span></code> to represent each genome, and then compare them.</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam <span class="nb">set</span> -db <span class="nb">test</span> -s <span class="m">1000</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>We’ll use <code class="code docutils literal notranslate"><span class="pre">RapidNJ</span></code> to make a tree from the <code class="code docutils literal notranslate"><span class="pre">sourmash</span></code> distances (see <a class="reference internal" href="../dependencies.html"><span class="doc">here</span></a> to install).</p></li>
+<li><p>Run the <code class="code docutils literal notranslate"><span class="pre">tree</span></code> command to build the tree.</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam tree -db <span class="nb">test</span> --sourmash
+<span class="go">...</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">print</span></code> and match with my output.</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam print -db <span class="nb">test</span>
+<span class="go">&lt;&lt;&lt; expam configuration file: test &gt;&gt;&gt;</span>
+
+<span class="go">phylogeny       --&gt;     /Users/seansolari/Documents/Databases/test/phylogeny/tree/test.nwk</span>
+<span class="go">k               --&gt;     31</span>
+<span class="go">n               --&gt;     4</span>
+<span class="go">sketch          --&gt;     1000</span>
+<span class="go">pile            --&gt;     None</span>
+
+<span class="go">----------------</span>
+<span class="go">group name: default</span>
+<span class="go">        k               --&gt;     None</span>
+<span class="go">        sketch          --&gt;     None</span>
+<span class="go">        sequences       --&gt;     6</span>
+</pre></div>
+</div>
+</section>
+<section id="running-classifications">
+<h2>Running classifications<a class="headerlink" href="#running-classifications" title="Permalink to this headline"></a></h2>
+<ul>
+<li><p>Recall the reads we supplied:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">../expam/test/data/reads/</span></code></p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>We use the <code class="code docutils literal notranslate"><span class="pre">run</span></code> command to classify reads.</p></li>
+<li><p>These are paired reads, but for now we’ll treat them as separate.</p></li>
+<li><p>By default, run results are stored in the <code class="code docutils literal notranslate"><span class="pre">results</span></code> database folder,</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>here <code class="code docutils literal notranslate"><span class="pre">test/results</span></code>.</p></li>
+<li><p>This can be redirected using <code class="code docutils literal notranslate"><span class="pre">--out</span></code>.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>We can supply a <code class="code docutils literal notranslate"><span class="pre">--name</span></code> to label these results.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>We’ll call this first run <code class="code docutils literal notranslate"><span class="pre">unpaired</span></code>.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam run -db <span class="nb">test</span> -d /Users/seansolari/Documents/expam/test/data/reads/ --name unpaired_test
+<span class="go">Clearing old log files...</span>
+<span class="go">Results directory created at /Users/seansolari/Documents/Databases/test/results/unpaired_test.</span>
+<span class="go">Loading the map and phylogeny.</span>
+
+<span class="go">Preparing shared memory allocations...</span>
+<span class="go">Loading database keys...</span>
+<span class="go">Loading database values...</span>
+<span class="go">* Initialising node pool...</span>
+<span class="go">* Checking for polytomies...</span>
+<span class="go">        Polytomy (degree=3) detected! Resolving...</span>
+<span class="go">* Finalising index...</span>
+<span class="go">Loading reads from /Users/seansolari/Documents/expam/test/data/reads/GCF_000005845.2_ASM584v2_genomic.fna.gz_1.fa...</span>
+<span class="go">Loading reads from /Users/seansolari/Documents/expam/test/data/reads/GCF_000005845.2_ASM584v2_genomic.fna.gz_2.fa...</span>
+<span class="go">Phylogenetic tree written to /Users/seansolari/Documents/Databases/test/results/unpaired_test/phylotree.pdf!</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>The results can be found at <code class="code docutils literal notranslate"><span class="pre">test/results/unpaired_test/</span></code>.</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ls test/results/unpaired_test
+<span class="go">phy     phylotree.pdf</span>
+<span class="gp">$ </span>ls test/results/unpaired_test/phy/
+<span class="go">GCF_000005845.2_ASM584v2_genomic.gz_1.csv       classified_counts.csv                           splits_counts.csv</span>
+<span class="go">GCF_000005845.2_ASM584v2_genomic.gz_2.csv       raw</span>
+</pre></div>
+</div>
+<section id="classified-counts-csv">
+<h3>classified_counts.csv<a class="headerlink" href="#classified-counts-csv" title="Permalink to this headline"></a></h3>
+<ul class="simple">
+<li><p>This file gives an overview of the confident classification results.</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>cat test/results/unpaired_test/phy/classified_counts.csv
+<span class="go">        GCF_000005845.2_ASM584v2_genomic.gz_2   GCF_000005845.2_ASM584v2_genomic.gz_1</span>
+<span class="go">unclassified    0       0</span>
+<span class="go">p1      3       3</span>
+<span class="go">p2      232     232</span>
+<span class="go">GCF_000005845.2_ASM584v2_genomic        765     765</span>
+</pre></div>
+</div>
+</section>
+<section id="gcf-000005845-2-asm584v2-genomic-gz-1-csv">
+<h3>GCF_000005845.2_ASM584v2_genomic.gz_1.csv<a class="headerlink" href="#gcf-000005845-2-asm584v2-genomic-gz-1-csv" title="Permalink to this headline"></a></h3>
+<ul>
+<li><p>Each input sample is provided with its own summary file, with the following (tab-delimited) columns:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Phylogenetic node,</p></li>
+<li><p>% confident cumulative,</p></li>
+<li><p>classified cumulative (at or below this node),</p></li>
+<li><p>raw classification count (at this node),</p></li>
+<li><p>% split cumulative,</p></li>
+<li><p>split cumulative,</p></li>
+<li><p>raw split count.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>cat test/results/unpaired_test/phy/GCF_000005845.2_ASM584v2_genomic.gz_1.csv
+<span class="go">unclassified    0.000000%       0       0</span>
+<span class="go">p1      100.000000%     1000    3       0.000000%       0       0</span>
+<span class="go">p2      99.700000%      997     232     0.000000%       0       0</span>
+<span class="go">GCF_000005845.2_ASM584v2_genomic        76.500000%      765     765     0.000000%       0       0</span>
+</pre></div>
+</div>
+</section>
+<section id="raw-gcf-000005845-2-asm584v2-genomic-gz-1-csv">
+<h3>raw/GCF_000005845.2_ASM584v2_genomic.gz_1.csv<a class="headerlink" href="#raw-gcf-000005845-2-asm584v2-genomic-gz-1-csv" title="Permalink to this headline"></a></h3>
+<ul class="simple">
+<li><p>Read-wise output for all input samples can be found in the <code class="code docutils literal notranslate"><span class="pre">raw</span></code> subdirectory.</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>head test/results/unpaired_test/phy/raw/GCF_000005845.2_ASM584v2_genomic.gz_1.csv
+<span class="go">C       R4825323246286034638    p2      151     p2:120</span>
+<span class="go">C       R4280015672552393909    p10     151     p10:120</span>
+<span class="go">C       R5925738157954038177    p10     151     p2:99 p10:16 p1:5</span>
+<span class="go">C       R3237657389899545456    p10     151     p2:4 p10:31 p2:85</span>
+<span class="go">C       R6111671585932593081    p10     151     p10:44 p2:3 p10:37 p2:36</span>
+<span class="go">C       R4574482278193488645    p10     151     p10:44 p2:2 p10:31 p2:14 p10:29</span>
+<span class="go">C       R8975058804953044791    p10     151     p10:40 p2:59 p10:21</span>
+<span class="go">C       R6052336354009855322    p10     151     p2:36 p10:31 p2:53</span>
+<span class="go">C       R4978825024774141837    p2      151     p2:36 p1:34 p2:31 p1:17 p2:2</span>
+<span class="go">C       R7016203356160788326    p10     151     p2:4 p10:52 p2:64</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="running-paired-data">
+<h2>Running paired data<a class="headerlink" href="#running-paired-data" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>To run paired-end data, supply the <code class="code docutils literal notranslate"><span class="pre">--paired</span></code> flag.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>expam</strong> automatically searches the input files and matches those most similar file names as paired.</p>
+</div>
+<ul class="simple">
+<li><p>We’ll call this separate run <code class="code docutils literal notranslate"><span class="pre">paired_test</span></code>.</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam run -db <span class="nb">test</span> -d /Users/seansolari/Documents/expam/test/data/reads/ --name paired_test --paired
+<span class="go">Clearing old log files...</span>
+<span class="go">Results directory created at /Users/seansolari/Documents/Databases/test/results/paired_test.</span>
+<span class="go">Loading the map and phylogeny.</span>
+
+<span class="go">Preparing shared memory allocations...</span>
+<span class="go">Loading database keys...</span>
+<span class="go">Loading database values...</span>
+<span class="go">* Initialising node pool...</span>
+<span class="go">* Checking for polytomies...</span>
+<span class="go">        Polytomy (degree=3) detected! Resolving...</span>
+<span class="go">* Finalising index...</span>
+<span class="go">Loading reads from /Users/seansolari/Documents/expam/test/data/reads/GCF_000005845.2_ASM584v2_genomic.fna.gz_2.fa, /Users/seansolari/Documents/expam/test/data/reads/GCF_000005845.2_ASM584v2_genomic.fna.gz_1.fa...</span>
+<span class="go">Phylogenetic tree written to /Users/seansolari/Documents/Databases/test/results/paired_test/phylotree.pdf!</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Tutorials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="classify.html" class="btn btn-neutral float-right" title="Classifying" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, seansolari.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
