@@ -7,6 +7,8 @@
   <title>Tutorials &mdash; expam 0.1 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/icon.ico"/>
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -15,6 +17,8 @@
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -43,11 +47,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../dependencies.html">Additional Dependencies (optional)</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorials</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
-<li class="toctree-l2"><a class="reference internal" href="classify.html">Classifying</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classify.html">Classifying metagenomic samples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="treebuilding.html">Tree building with <strong>expam</strong></a></li>
 <li class="toctree-l2"><a class="reference internal" href="graphical.html">Graphical output</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tree.html">expam’s Tree module</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../tree.html">expam’s Tree module</a></li>
 </ul>
 
         </div>
@@ -84,11 +89,24 @@
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#build-a-tree-for-the-reference-database">Build a tree for the reference database</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#running-classifications">Running classifications</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#running-paired-data">Running paired data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#taxonomic-results">Taxonomic results</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="classify.html">Classifying</a></li>
-<li class="toctree-l1"><a class="reference internal" href="graphical.html">Graphical output</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tree.html">expam’s Tree module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="classify.html">Classifying metagenomic samples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="classify.html#the-classification-algorithm">The classification algorithm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classify.html#phylogenetic-classification-results">Phylogenetic classification results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classify.html#taxonomic-results">Taxonomic results</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="treebuilding.html">Tree building with <strong>expam</strong></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="treebuilding.html#part-one-building-a-tree">Part One: Building a tree</a></li>
+<li class="toctree-l2"><a class="reference internal" href="treebuilding.html#part-two-building-a-tree-in-parts">Part Two: Building a tree in parts</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="graphical.html">Graphical output</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="graphical.html#features-and-cli">Features and CLI</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </section>

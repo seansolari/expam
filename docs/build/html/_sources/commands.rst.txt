@@ -261,13 +261,13 @@ Download taxonomic metadata associated with all sequences used to build the data
 
     .. code-block:: text
         
-        > accessionid or metadata|taxid:TAXID|
+        > accessionid or metadata|taxid|TAXID|
 
     For instance,
 
     .. code-block:: text
 
-        >NZ_RJQC00000000.1|taxid:2486576|
+        >NZ_RJQC00000000.1|taxid|2486576|
 
     If both accession ID and taxon ID are supplied, taxon ID takes precedence.
 
@@ -279,9 +279,4 @@ Translate phylogenetic classification output to NCBI taxonomy.
 .. code-block:: console
 
     $ expam to_taxonomy --db DB_NAME
-
-Example
-"""""""
-
-
 

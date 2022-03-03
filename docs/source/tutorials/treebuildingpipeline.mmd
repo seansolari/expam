@@ -1,0 +1,29 @@
+flowchart TD;
+    root[expam tree] --> sketch;
+
+    subgraph sketch[Sketching Sequences]
+        mash_sketch[mash sketch] --> sketch_summary[Sequence Sketches];
+        sour_sketch[sour sketch] --> |--sourmash| sketch_summary;
+    end
+
+    sketch --> dist;
+    
+    subgraph dist[Creating Distance Matrix]
+        mash_dist[mash dist] --> dist_summary[Distance Matrix];
+        sour_dist[sour dist] --> |--sourmash| dist_summary;
+    end
+
+    dist --> tree_nj;
+
+    subgraph tree_nj[Tree Neighbour-Joining]
+        rapidnj[rapidNJ] --> tree_summary[Neighbour-Joining];
+        quicktree[QuickTree] --> |--quicktree| tree_summary;
+    end
+
+    tree_nj --> final_tree[Newick tree];
+
+    root --> |mashtree| final_tree;
+
+    expam_sketch[expam sketch] --> sketch;
+    expam_dist[expam distance] --> dist;
+    expam_nj[expam nj] --> tree_nj;

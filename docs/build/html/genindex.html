@@ -6,6 +6,8 @@
   <title>Index &mdash; expam 0.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="shortcut icon" href="_static/icon.ico"/>
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -14,6 +16,8 @@
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" /> 
@@ -39,6 +43,7 @@
 <li class="toctree-l1"><a class="reference internal" href="commands.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dependencies.html">Additional Dependencies (optional)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tree.html">expam’s Tree module</a></li>
 </ul>
 
         </div>
@@ -86,7 +91,7 @@
     --colour_list
 
       <ul>
-        <li><a href="commands.html#cmdoption-colour_list">command line option</a>
+        <li><a href="commands.html#cmdoption-colour_list">command line option</a>, <a href="tutorials/graphical.html#cmdoption-colour_list">[1]</a>
 </li>
       </ul></li>
       <li>
@@ -121,14 +126,14 @@
     --group
 
       <ul>
-        <li><a href="commands.html#cmdoption-2">command line option</a>, <a href="commands.html#cmdoption-group">[1]</a>
+        <li><a href="commands.html#cmdoption-2">command line option</a>, <a href="commands.html#cmdoption-group">[1]</a>, <a href="tutorials/graphical.html#cmdoption-group">[2]</a>
 </li>
       </ul></li>
       <li>
     --ignore_names
 
       <ul>
-        <li><a href="commands.html#cmdoption-ignore_names">command line option</a>
+        <li><a href="commands.html#cmdoption-ignore_names">command line option</a>, <a href="tutorials/graphical.html#cmdoption-ignore_names">[1]</a>
 </li>
       </ul></li>
       <li>
@@ -172,7 +177,7 @@
     --phyla
 
       <ul>
-        <li><a href="commands.html#cmdoption-phyla">command line option</a>
+        <li><a href="commands.html#cmdoption-phyla">command line option</a>, <a href="tutorials/graphical.html#cmdoption-phyla">[1]</a>
 </li>
       </ul></li>
       <li>
@@ -229,7 +234,7 @@
       <ul>
         <li><a href="commands.html#cmdoption-alpha">--alpha</a>
 </li>
-        <li><a href="commands.html#cmdoption-colour_list">--colour_list</a>
+        <li><a href="commands.html#cmdoption-colour_list">--colour_list</a>, <a href="tutorials/graphical.html#cmdoption-colour_list">[1]</a>
 </li>
         <li><a href="commands.html#cmdoption-cpm">--cpm</a>
 </li>
@@ -239,9 +244,9 @@
 </li>
         <li><a href="commands.html#cmdoption-first_n">--first_n</a>
 </li>
-        <li><a href="commands.html#cmdoption-2">--group</a>, <a href="commands.html#cmdoption-group">[1]</a>
+        <li><a href="commands.html#cmdoption-2">--group</a>, <a href="commands.html#cmdoption-group">[1]</a>, <a href="tutorials/graphical.html#cmdoption-group">[2]</a>
 </li>
-        <li><a href="commands.html#cmdoption-ignore_names">--ignore_names</a>
+        <li><a href="commands.html#cmdoption-ignore_names">--ignore_names</a>, <a href="tutorials/graphical.html#cmdoption-ignore_names">[1]</a>
 </li>
         <li><a href="commands.html#cmdoption-keep_zeros">--keep_zeros</a>
 </li>
@@ -253,7 +258,7 @@
 </li>
         <li><a href="commands.html#cmdoption-paired">--paired</a>
 </li>
-        <li><a href="commands.html#cmdoption-phyla">--phyla</a>
+        <li><a href="commands.html#cmdoption-phyla">--phyla</a>, <a href="tutorials/graphical.html#cmdoption-phyla">[1]</a>
 </li>
         <li><a href="commands.html#cmdoption-p">--phylogeny</a>
 </li>

@@ -4,9 +4,11 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Welcome to expam’s documentation! &mdash; expam 0.1 documentation</title>
+  <title>Welcome to the expam documentation! &mdash; expam 0.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="shortcut icon" href="_static/icon.ico"/>
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -15,6 +17,8 @@
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -41,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="commands.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dependencies.html">Additional Dependencies (optional)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tree.html">expam’s Tree module</a></li>
 </ul>
 
         </div>
@@ -57,7 +62,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="#" class="icon icon-home"></a> &raquo;</li>
-      <li>Welcome to expam’s documentation!</li>
+      <li>Welcome to the <strong>expam</strong> documentation!</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -67,9 +72,10 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="welcome-to-expam-s-documentation">
-<h1>Welcome to expam’s documentation!<a class="headerlink" href="#welcome-to-expam-s-documentation" title="Permalink to this headline"></a></h1>
-<p><strong>expam</strong> is a Python package for phylogenetic analysis of metagenomic data.</p>
+  <a class="reference internal image-reference" href="_images/expamlogo.png"><img alt="logo" class="align-center" src="_images/expamlogo.png" style="width: 500px;" /></a>
+<section id="welcome-to-the-expam-documentation">
+<h1>Welcome to the <strong>expam</strong> documentation!<a class="headerlink" href="#welcome-to-the-expam-documentation" title="Permalink to this headline"></a></h1>
+<p class="page-break"><strong>expam</strong> is a Python package for phylogenetic analysis of metagenomic data.</p>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
@@ -87,11 +93,12 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/quickstart.html">Quickstart</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/classify.html">Classifying</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/classify.html">Classifying metagenomic samples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/treebuilding.html">Tree building with <strong>expam</strong></a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/graphical.html">Graphical output</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tree.html">expam’s Tree module</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="tree.html">expam’s Tree module</a></li>
 </ul>
 </div>
 <section id="installation">

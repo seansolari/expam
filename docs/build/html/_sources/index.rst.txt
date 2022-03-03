@@ -3,8 +3,15 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to expam's documentation!
-=================================
+.. image:: expamlogo.png
+    :width: 500
+    :align: center
+    :alt: logo
+
+Welcome to the **expam** documentation!
+=======================================
+
+.. rst-class:: page-break
 
 **expam** is a Python package for phylogenetic analysis of metagenomic data.
 
@@ -15,6 +22,7 @@ Welcome to expam's documentation!
    Documentation<commands>
    dependencies
    tutorials/index
+   tree
 
 
 Installation

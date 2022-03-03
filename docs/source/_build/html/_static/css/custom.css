@@ -1,0 +1,13 @@
+p {
+    line-height: 1.75!important;
+}
+
+.bluebackground {
+    background-color: rgba(0, 0, 255, 0.1)!important;
+    text-align: center;
+}
+
+.redbackground {
+    background-color: rgba(255, 0, 0, 0.1)!important;
+    font-weight: bold;
+}

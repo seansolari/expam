@@ -223,3 +223,64 @@ Running paired data
     Phylogenetic tree written to /Users/seansolari/Documents/Databases/test/results/paired_test/phylotree.pdf!
 
 
+Taxonomic results
+-----------------
+
+* By default, classifications are given with respect to the input tree.
+* We can translate these classifications into taxonomic units.
+
+.. note:: 
+    
+    To use the :code:`--taxonomy` flag, or the :code:`to_taxonomy` command, you must first download the
+    taxonomic metadata for your reference genomes, using :code:`expam download_taxonomy`. 
+    
+    An example is shown here.
+
+    .. code-block:: console
+
+        $ expam download_taxonomy -db test
+
+        Posting 6 UIDs to NCBI Entrez nuccore.
+        Received 6 response(s) for ESummary TaxID request!
+        Posting 6 UIDs to NCBI Entrez taxonomy.
+        Received 6 response(s) for EFetch Taxon request!
+        Taxonomic lineages written to /Users/seansolari/Documents/Databases/test/phylogeny/taxid_lineage.csv!
+        Taxonomic ranks written to /Users/seansolari/Documents/Databases/test/phylogeny/taxa_rank.csv!
+
+    This saves space by only downloading the data required for your specific reference sequences.
+
+* We will convert the previous :code:`paired_test` run to taxonomic format.
+
+.. code-block:: console
+
+    $ expam to_taxonomy -db test --name paired_test
+
+    * Initialising node pool...
+    * Checking for polytomies...
+            Polytomy (degree=3) detected! Resolving...
+    * Finalising index...
+    Phylogenetic tree written to /Users/seansolari/Documents/Databases/test/results/paired_test/phylotree.pdf!
+
+* The results to convert are specified using the :code:`--name` flag.
+
+    * This must point to the base of the results directory (ie. parent of :code:`phy` output).
+
+* Taxonomic results can be found in :code:`tax` subdirectory within results folder (that you specified with :code:`--name`).
+
+.. code-block:: console
+
+    $ test/results/paired_test/tax/
+    GCF_000005845.2_ASM584v2_genomic.gz_2.csv       raw
+    $ head test/results/paired_test/tax/GCF_000005845.2_ASM584v2_genomic.gz_2.csv
+        c_perc  c_cumul c_count s_perc  s_cumul s_count rank    scientific name
+    unclassified    0.0%    0       0       0%      0       0       0       0
+    1       100.0%  1000    0       0%      0       0       root    
+    131567  100.0%  1000    0       0%      0       0       top     cellular organisms
+    2       100.0%  1000    235     0%      0       0       superkingdom    cellular organisms Bacteria
+    1224    76.5%   765     0       0%      0       0       phylum  cellular organisms Bacteria Proteobacteria
+    1236    76.5%   765     0       0%      0       0       class   cellular organisms Bacteria Proteobacteria Gammaproteobacteria
+    91347   76.5%   765     0       0%      0       0       order   cellular organisms Bacteria Proteobacteria Gammaproteobacteria Enterobacterales
+    543     76.5%   765     0       0%      0       0       family  cellular organisms Bacteria Proteobacteria Gammaproteobacteria Enterobacterales Enterobacteriaceae
+    561     76.5%   765     0       0%      0       0       genus   cellular organisms Bacteria Proteobacteria Gammaproteobacteria Enterobacterales Enterobacteriaceae Escherichia
+
+* All files mentioned for above tree-based results have a counterpart taxonomic file, with equivalent columns.

@@ -7,6 +7,8 @@
   <title>Graphical output &mdash; expam 0.1 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/icon.ico"/>
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -15,11 +17,14 @@
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="expam’s Tree module" href="tree.html" />
-    <link rel="prev" title="Classifying" href="classify.html" /> 
+    <link rel="next" title="expam’s Tree module" href="../tree.html" />
+    <link rel="prev" title="Tree building with expam" href="treebuilding.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -39,15 +44,23 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../commands.html">Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../commands.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../dependencies.html">Additional Dependencies (optional)</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">expam Tutorials</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorials</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
-<li class="toctree-l2"><a class="reference internal" href="classify.html">Classifying</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Graphical output</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tree.html">expam’s Tree module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classify.html">Classifying metagenomic samples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="treebuilding.html">Tree building with <strong>expam</strong></a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Graphical output</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#features-and-cli">Features and CLI</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#groups">Groups</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#visual-flags">Visual flags</a></li>
 </ul>
 </li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../tree.html">expam’s Tree module</a></li>
 </ul>
 
         </div>
@@ -64,7 +77,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="index.html">expam Tutorials</a> &raquo;</li>
+          <li><a href="index.html">Tutorials</a> &raquo;</li>
       <li>Graphical output</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/tutorials/graphical.rst.txt" rel="nofollow"> View page source</a>
@@ -77,14 +90,119 @@
              
   <section id="graphical-output">
 <h1>Graphical output<a class="headerlink" href="#graphical-output" title="Permalink to this headline"></a></h1>
+<ul class="simple">
+<li><p>When a <code class="code docutils literal notranslate"><span class="pre">run</span></code> or <code class="code docutils literal notranslate"><span class="pre">to_taxonomy</span></code> command is executed, raw summary files are produced (as described in <a class="reference internal" href="classify.html"><span class="doc">Classification</span></a>) and a phylotree is also produced as a graphical depiction of the sample summary.</p></li>
+<li><p>This graphical representation has some customisable features:</p>
+<ul>
+<li><p>Multiple samples can be plotted on the same tree, with different colours for different samples.</p></li>
+<li><p>Sample results can be grouped together to appear as one on the tree.</p></li>
+</ul>
+</li>
+<li><p>Shown below is an example graphical output.</p></li>
+<li><p>If no colours are supplied (<em>see below</em>), a random colour is chosen for each sample.</p></li>
+<li><p>Colours are shaded based on how prevalent any given clade is.</p></li>
+</ul>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="../_images/phylotree-removebg.png"><img alt="Example phylotree." src="../_images/phylotree-removebg.png" style="width: 500px;" /></a>
+<figcaption>
+<p><span class="caption-text"><strong>Figure 1:</strong> Example phylotree.</span><a class="headerlink" href="#id1" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<ul class="simple">
+<li><p>One tree is produced for each type of results - <em>complete</em> classifications and <em>splits</em>.</p></li>
+</ul>
+<section id="features-and-cli">
+<h2>Features and CLI<a class="headerlink" href="#features-and-cli" title="Permalink to this headline"></a></h2>
+<hr><p><span class="redbackground">Sample names in the following refer to the original input file without any sequence or compression file extensions.</span></p>
+<p>For instance, <code class="code docutils literal notranslate"><span class="pre">sample_one.fq.tar.gz</span></code> <span class="math notranslate nohighlight">\(\rightarrow\)</span> <code class="code docutils literal notranslate"><span class="pre">sample_one</span></code>.</p>
+<hr><section id="groups">
+<h3>Groups<a class="headerlink" href="#groups" title="Permalink to this headline"></a></h3>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-group">
+<span class="sig-name descname"><span class="pre">--group</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;hex_colour</span> <span class="pre">(optional)&gt;</span> <span class="pre">&lt;sample_one&gt;</span> <span class="pre">&lt;sample_two&gt;</span> <span class="pre">...</span></span><a class="headerlink" href="#cmdoption-group" title="Permalink to this definition"></a></dt>
+<dd><p>Group together classifications in samples <code class="code docutils literal notranslate"><span class="pre">sample_one</span></code>, <code class="code docutils literal notranslate"><span class="pre">sample_two</span></code> and so on. <strong>This is done both in
+sample summary files, and on the ouptut phylotree.</strong></p>
+<p>Optionally, a hex colour string can be supplied just after the <code class="code docutils literal notranslate"><span class="pre">--group</span></code> flag to assign a colour to this group.</p>
+</dd></dl>
+
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>When specifying a colour for each group, this should be enclosed in quotation marks. Otherwise, the command line
+will treat the rest of the command as a comment (and be ignored).</p>
+</div>
+<section id="example-of-grouping">
+<h4>Example of grouping<a class="headerlink" href="#example-of-grouping" title="Permalink to this headline"></a></h4>
+<ul class="simple">
+<li><p>Say we have six samples to be profiled and grouped - <code class="code docutils literal notranslate"><span class="pre">a1</span></code>, <code class="code docutils literal notranslate"><span class="pre">a2</span></code>, <code class="code docutils literal notranslate"><span class="pre">a3</span></code>, <code class="code docutils literal notranslate"><span class="pre">b1</span></code>, <code class="code docutils literal notranslate"><span class="pre">b2</span></code>, <code class="code docutils literal notranslate"><span class="pre">b3</span></code>.</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam run ... --group a1 a2 a3 --group b1 b2 b3
+<span class="gp">$ </span>expam run ... --group <span class="s2">&quot;#FF0000&quot;</span> a1 a2 a3 --group <span class="s2">&quot;#00FF00&quot;</span> b1 b2 b3
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In the sample summary files, the combined groups will be referred to by the first member specified in the group (without file extensions).</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>On paired-end data.</p>
+<p>When grouping paired-end data, <strong>only refer to the alphabetically smaller sample name when declaring group members</strong>.</p>
+<p>Say we are grouping</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">a1_f.fq</span></code>, <code class="code docutils literal notranslate"><span class="pre">a1_r.fq</span></code>, <code class="code docutils literal notranslate"><span class="pre">a2_f.fq</span></code>, <code class="code docutils literal notranslate"><span class="pre">a2_r.fq</span></code>,</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">b1_f.fq</span></code>, <code class="code docutils literal notranslate"><span class="pre">b1_r.fq</span></code>, <code class="code docutils literal notranslate"><span class="pre">b2_f.fq</span></code>, <code class="code docutils literal notranslate"><span class="pre">b2_r.fq</span></code>.</p></li>
+</ul>
+</div></blockquote>
+<p>We could do so through</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam run ... --paired --group a1_f a2_f --group b1_f b2_f
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="visual-flags">
+<h3>Visual flags<a class="headerlink" href="#visual-flags" title="Permalink to this headline"></a></h3>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-phyla">
+<span class="sig-name descname"><span class="pre">--phyla</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-phyla" title="Permalink to this definition"></a></dt>
+<dd><p>Colour the perimeter of the tree with colours associated with the four main bacterial phyla
+(Actinobacteria, Bacteroidetes, Firmicutes, Proteobacteria).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-ignore_names">
+<span id="cmdoption-ignore-names"></span><span class="sig-name descname"><span class="pre">--ignore_names</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-ignore_names" title="Permalink to this definition"></a></dt>
+<dd><p>Do not add reference genome names to the perimeter of the phylotree.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-colour_list">
+<span id="cmdoption-colour-list"></span><span class="sig-name descname"><span class="pre">--colour_list</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-colour_list" title="Permalink to this definition"></a></dt>
+<dd><p>Instead of randomly assigning colours to each sample, you can supply a list of colours, which will be taken in the supplied order.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If both <code class="code docutils literal notranslate"><span class="pre">--colour_list</span></code> and a colour declared with the group are supplied, the colour declared next to <code class="code docutils literal notranslate"><span class="pre">--group</span></code>
+is given priority.</p>
+</div>
+</dd></dl>
+
+<section id="example-of-colour-list">
+<h4>Example of colour list<a class="headerlink" href="#example-of-colour-list" title="Permalink to this headline"></a></h4>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam run ... --colour_list <span class="s2">&quot;#FF0000&quot;</span> <span class="s2">&quot;#00FF00&quot;</span> <span class="s2">&quot;#0000FF&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="classify.html" class="btn btn-neutral float-left" title="Classifying" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="tree.html" class="btn btn-neutral float-right" title="expam’s Tree module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="treebuilding.html" class="btn btn-neutral float-left" title="Tree building with expam" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../tree.html" class="btn btn-neutral float-right" title="expam’s Tree module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

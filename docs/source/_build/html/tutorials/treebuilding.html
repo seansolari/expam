@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tree building with expam &mdash; expam 0.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/icon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Graphical output" href="graphical.html" />
+    <link rel="prev" title="Classifying metagenomic samples" href="classify.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> expam
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../commands.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dependencies.html">Additional Dependencies (optional)</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classify.html">Classifying metagenomic samples</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Tree building with <strong>expam</strong></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#part-one-building-a-tree">Part One: Building a tree</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#basic-tree-building">Basic tree building</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#part-two-building-a-tree-in-parts">Part Two: Building a tree in parts</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#build-in-parts-mashtree">Build in parts - mashtree</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#build-in-parts-manual">Build in parts - manual</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="graphical.html">Graphical output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tree.html">expam’s Tree module</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">expam</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="index.html">Tutorials</a> &raquo;</li>
+      <li>Tree building with <strong>expam</strong></li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorials/treebuilding.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tree-building-with-expam">
+<h1>Tree building with <strong>expam</strong><a class="headerlink" href="#tree-building-with-expam" title="Permalink to this headline"></a></h1>
+<p><strong>Figure 1:</strong> Overview of tree building with expam.</p>
+<div class="mermaid">
+            flowchart TD;
+    root[expam tree] --&gt; sketch;
+
+    subgraph sketch[Sketching Sequences]
+        mash_sketch[mash sketch] --&gt; sketch_summary[Sequence Sketches];
+        sour_sketch[sour sketch] --&gt; |--sourmash| sketch_summary;
+    end
+
+    sketch --&gt; dist;
+    
+    subgraph dist[Creating Distance Matrix]
+        mash_dist[mash dist] --&gt; dist_summary[Distance Matrix];
+        sour_dist[sour dist] --&gt; |--sourmash| dist_summary;
+    end
+
+    dist --&gt; tree_nj;
+
+    subgraph tree_nj[Tree Neighbour-Joining]
+        rapidnj[rapidNJ] --&gt; tree_summary[Neighbour-Joining];
+        quicktree[QuickTree] --&gt; |--quicktree| tree_summary;
+    end
+
+    tree_nj --&gt; final_tree[Newick tree];
+
+    root --&gt; |mashtree| final_tree;
+
+    expam_sketch[expam sketch] --&gt; sketch;
+    expam_dist[expam distance] --&gt; dist;
+    expam_nj[expam nj] --&gt; tree_nj;
+
+        </div><section id="part-one-building-a-tree">
+<h2>Part One: Building a tree<a class="headerlink" href="#part-one-building-a-tree" title="Permalink to this headline"></a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Instructions for installing all software mentioned in this section can be found
+in <a class="reference internal" href="../dependencies.html"><span class="doc">Dependencies tutorial</span></a>.</p>
+</div>
+<ul class="simple">
+<li><p>There are three stages to building a distance tree:
+1. sketching the sequences (a compressed form that still contains a lot of the important details),
+2. using these sketches to estimate sequence distance,
+3. apply Neighbour Joining (NJ) to the distance matrix to compute a distance tree.</p></li>
+<li><p>This process can be done manually, or automated through the <code class="code docutils literal notranslate"><span class="pre">mashtree</span></code> application.</p></li>
+</ul>
+<section id="basic-tree-building">
+<h3>Basic tree building<a class="headerlink" href="#basic-tree-building" title="Permalink to this headline"></a></h3>
+<ul class="simple">
+<li><p>We’ll build a tree from the small collection of reference genomes supplied with the <strong>expam</strong> source code.</p></li>
+<li><p>First create a new database and add these sequences.
+* I will refer to the location of these sequences as <code class="code docutils literal notranslate"><span class="pre">../expam/test/data/sequence/</span></code>, but this may differ for you.</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam create -db tree
+<span class="gp">$ </span>expam add -db tree -d ../expam/test/data/sequence/
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>We’ll set parameters that have been used before to build the database, but setting them here will be relevant for tree building.</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam <span class="nb">set</span> -db tree -k <span class="m">31</span> -n <span class="m">4</span> -s <span class="m">100</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>This means we will be creating sequence sketches with a k-mers size <code class="code docutils literal notranslate"><span class="pre">k=31</span></code> and using a sketch size <code class="code docutils literal notranslate"><span class="pre">s=100</span></code>.</p></li>
+<li><p>We will also let the tree building software use up to <code class="code docutils literal notranslate"><span class="pre">n=4</span></code> threads at a time.</p></li>
+</ul>
+<section id="the-easy-way">
+<h4>The easy way<a class="headerlink" href="#the-easy-way" title="Permalink to this headline"></a></h4>
+<ul class="simple">
+<li><p>From here, <code class="code docutils literal notranslate"><span class="pre">mashtree</span></code> can automate the process for us (you must have it installed).</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam mashtree -db tree
+<span class="gp">$ </span>expam tree -db tree
+</pre></div>
+</div>
+</section>
+<section id="the-less-easy-way">
+<h4>The less easy way<a class="headerlink" href="#the-less-easy-way" title="Permalink to this headline"></a></h4>
+<ul class="simple">
+<li><p>We’ll manually go through the three steps outlined above.</p></li>
+<li><p>First sketch the sequences.</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam sketch -db tree
+<span class="gp">$ </span>ls tree/phylogeny/sketch
+<span class="go">default.k31.s100.msh</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, this will use <code class="code docutils literal notranslate"><span class="pre">mash</span></code> to create the sketches. Alternatively,
+provide the <code class="code docutils literal notranslate"><span class="pre">--sourmash</span></code> flag to use <code class="code docutils literal notranslate"><span class="pre">sourmash</span></code> for sketching.</p>
+</div>
+<ul class="simple">
+<li><p>Now we create the distance matrix from these sketches.</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam distance -db tree
+<span class="gp">$ </span>ls tree/phylogeny/distance
+<span class="go">default.k31.s100.tab</span>
+<span class="gp">$ </span>head -n <span class="m">3</span> tree/phylogeny/distance/default.k31.s100.tab
+<span class="go">6</span>
+<span class="go">GCF_000006765.1_ASM676v1_genomic.fna.gz     0       1       1       1       1       1</span>
+<span class="go">GCF_000005845.2_ASM584v2_genomic.fna.gz     1       0       1       1       0.0158863       1</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>This shows the tab-delimited computed distance matrix.</p></li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If you used <code class="code docutils literal notranslate"><span class="pre">--sourmash</span></code> to create the sketches, you must also supply
+<code class="code docutils literal notranslate"><span class="pre">--sourmash</span></code> when computing the distance matrix.</p>
+</div>
+<ul class="simple">
+<li><p>Finally, we’ll use a NJ tool to compute the tree from this matrix.</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam nj -db tree
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, <strong>expam</strong> relies on RapidNJ to do NJ. However, it can call a local installation
+of QuickTree using <code class="code docutils literal notranslate"><span class="pre">--quicktree</span></code> (if you have that installed).</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam nj -db tree --quicktree
+</pre></div>
+</div>
+</div>
+<ul class="simple">
+<li><p>The tree can now be finalised and attached to the database using the <code class="code docutils literal notranslate"><span class="pre">tree</span></code> command.</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam tree -db tree
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Running <code class="code docutils literal notranslate"><span class="pre">expam</span> <span class="pre">sketch</span></code>, <code class="code docutils literal notranslate"><span class="pre">expam</span> <span class="pre">distance</span></code> and <code class="code docutils literal notranslate"><span class="pre">expam</span> <span class="pre">nj</span></code> is therefore
+<em>roughly</em> equivalent to <code class="code docutils literal notranslate"><span class="pre">expam</span> <span class="pre">mashtree</span></code>, at least from the perspective of outcome.</p>
+</div>
+</section>
+</section>
+</section>
+<section id="part-two-building-a-tree-in-parts">
+<h2>Part Two: Building a tree in parts<a class="headerlink" href="#part-two-building-a-tree-in-parts" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>You may wish to build a tree containing both bacterial and viral genomes, or even some human sequences for contamination detection. These genomes are very different sizes, and so using the same <code class="code docutils literal notranslate"><span class="pre">k</span></code> and <code class="code docutils literal notranslate"><span class="pre">s</span></code> parameters for each of these types of genomes may not produce very accurate trees. It may be more prudent to build trees for each of these organism types separately, and then join these subtrees afterwards.</p></li>
+<li><p><strong>expam</strong> implements a set of routines that enable you to construct a tree in this way - i.e. in parts.</p></li>
+<li><p>Say we have two groups of sequences, <code class="code docutils literal notranslate"><span class="pre">a</span></code> and <code class="code docutils literal notranslate"><span class="pre">b</span></code>, that we want to construct trees for <em>separately</em>.</p></li>
+<li><p>We can separate these sequences in the database by adding then to separate <code class="code docutils literal notranslate"><span class="pre">groups</span></code>.</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam add -db tree --group a -d ~/Documents/Sequences/genomes/a/
+<span class="gp">$ </span>expam add -db tree --group b -d ~/Documents/Sequences/genomes/b/
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Run <code class="code docutils literal notranslate"><span class="pre">expam</span> <span class="pre">print</span> <span class="pre">-db</span> <span class="pre">tree</span></code> and notice how <strong>expam</strong> lists multiple groups.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Even though these sequences are added to separate groups, they are all part of the reference collection -
+<strong>it won’t affect the later database build behaviour.</strong></p>
+</div>
+<ul class="simple">
+<li><p>We will use <code class="code docutils literal notranslate"><span class="pre">k=31,</span> <span class="pre">s=1000</span></code> for group <code class="code docutils literal notranslate"><span class="pre">a</span></code>, and <code class="code docutils literal notranslate"><span class="pre">k=21,</span> <span class="pre">s=100</span></code> for group <code class="code docutils literal notranslate"><span class="pre">b</span></code>.</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam <span class="nb">set</span> -db tree --group a  -k <span class="m">31</span> -s <span class="m">1000</span>
+<span class="gp">$ </span>expam <span class="nb">set</span> -db tree --group b -k <span class="m">21</span> -s <span class="m">100</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By specifying parameters alongside a <code class="code docutils literal notranslate"><span class="pre">--group</span></code> flag, <strong>expam</strong> recognises that these parameters
+are specifically for tree building, not for database construction. Those would still need to be set via</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam <span class="nb">set</span> -db tree -k <span class="m">31</span> -n <span class="m">4</span>
+</pre></div>
+</div>
+<p>If database parameters have been set (those without <code class="code docutils literal notranslate"><span class="pre">--group</span></code> flags) but specific group flags have
+not been set, <strong>expam</strong> will automatically use the database build parameters for tree building.</p>
+</div>
+<ul class="simple">
+<li><p>We also need to tell <strong>expam</strong> how these trees will be joined at the end. There are two rules for this template:
+1. It is a Newick format tree, where group names appear in double braces.
+2. The template must be placed at <code class="code docutils literal notranslate"><span class="pre">database_name/phylogeny/tree/database_name.nwk</span></code> (the <code class="code docutils literal notranslate"><span class="pre">phylogeny</span></code> subdirectory in the database folder). Replace <code class="code docutils literal notranslate"><span class="pre">database_name</span></code> with your database name.</p></li>
+<li><p>The template we will use is</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">({{</span><span class="n">a</span><span class="p">}},{{</span><span class="n">b</span><span class="p">}});</span>
+</pre></div>
+</div>
+<section id="build-in-parts-mashtree">
+<h3>Build in parts - mashtree<a class="headerlink" href="#build-in-parts-mashtree" title="Permalink to this headline"></a></h3>
+<ul class="simple">
+<li><p>We can supply the <code class="code docutils literal notranslate"><span class="pre">mashtree</span></code> command to build these two trees separately - <strong>expam</strong> takes care of this behind the scenes.</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam mashtree -db tree
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Now finalise with the <code class="code docutils literal notranslate"><span class="pre">tree</span></code> command to apply the template and cobine these tree.</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam tree -db tree
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you wanted to, you could run <code class="code docutils literal notranslate"><span class="pre">mashtree</span></code> on these groups separetely.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam mashtree --group a
+<span class="gp">$ </span>expam mashtree --group b
+</pre></div>
+</div>
+</div>
+</section>
+<section id="build-in-parts-manual">
+<h3>Build in parts - manual<a class="headerlink" href="#build-in-parts-manual" title="Permalink to this headline"></a></h3>
+<ul class="simple">
+<li><p>Despite having split the sequences into groups, running the same chain of <code class="code docutils literal notranslate"><span class="pre">sketch</span></code>, <code class="code docutils literal notranslate"><span class="pre">distance</span></code> and <code class="code docutils literal notranslate"><span class="pre">nj</span></code> commands will result in <strong>expam</strong> running these commands on each group consecutively.</p></li>
+<li><p>Sketch the sequences</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam sketch -db tree
+</pre></div>
+</div>
+<p>which is equivalent to</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam sketch -db tree --group a
+<span class="gp">$ </span>expam sketch -db tree --group b
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>You can confirm these two groups have sketch files.</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ls tree/phylogeny/sketch
+<span class="go">a.k31.s1000.msh</span>
+<span class="go">b.k21.s100.msh</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Get pairwise distances</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam distance -db tree
+</pre></div>
+</div>
+<p>which is equivalent to</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam distance -db tree --group a
+<span class="gp">$ </span>expam distance -db tree --group b
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Distances can be found in the <code class="code docutils literal notranslate"><span class="pre">tree/phylogeny/distance/</span></code> folder.</p></li>
+<li><p>Finally, apply NJ</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam nj -db tree
+</pre></div>
+</div>
+<p>which is equivalent to</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam nj -db tree --group a
+<span class="gp">$ </span>expam nj -db tree --group b
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Finalise the tree using the template.</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam tree -db tree
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>As in Part One, the <code class="code docutils literal notranslate"><span class="pre">--sourmash</span></code> and <code class="code docutils literal notranslate"><span class="pre">--quicktree</span></code> flags can be supplied to use
+those alternative softwares.</p>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="classify.html" class="btn btn-neutral float-left" title="Classifying metagenomic samples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="graphical.html" class="btn btn-neutral float-right" title="Graphical output" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, seansolari.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
