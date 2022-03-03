@@ -1,9 +1,9 @@
 Tree building with **expam**
 ============================
 
-**Figure 1:** Overview of tree building with expam.
-
 .. mermaid:: treebuildingpipeline.mmd
+    :align: center
+    :caption: **Figure 1:** Overview of tree building with expam.
 
 
 Part One: Building a tree

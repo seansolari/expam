@@ -1,29 +1,4 @@
-<pre style="text-align:center; background-color:rgba(0, 0, 0, 0.04); border: thin dotted black; padding:25px;">
- 
-    __________   ___ .______      ___      .___  ___. 
-    |   ____\  \ /  / |   _  \    /   \     |   \/   | 
-    |  |__   \  V  /  |  |_)  |  /  ^  \    |  \  /  | 
-    |   __|   >   <   |   ___/  /  /_\  \   |  |\/|  | 
-    |  |____ /  .  \  |  |     /  _____  \  |  |  |  | 
-    |_______/__/ \__\ | _|    /__/     \__\ |__|  |__|
-
-</pre>
-
-### Contents
-
-[**Install**.](#--install--)
-- [From PyPI.](#from-pypi)
-- [From GitLab source.](#from-gitlab-source)
-
-[**Tutorials**.](#--tutorials--)
-
-[**FAQ**](#--FAQ--)
-
-[**Commands**.](#--commands--)
-
-[**Bug Reports**.](#--bug-reports--)
-
-<hr style="border:1px solid #ADD8E6"> </hr>
+![expam logo](docs/source/expamlogo.png)
 
 ## **Install**.
 
@@ -57,26 +32,6 @@ user@computer:~$ python3 setup.py install
 [Documentation](./docs/README.md)
 
 An outline of all available commands and flags is can be found in the `/docs/` folder.
-
-<hr style="border:1px solid #ADD8E6"> </hr>
-
-## Tutorials
-
-#### 0. Setting up a conda environment (optional)
-[Link](./docs/tutorials/0_setup/README.md) - setting up the conda environment and 
-installing expam dependencies.
-
-#### 1. Basics tutorial
-[Link](./docs/tutorials/1_basic/README.md) - building a database and classifying reads.<br>
-
-#### 2. Classification output in-depth
-[Link](./docs/tutorials/2_classify/README.md) - organising sample classifications, and displaying results. <br>
-
-#### 3. Building a tree
-[Link](./docs/tutorials/3_tree/README.md) - create a distance tree to be used for building the database.
-
-#### 4. Visualising results
-[Link](./docs/tutorials/4_graphical/README.md) - depicting classification results on a phylotree.
 
 <hr style="border:1px solid #ADD8E6"> </hr>
 
@@ -130,19 +85,7 @@ Install the corresponding Python interface to Qt.
 
 <hr style="border:1px solid #ADD8E6"> </hr>
 
-## Commands
-
-|        Flag        	|   Input   	|                                                              Description                                                             	|
-|:------------------:	|:---------:	|:------------------------------------------------------------------------------------------------------------------------------------:	|
-|    `-h`/`--help`   	|    N/A    	|                                                          Print help command.                                                         	|
-|  `-db`/`--db_name` 	|  diretory 	|                                          Path to database directory (relative or absolute).                                          	|
-|     `-k`/`--k`     	|  integer  	|                                                         K-value for analysis.                                                        	|
-|     `-n`/`--n`     	|  integer  	| Number of processes spawned when building database and classifying read. <br> Number of threads passed to mashtree in `mashtree` command. 	|
-| `-p`/`--phylogeny` 	| directory 	|                                                    Path to phylogeny/Newick file.                                                    	|
-| `-d`/`--directory` 	| directory 	|                                                          Path to directory.                                                          	|
-|    `-y`/`--pile`   	|  integer  	|         Number of genomes to pile when making database. <br> Leave as default if you don't want to mess with the natural order.        	|
-|      `--first`     	|  integer  	|                                   Add first [value] genomes from some directory into the database.                                   	|
-
+## Commands 
 
 A complete list of available commands can by found by using the `-h`/`--help`
 flags.
@@ -154,6 +97,6 @@ user@computer:~$ expam --help
 <hr style="border:1px solid #ADD8E6"> </hr>
 
 ## Bug Reports
-Please raise any bug reports at https://gitlab.erc.monash.edu.au/ssol0002/pam/-/issues
+Please raise any bug reports at https://github.com/seansolari/expam/issues
 accompanied by any error messages, a rough description of the database/setup and
 parameters used to create the database.
