@@ -1,0 +1,3 @@
+[console_scripts]
+esbonio = esbonio.cli:main
+

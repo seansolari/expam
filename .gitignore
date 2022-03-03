@@ -1,18 +1,19 @@
 .gitignore/
 .vscode/
 .idea/
-.pytest_cache/
 dist/
 build/
 venv/
-.venv/
+PAM_times.txt
+.pyirc
 
 .DS_Store
 results/
 .idea
 
 # Byte-compiled / optimized / DLL files
-*/__pycache__
+src/expam/__pycache__
+src/expam/c/__pycache__
 *.py[cod]
 
 # C extensions
@@ -20,3 +21,5 @@ results/
 
 # Distribution files.
 */expam.egg*
+
+buildandtwine.sh

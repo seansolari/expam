@@ -5,6 +5,8 @@ from setuptools.extension import Extension
 from Cython.Build import cythonize
 import numpy as np
 
+EXPAM_VERSION = (0, 0, 8)
+
 SOURCE = os.path.dirname(os.path.abspath(__file__))
 
 # Get project description.
@@ -40,11 +42,11 @@ setup(
     # Metadata.
     #
     name="expam",
-    version="0.0.7",
+    version="%d.%d.%d" % EXPAM_VERSION,
     description="Metagenomic profiling using a reference phylogeny",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://gitlab.erc.monash.edu.au/ssol0002/pam",
+    url="https://github.com/seansolari/expam",
     author="Sean Solari",
     author_email="sean.solari@monash.edu",
     classifiers=[
@@ -88,13 +90,13 @@ setup(
     entry_points={
         "console_scripts": [
             "expam=expam.cli:main",
-            "sandbox=expam.sandbox:main"
+            "expamlimit=expam.sandbox:main"
         ],
     },
     #
     # Source links.
     #
     project_urls={
-        "Bug Reports": "https://gitlab.erc.monash.edu.au/ssol0002/pam/-/issues",
+        "Bug Reports": "https://github.com/seansolari/expam/issues",
     },
 )
