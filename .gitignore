@@ -4,6 +4,7 @@
 dist/
 build/
 venv/
+.venv/
 PAM_times.txt
 .pyirc
 
