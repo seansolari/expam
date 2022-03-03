@@ -29,9 +29,11 @@ user@computer:~$ python3 setup.py install
 <hr style="border:1px solid #ADD8E6"> </hr>
 
 ## Documentation
-[Documentation](./docs/README.md)
 
-An outline of all available commands and flags is can be found in the `/docs/` folder.
+View our online documentation!
+
+[https://expam.readthedocs.io/en/latest/index.html](https://expam.readthedocs.io/en/latest/index.html)
+
 
 <hr style="border:1px solid #ADD8E6"> </hr>
 
