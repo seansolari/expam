@@ -61,7 +61,7 @@ the environment. You can leave the environment using :code:`conda deactivate`.
 Additional Software
 -------------------
 If you wish to build your own tree for a custom collection of genomes using the **expam**
-interface, you will need some tools. See :doc:`Tutorial Three <tutorials/tree>` for a
+interface, you will need some tools. See :doc:`Tutorial Three <tutorials/treebuilding>` for a
 tutorial on how to build trees using the **expam** interface, this should make you aware
 of which software you will need. Brief instructions for installing all possible
 software are shown below.

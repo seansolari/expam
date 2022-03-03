@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>expam’s Tree module &mdash; expam 0.1 documentation</title>
+  <title>expam’s Tree module &mdash; expam 1.0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -45,7 +45,11 @@
 <li class="toctree-l1"><a class="reference internal" href="commands.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dependencies.html">Additional Dependencies (optional)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">expam’s Tree module</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">expam’s Tree module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#expam-tree-location">expam.tree.Location</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#expam-tree-index">expam.tree.Index</a></li>
+</ul>
+</li>
 </ul>
 
         </div>
@@ -74,6 +78,252 @@
              
   <section id="expam-s-tree-module">
 <h1>expam’s Tree module<a class="headerlink" href="#expam-s-tree-module" title="Permalink to this headline"></a></h1>
+<p>A programmatic API to interact with phylogenetic trees, particularly those used in reference databases.</p>
+<section id="expam-tree-location">
+<h2>expam.tree.Location<a class="headerlink" href="#expam-tree-location" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="expam.tree.Location">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">expam.tree.</span></span><span class="sig-name descname"><span class="pre">Location</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coord</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accession_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taxid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#expam.tree.Location" title="Permalink to this definition"></a></dt>
+<dd><p>Represents a node in the phylogeny.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="expam.tree.Location.__init__">
+<span class="sig-prename descclassname"><span class="pre">expam.tree.Location.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coord</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accession_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taxid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#expam.tree.Location.__init__" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – name of node, defaults to “”</p></li>
+<li><p><strong>type</strong> (<em>str</em><em>, </em><em>optional</em>) – Leaf or Branch, defaults to “”</p></li>
+<li><p><strong>dist</strong> (<em>float</em><em>, </em><em>optional</em>) – distance to parent node, defaults to 0.0</p></li>
+<li><p><strong>coord</strong> (<em>list</em><em>, </em><em>optional</em>) – binary coordinate from root to node, defaults to None</p></li>
+<li><p><strong>accession_id</strong> (<em>str</em><em>, </em><em>optional</em>) – NCBI accession id, defaults to None</p></li>
+<li><p><strong>taxid</strong> (<em>int</em><em>, </em><em>optional</em>) – NCBI taxonomy id, defaults to None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Variables</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>name</strong> – node name</p></li>
+<li><p><strong>type</strong> – “Leaf” or “Branch”</p></li>
+<li><p><strong>distance</strong> – distance to parent node</p></li>
+<li><p><strong>coordinate</strong> – list of binary binary numbers representing path from root to node</p></li>
+<li><p><strong>nchildren</strong> – number of children below this node</p></li>
+<li><p><strong>accession_id</strong> – NCBI accession id (only valid for leaves)</p></li>
+<li><p><strong>taxid</strong> – NCBI taxonomy id</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="expam-tree-index">
+<h2>expam.tree.Index<a class="headerlink" href="#expam-tree-index" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="expam.tree.Index">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">expam.tree.</span></span><span class="sig-name descname"><span class="pre">Index</span></span><a class="headerlink" href="#expam.tree.Index" title="Permalink to this definition"></a></dt>
+<dd><p>Phylogeny index that can load, save and manipulate Newick trees.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="expam.tree.Index.load_newick">
+<span class="sig-prename descclassname"><span class="pre">expam.tree.Index.</span></span><span class="sig-name descname"><span class="pre">load_newick</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#expam.tree.Index.load_newick" title="Permalink to this definition"></a></dt>
+<dd><p>load_newick Load Newick tree from file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – path to Newick file</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>OSError</strong> – file does not exist</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>name of leaves and phylogeny Index object</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list[str], <a class="reference internal" href="#expam.tree.Index" title="expam.tree.Index">expam.tree.Index</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="expam.tree.Index.from_newick">
+<span class="sig-prename descclassname"><span class="pre">expam.tree.Index.</span></span><span class="sig-name descname"><span class="pre">from_newick</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">newick_string</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#expam.tree.Index.from_newick" title="Permalink to this definition"></a></dt>
+<dd><p>from_newick Parse Newick string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>newick_string</strong> (<em>str</em>) – Newick string encoding tree.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>name of leaves and phylogeny Index object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list[str], <a class="reference internal" href="#expam.tree.Index" title="expam.tree.Index">expam.tree.Index</a></p>
+</dd>
+</dl>
+<p>Example loading an Index object from a Newick string.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">expam.tree</span> <span class="kn">import</span> <span class="n">Index</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tree_string</span> <span class="o">=</span> <span class="s2">&quot;(B:6.0,(A:5.0,C:3.0,E:4.0):5.0,D:11.0);&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">leaves</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="n">Index</span><span class="o">.</span><span class="n">from_newick</span><span class="p">(</span><span class="n">tree_string</span><span class="p">)</span>
+<span class="go">* Initialising node pool...</span>
+<span class="go">* Checking for polytomies...</span>
+<span class="go">    Polytomy (degree=3) detected! Resolving...</span>
+<span class="go">    Polytomy (degree=3) detected! Resolving...</span>
+<span class="go">* Finalising index...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">leaves</span>
+<span class="go">[&#39;B&#39;, &#39;A&#39;, &#39;C&#39;, &#39;E&#39;, &#39;D&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">index</span>
+<span class="go">&lt;Phylogeny Index, length=10&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">index</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">]</span>
+<span class="go">&lt;expam.tree.Location object at 0x109ac7970&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">index</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
+<span class="go">&#39;A&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">index</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">coordinate</span>
+<span class="go">[0, 0, 1, 0]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="expam.tree.Index.resolve_polytomies">
+<span class="sig-prename descclassname"><span class="pre">expam.tree.Index.</span></span><span class="sig-name descname"><span class="pre">resolve_polytomies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pool</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#expam.tree.Index.resolve_polytomies" title="Permalink to this definition"></a></dt>
+<dd><p>If the phylogeny contains polytomies, continually join the first two
+children with parents of distance 0 until the polytomy is resolved.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pool</strong> – List.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="expam.tree.Index.coord">
+<span class="sig-prename descclassname"><span class="pre">expam.tree.Index.</span></span><span class="sig-name descname"><span class="pre">coord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordinate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#expam.tree.Index.coord" title="Permalink to this definition"></a></dt>
+<dd><p>coord Return Location (node) at coordinate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>coordinate</strong> (<em>list</em>) – binary list representing path to node</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>node in tree</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#expam.tree.Location" title="expam.tree.Location">expam.tree.Location</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="expam.tree.Index.to_newick">
+<span class="sig-prename descclassname"><span class="pre">expam.tree.Index.</span></span><span class="sig-name descname"><span class="pre">to_newick</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#expam.tree.Index.to_newick" title="Permalink to this definition"></a></dt>
+<dd><p>to_newick Output tree to Newick format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Newick format tree</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="expam.tree.Index.yield_child_nodes">
+<span class="sig-prename descclassname"><span class="pre">expam.tree.Index.</span></span><span class="sig-name descname"><span class="pre">yield_child_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#expam.tree.Index.yield_child_nodes" title="Permalink to this definition"></a></dt>
+<dd><p>yield_child_nodes Yields node and children nodes (both branches and leaves).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node_name</strong> (<em>str</em>) – name of node to start yielding from</p>
+</dd>
+<dt class="field-even">Yield</dt>
+<dd class="field-even"><p>node names at or below node_name</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">index</span><span class="o">.</span><span class="n">yield_child_nodes</span><span class="p">(</span><span class="s1">&#39;p1&#39;</span><span class="p">):</span>  <span class="c1"># p1 will always be the root</span>
+<span class="gp">... </span>   <span class="nb">print</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="go">1</span>
+<span class="go">D</span>
+<span class="go">2</span>
+<span class="go">B</span>
+<span class="go">3</span>
+<span class="go">E</span>
+<span class="go">4</span>
+<span class="go">A</span>
+<span class="go">C</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Internal node (branch) names can start with ‘p’, but this may also be neglected.</p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="expam.tree.Index.yield_leaves">
+<span class="sig-prename descclassname"><span class="pre">expam.tree.Index.</span></span><span class="sig-name descname"><span class="pre">yield_leaves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#expam.tree.Index.yield_leaves" title="Permalink to this definition"></a></dt>
+<dd><p>yield_leaves Yield only the leaves at or below some node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node_name</strong> (<em>str</em>) – node to retrieve leaves from.</p>
+</dd>
+<dt class="field-even">Yield</dt>
+<dd class="field-even"><p>leaf names at or below node_name.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="expam.tree.Index.get_child_nodes">
+<span class="sig-prename descclassname"><span class="pre">expam.tree.Index.</span></span><span class="sig-name descname"><span class="pre">get_child_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#expam.tree.Index.get_child_nodes" title="Permalink to this definition"></a></dt>
+<dd><p>get_child_nodes Return list of nodes at or below node_name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node_name</strong> (<em>str</em>) – name of node</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of node names</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list[str]</p>
+</dd>
+</dl>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">index</span><span class="o">.</span><span class="n">get_child_nodes</span><span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">)</span>
+<span class="go">[&#39;1&#39;, &#39;D&#39;, &#39;2&#39;, &#39;B&#39;, &#39;3&#39;, &#39;E&#39;, &#39;4&#39;, &#39;A&#39;, &#39;C&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">index</span><span class="o">.</span><span class="n">get_child_nodes</span><span class="p">(</span><span class="s1">&#39;E&#39;</span><span class="p">)</span>
+<span class="go">[&#39;E&#39;]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="expam.tree.Index.get_child_leaves">
+<span class="sig-prename descclassname"><span class="pre">expam.tree.Index.</span></span><span class="sig-name descname"><span class="pre">get_child_leaves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#expam.tree.Index.get_child_leaves" title="Permalink to this definition"></a></dt>
+<dd><p>get_child_leaves Get list of leaves at or below node_name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node_name</strong> (<em>str</em>) – name of node</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of leaf names</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
 </section>
 
 

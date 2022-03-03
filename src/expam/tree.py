@@ -100,15 +100,37 @@ def propose_lca(c1, c2):
 
 
 class Location:
+    """Represents a node in the phylogeny."""
     is_root = False
 
-    def __init__(self, name="", type="", dist=0.0, coord=None, mag=0, accession_id=None, taxid=None, **kwargs):
+    def __init__(self, name="", type="", dist=0.0, coord=None, accession_id=None, taxid=None, **kwargs):
+        """__init__ 
+
+        :param name: name of node, defaults to ""
+        :type name: str, optional
+        :param type: Leaf or Branch, defaults to ""
+        :type type: str, optional
+        :param dist: distance to parent node, defaults to 0.0
+        :type dist: float, optional
+        :param coord: binary coordinate from root to node, defaults to None
+        :type coord: list, optional
+        :param accession_id: NCBI accession id, defaults to None
+        :type accession_id: str, optional
+        :param taxid: NCBI taxonomy id, defaults to None
+        :type taxid: int, optional
+        :ivar name: node name
+        :ivar type: "Leaf" or "Branch"
+        :ivar distance: distance to parent node
+        :ivar coordinate: list of binary binary numbers representing path from root to node
+        :ivar nchildren: number of children below this node
+        :ivar accession_id: NCBI accession id (only valid for leaves)
+        :ivar taxid: NCBI taxonomy id
+        """
         self._name = name
         self._type = type
         self._distance = dist
         self._coordinate = [] if coord is None else coord
         self._nchildren = 0
-        self._magnitude = mag
         self._accession_id = accession_id
         self._taxid = taxid
 
@@ -200,22 +222,6 @@ class Location:
 
     nchildren = property(**nchildren())
 
-    def magnitude():
-        doc = "The magnitude property."
-
-        def fget(self):
-            return self._magnitude
-
-        def fset(self, value):
-            self._magnitude = value
-
-        def fdel(self):
-            del self._magnitude
-
-        return locals()
-
-    magnitude = property(**magnitude())
-
     def accession_id():
         doc = "The accession id property."
 
@@ -272,6 +278,8 @@ class Location:
 
 
 class Index:
+    """ Phylogeny index that can load, save and manipulate Newick trees.
+    """
     def __init__(self):
         self._pointers = {}  # Pointers is a map from node name to pool location.
         self.pool = [Location()]  # Empty location to represent an 'unclassified' location.
@@ -286,13 +294,21 @@ class Index:
         return f'<Phylogeny Index, length={len(self)}>'
 
     @classmethod
-    def load_newick(cls, url):
+    def load_newick(cls, path):
+        """load_newick Load Newick tree from file.
+
+        :param path: path to Newick file
+        :type path: str
+        :raises OSError: file does not exist
+        :return: name of leaves and phylogeny Index object
+        :rtype: list[str], expam.tree.Index
+        """
         newick_str = ""
 
-        if not os.path.exists(url):
-            raise OSError("Couldn't find path %s." % url)
+        if not os.path.exists(path):
+            raise OSError("Couldn't find path %s." % path)
 
-        with open(url, "r") as f:
+        with open(path, "r") as f:
             for line in f:
                 newick_str += line.strip()
 
@@ -300,11 +316,12 @@ class Index:
 
     @classmethod
     def from_newick(cls, newick_string):
-        """
-        Parse Newick string...
+        """from_newick Parse Newick string.
 
-        :param newick_string: String - Newick format phylogeny.
-        :return: Index.
+        :param newick_string: Newick string encoding tree.
+        :type newick_string: str
+        :return: name of leaves and phylogeny Index object
+        :rtype: list[str], expam.tree.Index
         """
 
         # Remove whitespace.
@@ -323,13 +340,6 @@ class Index:
 
     @staticmethod
     def init_pool(newick):
-        """
-        Given some phylogeny in Newick format, return a pool list
-        to be used in the corresponding expam Index.
-
-        :param newick: String - Newick format phylogeny.
-        :return: List.
-        """
         pool = [Location()]
 
         i = 0
@@ -464,7 +474,8 @@ class Index:
         children with parents of distance 0 until the polytomy is resolved.
 
         :param pool: List.
-        :return: None - inplace.
+        :return: None
+        :rtype: None
         """
         # Processing loop.
         i = 1
@@ -495,16 +506,6 @@ class Index:
 
     @classmethod
     def from_pool(cls, pool):
-        """
-        Import some previously created, Newick format, pool of nodes.
-        To import pool:
-            - Update name map.
-            - Set branch names.
-            - Set coordinates.
-
-        :param pool: List.
-        :return: List (leaf names), Index.
-        """
         leaf_names = []
 
         # Initialise expam Index.
@@ -547,12 +548,6 @@ class Index:
         return leaf_names, index
 
     def append(self, item):
-        """
-        Mostly used for initialisation stage: insert an item in to the pool
-            and declare its pointer.
-
-        :param item: String - coordinate.
-        """
         # Declare an index.
         index = len(self.pool)
 
@@ -562,13 +557,6 @@ class Index:
         self.pool.append(item)
 
     def join(self, a, b, glue, dist=None):
-        """
-        Join indices a & b - in place.
-
-        :param a, b: String - Names of items (indices).
-        :param glue: Location - parent of a & b.
-        :param dist:
-        """
         if dist is None:
             dist = [1.0, 1.0]
         i, j = self._pointers[a], self._pointers[b]
@@ -589,13 +577,7 @@ class Index:
             self[child].distance = dist[i]
 
     def move(self, i, j):
-        """
-        Move items in pool @ i to j.
-            NOTE: i > j.
-
-        :param i: List - indices from range [inclusive, exclusive] to be moved.
-        :param j: Int - Index to move items.
-        """
+        # NOTE: i > j.
         width = i[1] - i[0]
 
         if i[0] == j:
@@ -621,9 +603,6 @@ class Index:
             self._pointers[n] = self.pool[n].name
 
     def insert(self, i, item):
-        """
-        Insert item into Pool at index i. This will update bumped items.
-        """
         # Update pointers.
         for n in range(i, len(self.pool)):
             loc = self.pool[n]
@@ -654,14 +633,6 @@ class Index:
         return i + 1 + self.pool[i].nchildren
 
     def update_coordinates(self):
-        """
-        Update coordinates after a join.
-
-        - Depth of 0 corresponds to top level.
-        - Child counting starts at 0 as first child.
-
-        :param i: Int - index of new branch i.e. all changes to the right.
-        """
         coord, i = [-1], 1
 
         while i < len(self.pool):
@@ -680,13 +651,6 @@ class Index:
             i += 1
 
     def update_nchildren(self):
-        """
-        By updating from right of pool to left, we are guaranteed
-        to encounter all children before their parent, so we can
-        simply loop without recursion.
-
-        :return:
-        """
         for j in range(len(self.pool) - 1, 0, -1):
             node = self.pool[j]
 
@@ -696,11 +660,12 @@ class Index:
             ])
 
     def coord(self, coordinate):
-        """
-        Return Location at `coordinate`.
+        """coord Return Location (node) at coordinate.
 
-        :param coordinate:
-        :return: Location
+        :param coordinate: binary list representing path to node
+        :type coordinate: list
+        :return: node in tree
+        :rtype: expam.tree.Location
         """
         pool_index = 1
 
@@ -721,6 +686,11 @@ class Index:
         return b, a
 
     def to_newick(self):
+        """to_newick Output tree to Newick format.
+
+        :return: Newick format tree
+        :rtype: str
+        """
         NODE_FORMAT = "$node$"
 
         newick = "(%s,%s)%s;" % (NODE_FORMAT, NODE_FORMAT, self.pool[1].name)
@@ -736,6 +706,13 @@ class Index:
         return newick
 
     def yield_child_nodes(self, node_name):
+        """yield_child_nodes Yields node and children nodes (both branches and leaves).
+
+        :param node_name: name of node to start yielding from
+        :type node_name: str
+        :yield: node names at or below node_name
+        :rtype: str
+        """
         node_name = self._format_node_name(node_name)
         active_nodes = [node_name]
 
@@ -746,6 +723,13 @@ class Index:
             active_nodes.extend(self[node].children)
 
     def yield_leaves(self, node_name):
+        """yield_leaves Yield only the leaves at or below some node.
+
+        :param node_name: node to retrieve leaves from.
+        :type node_name: str
+        :yield: leaf names at or below node_name.
+        :rtype: str
+        """
         node_name = self._format_node_name(node_name)
 
         if self[node_name].type == "Leaf":
@@ -764,9 +748,23 @@ class Index:
                     branches.append(child)
 
     def get_child_nodes(self, node_name):
+        """get_child_nodes Return list of nodes at or below node_name.
+
+        :param node_name: name of node 
+        :type node_name: str
+        :return: list of node names
+        :rtype: list[str]
+        """
         return list(self.yield_child_nodes(node_name))
 
     def get_child_leaves(self, node_name):
+        """get_child_leaves Get list of leaves at or below node_name.
+
+        :param node_name: name of node
+        :type node_name: str
+        :return: list of leaf names
+        :rtype: list[str]
+        """
         return list(self.yield_leaves(node_name))
 
     def draw_results(self, file_path, out_dir, skiprows=None, groups=None, cutoff=None, cpm=None, colour_list=None,

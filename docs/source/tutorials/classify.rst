@@ -116,7 +116,7 @@ Sample summary files
 
     If a node points to some location in the reference tree, it will start with a 'p'. 
 
-    This point can be used as input to the :doc:`programmatic tree interface <tree>` for further analysis.
+    This point can be used as input to the :doc:`programmatic tree interface <../tree>` for further analysis.
 
   2. **Percent classified (cumulative)** - the percentage of all reads classified at or below this node.
   3. **Total classified (cumulative)** - the raw number of reads classified at or below this node.
