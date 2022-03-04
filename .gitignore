@@ -22,5 +22,6 @@ src/expam/c/__pycache__
 
 # Distribution files.
 */expam.egg*
+./expam/
 
 buildandtwine.sh

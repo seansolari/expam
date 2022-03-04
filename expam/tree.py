@@ -778,7 +778,7 @@ class Index:
                   use_phyla=False, keep_zeros=True, use_node_names=True):
         try:
             import ete3.coretype.tree
-            from ete3 import AttrFace, CircleFace, faces, Tree, TreeStyle, NodeStyle, TextFace
+            from ete3 import AttrFace, faces, Tree, TreeStyle, NodeStyle, TextFace
 
         except ModuleNotFoundError as e:
             print("Could not import ete3 plotting modules! Error raised:")

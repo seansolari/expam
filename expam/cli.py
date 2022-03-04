@@ -792,8 +792,22 @@ def clear_logs(log_path):
 
 
 #
-# Importable main.
+# Check supplied path looks like expam results.
 #
+def validate_results_path(results_dir):
+    if not os.path.exists(results_dir):
+        die("Could not find results %s!" % results_dir)
+
+    from expam.classification import PHY_RESULTS
+
+    phy_results_path = os.path.join(results_dir, PHY_RESULTS)
+    classified_path = os.path.join(phy_results_path, "classified_counts.csv")
+    splits_path = os.path.join(phy_results_path, "splits_counts.csv")
+
+    if not os.path.exists(classified_path) or not os.path.exists(splits_path):
+        raise Exception("Path does not look like expam results folder!")
+
+
 def main():
     # Set process creation method.
     if platform.system() != "Windows":
@@ -811,6 +825,11 @@ def main():
                              'add:-\t\tAdd sequence to the database.\n'
                              'remove:-\tRemove sequence from database (only impacts future db builds).\n'
                              'set:-\t\tSet database build parameters.\n'
+                             'to_taxonomy:-\t\tConvert results to taxonomic setting.\n'
+                             'phylotree:-\t\tDraw results on phylotree.\n'
+                             'draw_tree:-\t\tDraw the reference tree.\n'
+                             'download_taxonomy:-\t\tDownload taxonomic information for reference seqeunces.\n'
+                             'cutoff:-\t\tApply cutoff to some set of already processed classifications. THIS WILL OVERWRITE OLD RESULTS!\n'
                              'mashtree:-\tCreate mashtree from current sequences and add to database.\n'
                              'quickrun:-\tInitialise, set parameters and start building db (assumes\n'
                              '\t\t\tsequences all lie in the same folder).\n'
@@ -833,7 +852,7 @@ def main():
     parser.add_argument("-p", "--phylogeny", dest="phylogeny",
                         help="URL of Newick file containing phylogeny.",
                         metavar="[phylogeny URL]")
-    parser.add_argument("-d", "--directory", dest="directory",
+    parser.add_argument("-d", "--directory", dest="directory", action="append",
                         help="File URL, context depending on command supplied.",
                         metavar="[directory]")
     parser.add_argument("-l", "--length", dest="length",
@@ -871,8 +890,6 @@ def main():
                         help="Space-separated list of sample files to be treated as a single group in phylotree.")
     parser.add_argument("--colour_list", dest="colour_list", nargs="+",
                         help="List of colours to use when plotting groups in phylotree.")
-    parser.add_argument("--name", dest="results_name", default=None,
-                        help="Name of results folder.")
     parser.add_argument("--circle_scale", dest="circle_scale", default=1.0,
                         help="Scale of circles that represent splits in phylotree.")
     parser.add_argument("--sourmash", dest="use_sourmash", default=False, action="store_true",
@@ -893,15 +910,15 @@ def main():
     runtime_args = args.command, args.db_name, args.k, args.n, args.phylogeny, args.alpha
     directory_args = args.directory, args.out_url, args.truth_dir
     param_args = args.length, args.pile, args.error_rate, args.first_n, args.sketch, args.paired_end
-    summary_args = args.plot, args.cutoff, args.cpm, args.taxonomy, args.results_name
+    summary_args = args.plot, args.cutoff, args.cpm, args.taxonomy
     plot_args = args.groups, args.phyla, args.keep_zeros, not args.ignore_node_names, args.colour_list, \
                 args.circle_scale, args.rank
     tree_args = args.use_sourmash, args.use_rapidnj, args.use_quicktree
 
     command, db_name, k, n, phylogeny, alpha = runtime_args
-    directory, out_url, truth_dir = directory_args
+    directories, out_dir, truth_dir = directory_args
     length, pile_size, error_rate, first_n, sketch, paired_end = param_args
-    plot, cutoff, cpm, taxonomy, results_name = summary_args
+    plot, cutoff, cpm, taxonomy = summary_args
     groups, plot_phyla, keep_zeros, use_node_names, colour_list, circle_scale, at_rank = plot_args
     use_sourmash, use_rapidnj, use_quicktree = tree_args
 
@@ -991,7 +1008,8 @@ def main():
         conf.save()
 
         # Add all sequences in the provided folder.
-        add_sequences(directory, CONF_DIR, first_n)
+        for directory in directories:
+            add_sequences(directory, CONF_DIR, first_n)
 
         # Start building database.
         build_database(DB_DIR, plot)
@@ -1052,8 +1070,9 @@ def main():
 
         # Run expam classification.
         run_classifier(
-            reads_url=directory,
-            out_dir=DB_DIR,
+            reads_url=directories,
+            out_dir=out_dir,
+            db_dir=DB_DIR,
             k=k,
             n=n - 1,  # Account for main process.
             phylogeny_path=phylogeny_path,
@@ -1068,7 +1087,6 @@ def main():
             phyla=plot_phyla,
             name_taxa=name_to_lineage,
             colour_list=colour_list,
-            results_name=results_name,
             circle_scale=circle_scale,
             paired_end=paired_end,
             alpha=alpha
@@ -1087,18 +1105,13 @@ def main():
     # Convert phylogenetic results to taxonomic results.
     #
     elif command == "to_taxonomy":
-        if results_name is None:
-            die("Require results directory (--name)!")
+        if out_dir is None:
+            die("Require output directory (-o, --out_dir)!")
+        else:
+            validate_results_path(out_dir)
 
         from expam.classification import TAXID_LINEAGE_MAP_NAME, PHY_RESULTS, TAX_RESULTS, \
             load_taxonomy_map, name_to_id, ClassificationResults
-
-        all_results_dir = os.path.join(DB_DIR, "results")
-        results_dir = os.path.join(all_results_dir, results_name) \
-            if results_name[:len(all_results_dir)] != all_results_dir else results_name
-
-        if not os.path.exists(results_dir):
-            die("Could not find results %s!" % results_dir)
 
         map_url = os.path.join(DB_DIR, TAXID_LINEAGE_MAP_NAME)
         if not os.path.exists(map_url):
@@ -1112,8 +1125,8 @@ def main():
         name_to_lineage, taxon_to_rank = load_taxonomy_map(DB_DIR)
 
         # Load phylogenetic results.
-        phy_results_url = os.path.join(results_dir, PHY_RESULTS)
-        tax_results_path = os.path.join(results_dir, TAX_RESULTS)
+        phy_results_url = os.path.join(out_dir, PHY_RESULTS)
+        tax_results_path = os.path.join(out_dir, TAX_RESULTS)
 
         if not os.path.exists(tax_results_path):
             os.mkdir(tax_results_path)
@@ -1122,7 +1135,7 @@ def main():
             index=index,
             phylogeny_index=phylogenyIndex,
             in_dir=phy_results_url,
-            out_dir=results_dir,
+            out_dir=out_dir,
             groups=groups,
             keep_zeros=keep_zeros,
             cutoff=cutoff,
@@ -1134,6 +1147,48 @@ def main():
             circle_scale=circle_scale
         )
         results.to_taxonomy(name_to_lineage, taxon_to_rank, tax_results_path)
+
+    #
+    #   Draw classification results.
+    #
+    elif command == "phylotree":
+        if out_dir is None:
+            die("Require output directory (-o, --out_dir)!")
+        else:
+            validate_results_path(out_dir)
+
+        from expam.classification import TAXID_LINEAGE_MAP_NAME, PHY_RESULTS, \
+            load_taxonomy_map, name_to_id, ClassificationResults
+
+        map_url = os.path.join(DB_DIR, TAXID_LINEAGE_MAP_NAME)
+        if not os.path.exists(map_url):
+            die("Run command `download_taxonomy` first to collect taxa for your genomes!")
+
+        config = load_configuration_file(DB_DIR, return_config=True)
+        phylogeny_path = config["phylogeny_path"]
+        phylogeny_path = make_path_absolute(phylogeny_path, DB_DIR)
+
+        index, phylogenyIndex = name_to_id(phylogeny_path)
+        name_to_lineage, taxon_to_rank = load_taxonomy_map(DB_DIR)
+
+        # Load phylogenetic results.
+        phy_results_url = os.path.join(out_dir, PHY_RESULTS)
+
+        results = ClassificationResults(
+            index=index,
+            phylogeny_index=phylogenyIndex,
+            in_dir=phy_results_url,
+            out_dir=out_dir,
+            groups=groups,
+            keep_zeros=keep_zeros,
+            cutoff=cutoff,
+            cpm=cpm,
+            use_node_names=use_node_names,
+            phyla=plot_phyla,
+            name_taxa=name_to_lineage,
+            colour_list=colour_list,
+            circle_scale=circle_scale
+        )
         results.draw_results()
 
     #
@@ -1195,7 +1250,7 @@ def main():
         ts.draw_guiding_lines = True
         ts.root_opening_factor = 1
 
-        phy_path = "phylotree.pdf" if not out_url else os.path.join(out_url)
+        phy_path = "phylotree.pdf" if not out_dir else os.path.join(out_dir, "phylotree.pdf")
         tree.render(
             phy_path,
             tree_style=ts,
@@ -1208,166 +1263,169 @@ def main():
     # Calculate precision and recall.
     #
     elif command == "evaluate":
-        if not os.path.exists(directory):
-            die("Couldn't find results path %s!" % directory)
+        for directory in directories:
+            if not os.path.exists(directory):
+                die("Couldn't find results path %s!" % directory)
 
-        if not os.path.exists(truth_dir):
-            die("Couldn't find truth dataset %s!" % truth_dir)
+            if not os.path.exists(truth_dir):
+                die("Couldn't find truth dataset %s!" % truth_dir)
 
-        import numpy as np
-        import pandas as pd
+            import numpy as np
+            import pandas as pd
 
-        from expam.classification import load_taxonomy_map, request_labels, RANK_ORDER
+            from expam.classification import load_taxonomy_map, request_labels, RANK_ORDER
 
-        # Performance statistics.
-        x = ['phylum', 'class', 'order', 'family', 'genus', 'species']
-        y_prec_lib = []
-        y_prec_cons = []
-        y_rec_lib = []
-        y_rec_cons = []
+            # Performance statistics.
+            x = ['phylum', 'class', 'order', 'family', 'genus', 'species']
+            y_prec_lib = []
+            y_prec_cons = []
+            y_rec_lib = []
+            y_rec_cons = []
 
-        taxid_to_lineage, taxon_to_rank = load_taxonomy_map(DB_DIR, convert_to_name=False)
+            taxid_to_lineage, taxon_to_rank = load_taxonomy_map(DB_DIR, convert_to_name=False)
 
-        # Classifier results.
-        expam_df = pd.read_csv(directory, sep="\t", names=['taxid', 'c_perc', 'c_cumul', 'c_count',
-                                                           's_perc', 's_cumul', 's_count', 'rank', 'lineage'])
-        expam_df['t_cumul'] = expam_df['s_cumul'] + expam_df['c_cumul']
+            # Classifier results.
+            expam_df = pd.read_csv(directory, sep="\t", names=['taxid', 'c_perc', 'c_cumul', 'c_count',
+                                                            's_perc', 's_cumul', 's_count', 'rank', 'lineage'])
+            expam_df['t_cumul'] = expam_df['s_cumul'] + expam_df['c_cumul']
 
-        # Ensure we have representation for each rank in x.
-        lineages = list({
-            lineage
-            for taxid, lineage in taxid_to_lineage.items()
-            if taxid in expam_df['taxid']
-        })
+            # Ensure we have representation for each rank in x.
+            lineages = list({
+                lineage
+                for taxid, lineage in taxid_to_lineage.items()
+                if taxid in expam_df['taxid']
+            })
 
-        for lineage in lineages:
-            current_ranks = [(i, RANK_ORDER.index(taxon_to_rank[child][1])) for i, child in enumerate(lineage)]
-            current_rank_indices = [rank_index for ind, rank_index in current_ranks]
-            missing_rank_indices = [RANK_ORDER.index(rank) for rank in x if rank not in current_rank_indices]
+            for lineage in lineages:
+                current_ranks = [(i, RANK_ORDER.index(taxon_to_rank[child][1])) for i, child in enumerate(lineage)]
+                current_rank_indices = [rank_index for ind, rank_index in current_ranks]
+                missing_rank_indices = [RANK_ORDER.index(rank) for rank in x if rank not in current_rank_indices]
 
-            for rank_index in missing_rank_indices:
-                # Find the closest child.
-                child_index = min([ind for ind, child_rank_index in current_ranks
-                                   if child_rank_index > rank_index])
+                for rank_index in missing_rank_indices:
+                    # Find the closest child.
+                    child_index = min([ind for ind, child_rank_index in current_ranks
+                                    if child_rank_index > rank_index])
 
-                # Add this closest child as the representative member for this missing rank.
-                child_taxid = taxon_to_rank[lineage[child_index]][0]
-                child_df_index = expam_df.index[expam_df['taxid'] == child_taxid]
+                    # Add this closest child as the representative member for this missing rank.
+                    child_taxid = taxon_to_rank[lineage[child_index]][0]
+                    child_df_index = expam_df.index[expam_df['taxid'] == child_taxid]
 
-                new_row = expam_df.loc[child_df_index].copy()
-                new_row['rank'] = RANK_ORDER[rank_index]
+                    new_row = expam_df.loc[child_df_index].copy()
+                    new_row['rank'] = RANK_ORDER[rank_index]
 
-                # Append row to dataframe.
-                expam_df.append(new_row, ignore_index=True)
+                    # Append row to dataframe.
+                    expam_df.append(new_row, ignore_index=True)
 
-        # Truth set.
-        truth_df = pd.read_csv(truth_dir, sep="\t", names=['taxid', 'counts', 'abundance', 'rank', 'scientific name'])
-        truth_df['taxid'] = truth_df['taxid'].apply(str)
+            # Truth set.
+            truth_df = pd.read_csv(truth_dir, sep="\t", names=['taxid', 'counts', 'abundance', 'rank', 'scientific name'])
+            truth_df['taxid'] = truth_df['taxid'].apply(str)
 
-        # Collect lineages for each taxid.
-        species_taxids = truth_df['taxid'].tolist()
-        taxid_to_lineage, taxon_to_rank = request_labels("taxonomy", "xml", species_taxids)
+            # Collect lineages for each taxid.
+            species_taxids = truth_df['taxid'].tolist()
+            taxid_to_lineage, taxon_to_rank = request_labels("taxonomy", "xml", species_taxids)
 
-        taxid_to_lineage = {
-            taxid: lineage.split(",")
-            for taxid, lineage in taxid_to_lineage
-        }
-        taxon_to_rank = {
-            taxon: rank.split(",")
-            for taxon, rank in taxon_to_rank.items()
-        }
+            taxid_to_lineage = {
+                taxid: lineage.split(",")
+                for taxid, lineage in taxid_to_lineage
+            }
+            taxon_to_rank = {
+                taxon: rank.split(",")
+                for taxon, rank in taxon_to_rank.items()
+            }
 
-        def at_rank(lineage, rank):
-            nonlocal taxon_to_rank, RANK_ORDER
+            def at_rank(lineage, rank):
+                nonlocal taxon_to_rank, RANK_ORDER
 
-            z = RANK_ORDER.index(rank)
-            descendants = [
-                taxon_to_rank[name]
-                for name in lineage
-                if RANK_ORDER.index(taxon_to_rank[name][1]) >= z
-            ]
+                z = RANK_ORDER.index(rank)
+                descendants = [
+                    taxon_to_rank[name]
+                    for name in lineage
+                    if RANK_ORDER.index(taxon_to_rank[name][1]) >= z
+                ]
 
-            return descendants[0][0]
+                return descendants[0][0]
 
-        rank_taxids = {
-            rank: list({at_rank(lineage, rank) for lineage in taxid_to_lineage.values()})
-            for rank in x
-        }
+            rank_taxids = {
+                rank: list({at_rank(lineage, rank) for lineage in taxid_to_lineage.values()})
+                for rank in x
+            }
 
-        summary = np.sum if not taxonomy else len
+            summary = np.sum if not taxonomy else len
 
-        for rank, taxa in rank_taxids.items():
-            df_subset = expam_df[expam_df['taxid'].isin(taxa)]
+            for rank, taxa in rank_taxids.items():
+                df_subset = expam_df[expam_df['taxid'].isin(taxa)]
 
-            # Total number of reads classified at given rank.
-            mask = (expam_df['rank'] == rank) & (expam_df['c_cumul'] > cutoff)
-            mask_comb = (expam_df['rank'] == rank) & (expam_df['t_cumul'] > cutoff)
+                # Total number of reads classified at given rank.
+                mask = (expam_df['rank'] == rank) & (expam_df['c_cumul'] > cutoff)
+                mask_comb = (expam_df['rank'] == rank) & (expam_df['t_cumul'] > cutoff)
 
-            n_classified = summary(expam_df[mask]['c_cumul'])
-            n_classified_combined = summary(expam_df[mask_comb]['t_cumul'])
+                n_classified = summary(expam_df[mask]['c_cumul'])
+                n_classified_combined = summary(expam_df[mask_comb]['t_cumul'])
 
-            n_total = n if not taxonomy else len(taxa)
+                n_total = n if not taxonomy else len(taxa)
 
-            # Precision and recall for confidently classified.
-            y_prec_cons.append(
-                summary(
-                    df_subset[df_subset['c_cumul'] > cutoff]['c_cumul']
-                ) / n_classified)
-            y_rec_cons.append(
-                summary(
-                    df_subset[df_subset['c_cumul'] > cutoff]['c_cumul']
-                ) / n_total)
+                # Precision and recall for confidently classified.
+                y_prec_cons.append(
+                    summary(
+                        df_subset[df_subset['c_cumul'] > cutoff]['c_cumul']
+                    ) / n_classified)
+                y_rec_cons.append(
+                    summary(
+                        df_subset[df_subset['c_cumul'] > cutoff]['c_cumul']
+                    ) / n_total)
 
-            # Precision and recall under liberal classification regime.
-            y_prec_lib.append(
-                summary(
-                    df_subset[df_subset['t_cumul'] > cutoff]['t_cumul']
-                ) / n_classified_combined)
-            y_rec_lib.append(
-                summary(
-                    df_subset[df_subset['t_cumul'] > cutoff]['t_cumul']
-                ) / n_total)
+                # Precision and recall under liberal classification regime.
+                y_prec_lib.append(
+                    summary(
+                        df_subset[df_subset['t_cumul'] > cutoff]['t_cumul']
+                    ) / n_classified_combined)
+                y_rec_lib.append(
+                    summary(
+                        df_subset[df_subset['t_cumul'] > cutoff]['t_cumul']
+                    ) / n_total)
 
-        fig, (prec_ax, rec_ax) = plt.subplots(1, 2, figsize=(20, 10))
+            fig, (prec_ax, rec_ax) = plt.subplots(1, 2, figsize=(20, 10))
 
-        prec_ax.set_title("Precision")
-        prec_ax.plot(x, y_prec_lib, label="liberal", color="green", marker='o')
-        prec_ax.plot(x, y_prec_cons, label="conservative", color="blue", marker='o')
-        prec_ax.set_ylim([-0.05, 1.05])
-        prec_ax.grid()
+            prec_ax.set_title("Precision")
+            prec_ax.plot(x, y_prec_lib, label="liberal", color="green", marker='o')
+            prec_ax.plot(x, y_prec_cons, label="conservative", color="blue", marker='o')
+            prec_ax.set_ylim([-0.05, 1.05])
+            prec_ax.grid()
 
-        rec_ax.set_title("Recall")
-        rec_ax.plot(x, y_rec_lib, label="liberal", color="green", marker='o')
-        rec_ax.plot(x, y_rec_cons, label="conservative", color="blue", marker='o')
-        rec_ax.set_ylim([-0.05, 1.05])
-        rec_ax.grid()
+            rec_ax.set_title("Recall")
+            rec_ax.plot(x, y_rec_lib, label="liberal", color="green", marker='o')
+            rec_ax.plot(x, y_rec_cons, label="conservative", color="blue", marker='o')
+            rec_ax.set_ylim([-0.05, 1.05])
+            rec_ax.grid()
 
-        prec_ax.legend(loc="best")
-        rec_ax.legend(loc="best")
+            prec_ax.legend(loc="best")
+            rec_ax.legend(loc="best")
 
-        # Save figure to disk.
-        fig.savefig(os.path.join(out_url, "prec_recall.png"))
+            # Save figure to disk.
+            fig.savefig(os.path.join(out_dir, "prec_recall.png"))
 
-        # Save raw counts to disk.
-        df = pd.DataFrame(index=x)
+            # Save raw counts to disk.
+            df = pd.DataFrame(index=x)
 
-        df['prec_lib'] = y_prec_lib
-        df['prec_cons'] = y_prec_cons
-        df['rec_lib'] = y_rec_lib
-        df['rec_cons'] = y_rec_cons
-        df.to_csv(os.path.join(out_url, "prec_recall.csv"), sep="\t")
+            df['prec_lib'] = y_prec_lib
+            df['prec_cons'] = y_prec_cons
+            df['rec_lib'] = y_rec_lib
+            df['rec_cons'] = y_rec_cons
+            df.to_csv(os.path.join(out_dir, "prec_recall.csv"), sep="\t")
 
     #
     # Add sequence to configuration file.
     #
     elif command == "add":
-        add_sequences(directory, CONF_DIR, group=group, first_n=first_n)
+        for directory in directories:
+            add_sequences(directory, CONF_DIR, group=group, first_n=first_n)
 
     #
     # Remove sequence from configuration file.
     #
     elif command == "remove":
-        remove_sequences(directory, CONF_DIR, group=group, first_n=first_n)
+        for directory in directories:
+            remove_sequences(directory, CONF_DIR, group=group, first_n=first_n)
 
     #
     # Set parameters in configuration file.
@@ -1464,13 +1522,14 @@ def main():
     elif command == "make_reads":
         from expam.sequences import make_reads
 
-        make_reads(
-            in_url=directory,
-            l=length,
-            n=n,
-            out_url=out_url,
-            e=0.0 if error_rate is None else float(error_rate)
-        )
+        for directory in directories:
+            make_reads(
+                in_url=directory,
+                l=length,
+                n=n,
+                out_url=out_dir,
+                e=0.0 if error_rate is None else float(error_rate)
+            )
 
     #
     # Posthumously employ cutoff.
@@ -1478,10 +1537,11 @@ def main():
     elif command == "cutoff":
         from expam.sequences import ls
 
-        if os.path.exists(results_name):
-            results_dir = results_name
+        if os.path.exists(out_dir):
+            validate_results_path(out_dir)
+            results_dir = out_dir
         else:
-            results_dir = os.path.join(DB_DIR, "results", results_name)
+            raise ValueError("Results path %s doesn't exist!")
 
         tax_results_dir = os.path.join(results_dir, "tax")
         raw_results_dir = os.path.join(tax_results_dir, "raw")
@@ -1573,52 +1633,6 @@ def main():
         conf.save()
 
         print("Database phylogeny set to %s." % save_dir)
-
-    #
-    # Count k-mers in sequence file.
-    #
-    elif command == "count":
-        import numpy as np
-        import pandas as pd
-
-        from expam.c.extract import extract_kmers_from_read as get_kmers
-        from expam.sequences import format_name
-        from expam.stores import SequenceStore
-
-        store = SequenceStore(k=k, out_dir="")
-
-        seq_name = format_name(directory)
-        store.add_sequence(directory)
-
-        kmers = get_kmers(store[seq_name], k)
-        values, counts = np.unique(kmers, return_counts=True)
-
-        df = pd.DataFrame({"kmers": values, "counts": counts})
-        df.to_csv(out_url, sep="\t", index=False, header=False)
-
-    #
-    # Map Jellyfish counts to expam.
-    #
-    elif command == "from_jellyfish":
-        import numpy as np
-        import pandas as pd
-
-        from expam.c.extract import map_kmers
-        from expam.run import calculate_n_chunks, KEYS_DATA_TYPE
-
-        df = pd.read_csv(directory, sep=" ", names=["kmers", "counts"])
-        seq = ("N".join(df['kmers'])).encode("utf8")
-
-        kmers = np.zeros((len(df['kmers']), calculate_n_chunks(k) + 1), dtype=KEYS_DATA_TYPE)
-        kmers[:, 0] = np.arange(len(df['kmers']), dtype=KEYS_DATA_TYPE) * (k + 1)
-        map_kmers(seq, k, kmers)
-
-        for i in range(calculate_n_chunks(k)):
-            df['kmers_%d' % i] = kmers[:, i + 1]
-
-        df.drop(columns=['kmers'], inplace=True)
-        df.to_csv(out_url, sep="\t", index=False, header=False,
-                  columns=['kmers_%d' % i for i in range(calculate_n_chunks(k))] + ['counts'])
 
     #
     # Plot time taken for tasks.
