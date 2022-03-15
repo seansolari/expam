@@ -900,8 +900,10 @@ def main():
                         help="Use QuickTree for Neighbour-Joining algorithm.")
     parser.add_argument("--paired", dest="paired_end", default=False, action="store_true",
                         help="Treat reads as paired-end.")
-    parser.add_argument("--alpha", dest="alpha", default=None,
+    parser.add_argument("--alpha", dest="alpha", default=0.1,
                         help="Percentage requirement for classification subtrees (see Tutorials 1 & 2).")
+    parser.add_argument("--log-scores", dest="log_scores", default=False, action="store_true",
+                        help="Log transformation to opacity scores on phylotree (think uneven distributions).")
 
     # Parse arguments.
     args = parser.parse_args()
@@ -912,14 +914,14 @@ def main():
     param_args = args.length, args.pile, args.error_rate, args.first_n, args.sketch, args.paired_end
     summary_args = args.plot, args.cutoff, args.cpm, args.taxonomy
     plot_args = args.groups, args.phyla, args.keep_zeros, not args.ignore_node_names, args.colour_list, \
-                args.circle_scale, args.rank
+                args.circle_scale, args.rank, args.log_scores
     tree_args = args.use_sourmash, args.use_rapidnj, args.use_quicktree
 
     command, db_name, k, n, phylogeny, alpha = runtime_args
     directories, out_dir, truth_dir = directory_args
     length, pile_size, error_rate, first_n, sketch, paired_end = param_args
     plot, cutoff, cpm, taxonomy = summary_args
-    groups, plot_phyla, keep_zeros, use_node_names, colour_list, circle_scale, at_rank = plot_args
+    groups, plot_phyla, keep_zeros, use_node_names, colour_list, circle_scale, at_rank, log_scores = plot_args
     use_sourmash, use_rapidnj, use_quicktree = tree_args
 
     group = None if groups is None else groups[0][0]  # When referring to sequence groups, not plotting groups.
@@ -932,7 +934,6 @@ def main():
 
         except KeyError:
             die("A database name is required!")
-            return
     else:
         DB_DIR = make_path_absolute(str(db_name), CWD)
 
@@ -1089,7 +1090,8 @@ def main():
             colour_list=colour_list,
             circle_scale=circle_scale,
             paired_end=paired_end,
-            alpha=alpha
+            alpha=alpha,
+            log_scores=log_scores
         )
 
     #
@@ -1144,7 +1146,8 @@ def main():
             phyla=plot_phyla,
             name_taxa=name_to_lineage,
             colour_list=colour_list,
-            circle_scale=circle_scale
+            circle_scale=circle_scale,
+            log_scores=log_scores
         )
         results.to_taxonomy(name_to_lineage, taxon_to_rank, tax_results_path)
 
@@ -1187,7 +1190,8 @@ def main():
             phyla=plot_phyla,
             name_taxa=name_to_lineage,
             colour_list=colour_list,
-            circle_scale=circle_scale
+            circle_scale=circle_scale,
+            log_scores=log_scores
         )
         results.draw_results()
 

@@ -1,9 +1,7 @@
-import datetime
 from genericpath import isfile
 import os
 import re
 import requests
-import shutil
 import time
 from ctypes import *
 from math import floor
@@ -93,7 +91,7 @@ def string_to_tuple(st):
 def run_classifier(read_paths, out_dir, db_dir, k, n, phylogeny_path, keys_shape, values_shape, logging_dir,
                    taxonomy=False, cutoff=0.0, groups=None, keep_zeros=False, cpm=0.0, use_node_names=True,
                    phyla=False, name_taxa=None, colour_list=None, circle_scale=1.0,
-                   paired_end=False, alpha=1.0):
+                   paired_end=False, alpha=1.0, log_scores=False):
 
     # Verify results path.
     if not os.path.exists(out_dir):
@@ -166,7 +164,8 @@ def run_classifier(read_paths, out_dir, db_dir, k, n, phylogeny_path, keys_shape
             phyla=phyla,
             name_taxa=name_taxa,
             colour_list=colour_list,
-            circle_scale=circle_scale
+            circle_scale=circle_scale,
+            log_scores=log_scores
         )
 
         if taxonomy:
@@ -1107,14 +1106,15 @@ class Distribution:
 
 class ClassificationResults:
     def __init__(self, index, phylogeny_index, in_dir, out_dir, groups=None, keep_zeros=False, cutoff=0.0, cpm=0.0,
-                 use_node_names=True, phyla=False, name_taxa=None, colour_list=None, circle_scale=1.0):
+                 use_node_names=True, phyla=False, name_taxa=None, colour_list=None, circle_scale=1.0,
+                 log_scores=False):
         self.index = index
         self.phylogeny_index = phylogeny_index
 
         self.in_dir = in_dir
         self.out_dir = out_dir
 
-        self.groups = groups  # [(colour, (name1, name2, ...)), (colour, (name3, ...)), ...]
+        self.groups = groups  # [(colour, (name1, name2, ...)), ...]
         self.keep_zeros = keep_zeros
 
         self.cutoff = cutoff  # Cutoff by counts.
@@ -1125,6 +1125,7 @@ class ClassificationResults:
         self.colour_list = colour_list
         self.name_taxa = name_taxa
         self.circle_scale = circle_scale
+        self.log_scores = log_scores
 
         if self.phyla and self.name_taxa is None:
             raise Exception("Inclusion of phyla requires mapping of names to taxonomic lineages!")
@@ -1312,7 +1313,8 @@ class ClassificationResults:
             name_to_taxon=self.name_taxa,
             use_phyla=self.phyla,
             keep_zeros=self.keep_zeros,
-            use_node_names=self.use_node_names
+            use_node_names=self.use_node_names,
+            log_scores=self.log_scores
         )
 
         # Draw unclassified tree.
@@ -1326,5 +1328,6 @@ class ClassificationResults:
             name_to_taxon=self.name_taxa,
             use_phyla=self.phyla,
             keep_zeros=self.keep_zeros,
-            use_node_names=self.use_node_names
+            use_node_names=self.use_node_names,
+            log_scores=self.log_scores
         )

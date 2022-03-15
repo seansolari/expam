@@ -90,7 +90,7 @@ setup(
     entry_points={
         "console_scripts": [
             "expam=expam.cli:main",
-            "expamlimit=expam.sandbox:main"
+            "expam_limit=expam.sandbox:main"
         ],
     },
     #
