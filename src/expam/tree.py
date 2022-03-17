@@ -1,5 +1,5 @@
 import random
-from math import floor
+from math import floor, log
 import json
 import os
 import traceback
@@ -768,17 +768,17 @@ class Index:
         return list(self.yield_leaves(node_name))
 
     def draw_results(self, file_path, out_dir, skiprows=None, groups=None, cutoff=None, cpm=None, colour_list=None,
-                     name_to_taxon=None, use_phyla=False, keep_zeros=True, use_node_names=True):
+                     name_to_taxon=None, use_phyla=False, keep_zeros=True, use_node_names=True, log_scores=False):
         counts = pd.read_csv(file_path, sep='\t', index_col=0, header=0, skiprows=skiprows)
         self.draw_tree(out_dir, counts=counts, groups=groups, cutoff=cutoff, cpm=cpm, colour_list=colour_list,
                        name_to_taxon=name_to_taxon, use_phyla=use_phyla, keep_zeros=keep_zeros,
-                       use_node_names=use_node_names)
+                       use_node_names=use_node_names, log_scores=log_scores)
 
     def draw_tree(self, out_dir, counts=None, groups=None, cutoff=None, cpm=None, colour_list=None, name_to_taxon=None,
-                  use_phyla=False, keep_zeros=True, use_node_names=True):
+                  use_phyla=False, keep_zeros=True, use_node_names=True, log_scores=True):
         try:
             import ete3.coretype.tree
-            from ete3 import AttrFace, CircleFace, faces, Tree, TreeStyle, NodeStyle, TextFace
+            from ete3 import AttrFace, faces, Tree, TreeStyle, NodeStyle, TextFace
 
         except ModuleNotFoundError as e:
             print("Could not import ete3 plotting modules! Error raised:")
@@ -787,11 +787,13 @@ class Index:
 
             return
 
+        from expam.sequences import format_name
+
         """
         Phylogenetic printing of nodes.
         """
         for node in self.pool:
-            if node.type == 'Branch' and node.name[0] != 'p':
+            if node.type == 'Branch' and not node.name.startswith('p'):
                 node.name = 'p' + node.name
 
         """
@@ -805,23 +807,42 @@ class Index:
         """
         if groups is None:
             groups = [(None, (section,)) for section in counts.columns]
+        else:
+            # Format group names.
+            groups = [
+                (
+                    col,
+                    tuple(
+                        format_name(group_member, remove_comp=True)
+                        for group_member in group
+                    )
+                )
+                for col, group in groups
+            ]
 
         # *** Relies on counts being defined.
         if counts is not None:
+            # Combine counts within the group.
             for _, group in groups:
                 if len(group) > 1:
                     group_name = group[0]
 
-                    # Conglomerate counts within the group.
                     counts.loc[:, group_name] = counts[list(group)].sum(axis=1)
                     counts.drop(labels=list(groups[1:]), axis=1, inplace=True)
 
-            sections = counts.columns.tolist()
-            nodes = counts.index.tolist()
+            # Remove any groups that weren't specified.
+            all_groups = counts.columns.tolist()
+            specified_groups = set(group[0] for _, group in groups)
+            unspecified_groups = [group for group in all_groups if group not in specified_groups]
+
+            counts.drop(labels=unspecified_groups, axis=1, inplace=True)
 
             """
             Employ cutoff.
             """
+            sections = list(specified_groups)
+            nodes = counts.index.tolist()
+
             if cutoff is None and cpm is None:
                 nodes_with_counts = nodes
 
@@ -854,8 +875,15 @@ class Index:
             Colour generation.
             """
             max_vector = tuple(counts.max())
+            min_vector = tuple(counts.min())
             colours = [colour for colour, _ in groups]
-            colour_generator = ColourGenerator(colours, max_vector, colour_list=colour_list)
+            colour_generator = ColourGenerator(
+                colours,
+                max_vector,
+                min_vector,
+                colour_list=colour_list,
+                log_scores=log_scores
+            )
 
         """
         Function to render any given node.
@@ -881,7 +909,7 @@ class Index:
                 node_counts = tuple(counts.loc[node.name, :])
 
                 if any(node_counts):
-                    colour, _ = colour_generator.generate(node_counts)
+                    colour = colour_generator.generate(node_counts)
 
                     ns = NodeStyle()
                     ns['bgcolor'] = colour
@@ -1000,16 +1028,14 @@ class RandomColour:
 
 
 class ColourGenerator:
-    def __init__(self, colours, max_vector, colour_list=None):
+    def __init__(self, colours, max_vector, min_vector=None, colour_list=None, log_score=False):
         """
 
         :param colours:
         :param max_vector:
         :param colour_list:
         """
-        """
-        Ensure we have enough colours for plotting.
-        """
+        # Ensure we have enough colours for plotting.
         g = RandomColour()
 
         # Ensure we have enough colours for each group.
@@ -1032,19 +1058,30 @@ class ColourGenerator:
 
         #
         self.max_vector = max_vector
+        self.min_vector = min_vector
+        self.make_log_score = log_score
 
-    def _calculate_colour(self, score_vector, scorer):
+        if self.make_log_score and self.min_vector is None:
+            raise AttributeError("Log scores requested but not min vector supplied!")
+
+        # Calculate normalisation factors.
+        self._log_norm_factor = [log(mx / mn) for mx, mn in zip(self.max_vector, self.min_vector)] if self.make_log_score else None
+
+    def generate(self, score_vector):
         colour = HexColour("#FFFFFF")  # White background.
+        scorer = self._linear_scores if not self.make_log_score else self._log_scores
 
-        # Artificial scaling factor.
-        non_zero_indices = [i for i, score in enumerate(score_vector) if score > 0]
-        alpha = sum([score_vector[i] for i in non_zero_indices]) / sum([scorer[i] for i in non_zero_indices])
+        for next_colour, opacity in scorer(score_vector):
+            colour += next_colour.opaque(opacity)
 
-        for i, score in enumerate(score_vector):
+        return str(colour)
+
+    def _linear_scores(self, vector):
+        for i, score in enumerate(vector):
             if score > 0:
-                colour += self.colours[i].opaque(score / scorer[i])
+                yield self.colours[i], score / self.max_vector[i]
 
-        return str(colour), alpha
-
-    def generate(self, vector):
-        return self._calculate_colour(vector, self.max_vector)
+    def _log_scores(self, vector):
+        for i, score in enumerate(vector):
+            if score > 0:
+                yield self.colours[i], log(score / self.min_vector[i]) / self._log_norm_factor

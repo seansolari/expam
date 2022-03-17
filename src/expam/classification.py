@@ -1,8 +1,7 @@
-import datetime
+from genericpath import isfile
 import os
 import re
 import requests
-import shutil
 import time
 from ctypes import *
 from math import floor
@@ -89,69 +88,27 @@ def string_to_tuple(st):
     return tuple(int(i) for i in number_string.split(",") if i != '')
 
 
-def run_classifier(reads_url, out_dir, k, n, phylogeny_path, keys_shape, values_shape, logging_dir,
+def run_classifier(read_paths, out_dir, db_dir, k, n, phylogeny_path, keys_shape, values_shape, logging_dir,
                    taxonomy=False, cutoff=0.0, groups=None, keep_zeros=False, cpm=0.0, use_node_names=True,
-                   phyla=False, name_taxa=None, colour_list=None, results_name=None, circle_scale=1.0,
-                   paired_end=False, alpha=1.0):
-    def format_date():
-        _date = datetime.datetime.now()
-        year, month, day = _date.year, _date.month, _date.day
+                   phyla=False, name_taxa=None, colour_list=None, circle_scale=1.0,
+                   paired_end=False, alpha=1.0, log_scores=False):
 
-        date_string = ""
-        for part in (year, month, day):
-            if len(str(part)) == 1:
-                date_string += "0" + str(part)
-
-            else:
-                date_string += str(part)
-
-        return date_string
-
-    # Create a dedicated folder to save results.
-    # Format of results folders are ./out_dir/results/YYYYMMDD_ID/...
-    results_base = os.path.join(out_dir, "results")
-    if not os.path.exists(results_base):
-        os.mkdir(results_base)
-
-    if results_name is None:
-        folder_base = os.path.join(results_base, format_date())
-
-        i = 1
-        while True:
-            candidate = folder_base + "_" + str(i)
-
-            if not os.path.exists(candidate):
-                results_path = candidate
-                break
-
-            else:
-                i += 1
-
+    # Verify results path.
+    if not os.path.exists(out_dir):
+        print("Creating results path %s." % out_dir)
+        os.mkdir(out_dir)
     else:
-        results_path = os.path.join(results_base, results_name)
-
-        if os.path.exists(results_path):
-            over_write = input("Results folder %s already exists! Overwrite? (y/n) ")
-
-            if over_write.lower() == "y":
-                print("Overwriting directory...")
-                shutil.rmtree(results_path)
-            else:
-                print("Did not overwrite. Exiting...")
-                return
-
-    os.mkdir(results_path)
-    print("Results directory created at %s." % results_path)
+        print("Using path %s for results." % out_dir)
 
     print("Loading the map and phylogeny.\n")
     # Load the kmer dictionary.
-    db_kmers = SharedDB(out_dir, keys_shape, values_shape)
+    db_kmers = SharedDB(db_dir, keys_shape, values_shape)
 
-    phy_results_path = os.path.join(results_path, PHY_RESULTS)
+    phy_results_path = os.path.join(out_dir, PHY_RESULTS)
     raw_results_path = os.path.join(phy_results_path, RAW_RESULTS)
-    temp_results_path = os.path.join(results_path, TEMP_RESULTS)
+    temp_results_path = os.path.join(out_dir, TEMP_RESULTS)
 
-    for new_path in [phy_results_path, raw_results_path, temp_results_path]:
+    for new_path in (phy_results_path, raw_results_path, temp_results_path):
         os.mkdir(new_path)
 
     try:
@@ -159,7 +116,7 @@ def run_classifier(reads_url, out_dir, k, n, phylogeny_path, keys_shape, values_
         index, phylogeny_index = name_to_id(phylogeny_path)
 
         # Load LCA Matrix.
-        lca_matrix = np.load(join(out_dir, LCA_MATRIX_PATH))
+        lca_matrix = np.load(join(db_dir, LCA_MATRIX_PATH))
 
         # Initialise the distribution.
         d = Distribution(
@@ -167,8 +124,8 @@ def run_classifier(reads_url, out_dir, k, n, phylogeny_path, keys_shape, values_
             kmer_db=db_kmers,
             index=phylogeny_index,
             lca_matrix=lca_matrix,
-            url=reads_url,
-            out_dir=results_path,
+            read_paths=read_paths,
+            out_dir=out_dir,
             logging_dir=logging_dir,
             temp_dir=temp_results_path,
             paired_end=paired_end,
@@ -179,7 +136,7 @@ def run_classifier(reads_url, out_dir, k, n, phylogeny_path, keys_shape, values_
         d.run(n)
 
         # Load accession ids.
-        with open(join(out_dir, ACCESSION_ID_PATH), 'r') as f:
+        with open(join(db_dir, ACCESSION_ID_PATH), 'r') as f:
             sequence_ids = [
                 line.strip().split(",")
                 for line in f
@@ -198,7 +155,7 @@ def run_classifier(reads_url, out_dir, k, n, phylogeny_path, keys_shape, values_
             index=index,
             phylogeny_index=phylogeny_index,
             in_dir=phy_results_path,
-            out_dir=results_path,
+            out_dir=out_dir,
             groups=groups,
             keep_zeros=keep_zeros,
             cutoff=cutoff,
@@ -207,17 +164,18 @@ def run_classifier(reads_url, out_dir, k, n, phylogeny_path, keys_shape, values_
             phyla=phyla,
             name_taxa=name_taxa,
             colour_list=colour_list,
-            circle_scale=circle_scale
+            circle_scale=circle_scale,
+            log_scores=log_scores
         )
 
         if taxonomy:
             # Attempt to update taxon ids.
-            accession_to_taxonomy(out_dir)
+            accession_to_taxonomy(db_dir)
 
-            tax_results_path = os.path.join(results_path, TAX_RESULTS)
+            tax_results_path = os.path.join(out_dir, TAX_RESULTS)
             os.mkdir(tax_results_path)
 
-            name_to_lineage, taxon_to_rank = load_taxonomy_map(out_dir)
+            name_to_lineage, taxon_to_rank = load_taxonomy_map(db_dir)
             results.to_taxonomy(name_to_lineage, taxon_to_rank, tax_results_path)
 
         results.draw_results()
@@ -844,7 +802,7 @@ class ExpamClassifierProcesses(ControlCenter):
 
 
 class Distribution:
-    def __init__(self, k, kmer_db, index, lca_matrix, url, out_dir, temp_dir, logging_dir, alpha,
+    def __init__(self, k, kmer_db, index, lca_matrix, read_paths, out_dir, temp_dir, logging_dir, alpha,
                  keep_zeros=False, cutoff=0.0, cpm=0.0, paired_end=False):
         """
 
@@ -871,7 +829,7 @@ class Distribution:
         self.cpm = cpm
 
         # Url containing reads.
-        self.url = url
+        self.read_paths = read_paths
         self.paired_end = paired_end
 
     def run(self, n):
@@ -1100,28 +1058,32 @@ class Distribution:
         return match_ind
 
     def prepare_queue(self, paired_end=False):
-        # Create a list of all the files containing reads to be processed.
-        file_list = [
-            file_name
-            for file_name in ls(self.url)
-            if re.match(r"(\S+)\.(?:fa|fna|ffn|fq|fasta|fastq)(?:\.tar)*(?:\.gz)*$", file_name)
-        ]
+        for path in self.read_paths:
+            # Create a list of all the files containing reads to be processed.
+            file_list = [
+                file_name
+                for file_name in ls(path)
+                if re.match(r"(\S+)\.(?:fa|fna|ffn|fq|fasta|fastq)(?:\.tar)*(?:\.gz)*$", file_name)
+            ]
 
-        file_queue = []
+            file_queue = []
 
-        if paired_end:
-            while file_list:
-                next_file = file_list.pop()
+            if paired_end:  # This implies path is a folder, not a file.
+                while file_list:
+                    next_file = file_list.pop()
 
-                # Find buddy.
-                match_ind = self.best_match(next_file, file_list)
-                paired_file = file_list.pop(match_ind)
+                    # Find buddy.
+                    match_ind = self.best_match(next_file, file_list)
+                    paired_file = file_list.pop(match_ind)
 
-                file_queue.append((join(self.url, next_file), join(self.url, paired_file)))
+                    file_queue.append((join(path, next_file), join(path, paired_file)))
 
-        else:
-            for file_name in file_list:
-                file_queue.append((join(self.url, file_name),))
+            else:
+                for file_name in file_list:
+                    if os.path.isfile(file_name):
+                        file_queue.append((file_name, ))
+                    else:
+                        file_queue.append((join(path, file_name),))
 
         return file_queue
 
@@ -1138,19 +1100,21 @@ class Distribution:
         index = (unclassified * ["unclassified"]) + names
         return pd.Series(
             data=np.zeros(len(names) + unclassified, dtype=int),
-            index=index)
+            index=index
+        )
 
 
 class ClassificationResults:
     def __init__(self, index, phylogeny_index, in_dir, out_dir, groups=None, keep_zeros=False, cutoff=0.0, cpm=0.0,
-                 use_node_names=True, phyla=False, name_taxa=None, colour_list=None, circle_scale=1.0):
+                 use_node_names=True, phyla=False, name_taxa=None, colour_list=None, circle_scale=1.0,
+                 log_scores=False):
         self.index = index
         self.phylogeny_index = phylogeny_index
 
         self.in_dir = in_dir
         self.out_dir = out_dir
 
-        self.groups = groups  # [(colour, (name1, name2, ...)), (colour, (name3, ...)), ...]
+        self.groups = groups  # [(colour, (name1, name2, ...)), ...]
         self.keep_zeros = keep_zeros
 
         self.cutoff = cutoff  # Cutoff by counts.
@@ -1161,6 +1125,7 @@ class ClassificationResults:
         self.colour_list = colour_list
         self.name_taxa = name_taxa
         self.circle_scale = circle_scale
+        self.log_scores = log_scores
 
         if self.phyla and self.name_taxa is None:
             raise Exception("Inclusion of phyla requires mapping of names to taxonomic lineages!")
@@ -1348,7 +1313,8 @@ class ClassificationResults:
             name_to_taxon=self.name_taxa,
             use_phyla=self.phyla,
             keep_zeros=self.keep_zeros,
-            use_node_names=self.use_node_names
+            use_node_names=self.use_node_names,
+            log_scores=self.log_scores
         )
 
         # Draw unclassified tree.
@@ -1362,5 +1328,6 @@ class ClassificationResults:
             name_to_taxon=self.name_taxa,
             use_phyla=self.phyla,
             keep_zeros=self.keep_zeros,
-            use_node_names=self.use_node_names
+            use_node_names=self.use_node_names,
+            log_scores=self.log_scores
         )

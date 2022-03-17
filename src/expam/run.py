@@ -953,7 +953,6 @@ def main(out_dir, genome_paths, phylogeny_path, k, n=None, n_extract=None,
     # Import phylogeny.
     genome_ids, index = import_phylogeny(phylogeny_path)
     # Create LCA matrix.
-    format_name = expam.sequences.format_name
     node_to_index = {node.name: i for i, node in enumerate(index.pool) if i > 0}
     lca_matrix = make_lca_matrix(index, node_to_index)
 
@@ -964,14 +963,14 @@ def main(out_dir, genome_paths, phylogeny_path, k, n=None, n_extract=None,
 
     # Multiprocessing configuration.
     mp_config = {
-        "name": "expam",  # Job system title.
-        "phases": [  # Two-pass algorithm.
-            "import",  # Import sequences and take union.
-            "map"  # Map kmer to LCA.
+        "name": "expam",    # Job system title.
+        "phases": [         # Two-pass algorithm.
+            "import",       # Import sequences and take union.
+            "map"           # Map kmer to LCA.
         ],
-        "layers": {  # Top layer of child processes - extract sequence & kmers.
+        "layers": {         # Top layer of child processes - extract sequence & kmers.
             "class": expam.processes.ExtractWorker,
-            "class_args": {  # Positional arguments to init class.
+            "class_args": { # Positional arguments to init class.
                 "k": k,
                 "shm_kmer_params": shm_allocations,
                 "kmer_ranges": ranges,
@@ -979,23 +978,23 @@ def main(out_dir, genome_paths, phylogeny_path, k, n=None, n_extract=None,
                 "out_dir": out_dir,
                 "logging_dir": logs_dir,
             },
-            "parent": ControlCenter,  # Receive work from main process.
+            "parent": ControlCenter,                        # Receive work from main process.
             "child": {
-                "class": expam.processes.UnionWorker,  # Take union of sets of kmers.
-                "class_args": {  # Each either length n_union or 1.
+                "class": expam.processes.UnionWorker,       # Take union of sets of kmers.
+                "class_args": { # Each either length n_union or 1.
                     "main_con": union_cons,
                     "lca_matrix": lca_matrix,
                     "pile_size": pile_size,
                     "logging_dir": logs_dir,
                     "lock_value": lock_value,
                 },
-                "parent": expam.processes.ExtractWorker,  # Receive work from ExtractWorkers.
+                "parent": expam.processes.ExtractWorker,    # Receive work from ExtractWorkers.
                 "child": None,  # Bottom of process hierarchy.
-                "n": n_union,  # Number of processes.
+                "n": n_union,   # Number of processes.
             },
             "n": n_extract,
         },
-        "timeout": TIMEOUT,  # Time to block for when checking queues.
+        "timeout": TIMEOUT,     # Time to block for when checking queues.
     }
 
     process_network = ExpamProcesses.from_method_dict(main_cons, out_dir, logs_dir, mp_config)
