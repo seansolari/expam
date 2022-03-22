@@ -4,6 +4,7 @@ import json.decoder
 import math
 import platform
 import re
+from tkinter import E
 
 import matplotlib.pyplot as plt
 import multiprocessing as mp
@@ -804,7 +805,7 @@ def validate_results_path(results_dir):
     classified_path = os.path.join(phy_results_path, "classified_counts.csv")
     splits_path = os.path.join(phy_results_path, "splits_counts.csv")
 
-    if not os.path.exists(classified_path) or not os.path.exists(splits_path):
+    if not (os.path.exists(classified_path) or os.path.exists(splits_path)):
         raise Exception("Path does not look like expam results folder!")
 
 
@@ -843,7 +844,7 @@ def main():
     parser.add_argument("-k", "--kmer", dest="k",
                         help="Length of mer used for analysis.",
                         metavar="[k value (int)]")
-    parser.add_argument("-n", "--n_processes", dest="n",
+    parser.add_argument("-n", "--n-processes", dest="n",
                         help="Number of CPUs to use for processing.",
                         metavar="[n (int)]")
     parser.add_argument("-s", "--sketch", dest="sketch",
@@ -859,12 +860,12 @@ def main():
                         help="Length of simulated reads.",
                         metavar="[read length]")
     parser.add_argument("-o", "--out", dest="out_url",
-                        help="URL to save sequences.",
+                        help="Where to save classification results.",
                         metavar="[out URL]")
     parser.add_argument("-y", "--pile", dest="pile",
                         help="Number of genomes to pile at a time (or inf).",
                         metavar="[pile size]")
-    parser.add_argument("-e", "--error_rate", dest="error_rate",
+    parser.add_argument("-e", "--error-rate", dest="error_rate",
                         help="Generate error in reads (error ~ reads with errors / reads).",
                         metavar="[error rate]")
     parser.add_argument("-t", "--truth", dest="truth_dir",
@@ -883,14 +884,14 @@ def main():
                         help="Colour phylotree results by phyla.")
     parser.add_argument("--rank", dest="rank", default=None,
                         help="Rank at which to sort results.")
-    parser.add_argument("--keep_zeros", dest="keep_zeros", default=False, action="store_true",
+    parser.add_argument("--keep-zeros", dest="keep_zeros", default=False, action="store_true",
                         help="Keep nodes of output where no reads have been assigned.")
-    parser.add_argument("--ignore_names", dest="ignore_node_names", default=False, action="store_true")
+    parser.add_argument("--ignore-names", dest="ignore_node_names", default=False, action="store_true")
     parser.add_argument("--group", dest="groups", action="append", nargs="+",
                         help="Space-separated list of sample files to be treated as a single group in phylotree.")
-    parser.add_argument("--colour_list", dest="colour_list", nargs="+",
+    parser.add_argument("--colour-list", dest="colour_list", nargs="+",
                         help="List of colours to use when plotting groups in phylotree.")
-    parser.add_argument("--circle_scale", dest="circle_scale", default=1.0,
+    parser.add_argument("--circle-scale", dest="circle_scale", default=1.0,
                         help="Scale of circles that represent splits in phylotree.")
     parser.add_argument("--sourmash", dest="use_sourmash", default=False, action="store_true",
                         help="Use sourmash for distance estimation.")
@@ -904,6 +905,8 @@ def main():
                         help="Percentage requirement for classification subtrees (see Tutorials 1 & 2).")
     parser.add_argument("--log-scores", dest="log_scores", default=False, action="store_true",
                         help="Log transformation to opacity scores on phylotree (think uneven distributions).")
+    parser.add_argument("--itol", dest="itol_mode", default=False, action="store_true",
+                        help="Output plotting data in ITOL format.")
 
     # Parse arguments.
     args = parser.parse_args()
@@ -914,14 +917,14 @@ def main():
     param_args = args.length, args.pile, args.error_rate, args.first_n, args.sketch, args.paired_end
     summary_args = args.plot, args.cutoff, args.cpm, args.taxonomy
     plot_args = args.groups, args.phyla, args.keep_zeros, not args.ignore_node_names, args.colour_list, \
-                args.circle_scale, args.rank, args.log_scores
+                args.circle_scale, args.rank, args.log_scores, args.itol_mode
     tree_args = args.use_sourmash, args.use_rapidnj, args.use_quicktree
 
     command, db_name, k, n, phylogeny, alpha = runtime_args
     directories, out_dir, truth_dir = directory_args
     length, pile_size, error_rate, first_n, sketch, paired_end = param_args
     plot, cutoff, cpm, taxonomy = summary_args
-    groups, plot_phyla, keep_zeros, use_node_names, colour_list, circle_scale, at_rank, log_scores = plot_args
+    groups, plot_phyla, keep_zeros, use_node_names, colour_list, circle_scale, at_rank, log_scores, itol_mode = plot_args
     use_sourmash, use_rapidnj, use_quicktree = tree_args
 
     group = None if groups is None else groups[0][0]  # When referring to sequence groups, not plotting groups.
@@ -1091,7 +1094,8 @@ def main():
             circle_scale=circle_scale,
             paired_end=paired_end,
             alpha=alpha,
-            log_scores=log_scores
+            log_scores=log_scores,
+            itol_mode=itol_mode
         )
 
     #
@@ -1159,20 +1163,21 @@ def main():
             die("Require output directory (-o, --out_dir)!")
         else:
             validate_results_path(out_dir)
+            pass
 
         from expam.classification import TAXID_LINEAGE_MAP_NAME, PHY_RESULTS, \
             load_taxonomy_map, name_to_id, ClassificationResults
-
-        map_url = os.path.join(DB_DIR, TAXID_LINEAGE_MAP_NAME)
-        if not os.path.exists(map_url):
-            die("Run command `download_taxonomy` first to collect taxa for your genomes!")
 
         config = load_configuration_file(DB_DIR, return_config=True)
         phylogeny_path = config["phylogeny_path"]
         phylogeny_path = make_path_absolute(phylogeny_path, DB_DIR)
 
         index, phylogenyIndex = name_to_id(phylogeny_path)
-        name_to_lineage, taxon_to_rank = load_taxonomy_map(DB_DIR)
+
+        try:
+            name_to_lineage, _ = load_taxonomy_map(DB_DIR)
+        except FileNotFoundError:
+            name_to_lineage = None
 
         # Load phylogenetic results.
         phy_results_url = os.path.join(out_dir, PHY_RESULTS)
@@ -1188,12 +1193,12 @@ def main():
             cpm=cpm,
             use_node_names=use_node_names,
             phyla=plot_phyla,
-            name_taxa=name_to_lineage,
+            name_taxa=name_to_lineage, 
             colour_list=colour_list,
             circle_scale=circle_scale,
             log_scores=log_scores
         )
-        results.draw_results()
+        results.draw_results(itol_mode=itol_mode)
 
     #
     # Plot tree.

@@ -1,5 +1,5 @@
-expam's Tree module
-===================
+**expam**'s tree module
+=======================
 
 A programmatic API to interact with phylogenetic trees, particularly those used in reference databases.
 

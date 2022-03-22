@@ -161,7 +161,7 @@ Classification
 
 Classify
 ^^^^^^^^
-Run metagenomic reads against a succesfully built database. See :doc:`Tutorial 2 <tutorials/classify>` form details.
+Run metagenomic reads against a succesfully built database. See :doc:`Tutorial 2 <tutorials/classify>` for more details.
 
 .. code-block:: console
 
@@ -180,9 +180,9 @@ Run metagenomic reads against a succesfully built database. See :doc:`Tutorial 2
 
     To be supplied when sample files contained paired-end reads.
 
-.. option:: --name <string>
+.. option:: -o <str>, --out <str>
 
-    Name of results folder.
+    Path to save classification results and output in.
 
 .. option:: --taxonomy
 
@@ -217,6 +217,7 @@ Run metagenomic reads against a succesfully built database. See :doc:`Tutorial 2
 .. option:: --group <sample name> <sample name> ...
 
     Space-separated list of sample files to be treated as a single group in phylotree.
+    Groups are explained in this :ref:`tutorial <groups explanation>`.
 
     .. note::
 
@@ -232,13 +233,34 @@ Run metagenomic reads against a succesfully built database. See :doc:`Tutorial 2
     Percentage requirement for classification subtrees (see :doc:`Tutorial 1 <tutorials/quickstart>`
     and :doc:`Tutorial 2 <tutorials/classify>`).
 
+.. option:: --itol
+
+    Rather than use :code:`ete3` for plotting the phylogenetic tree, **expam** will output files that can be
+    used with iTOL for plotting. See the :ref:`classification tutorial <itol integration>` for details.
+
+.. option:: --log-scale
+
+    Compute a log-transform on the counts at each node in the phylogenetic tree before 
+    depiction on the phylotree.
+
+    .. note::
+
+        For a given sample :math:`S`, with minimum and maximum counts :math:`\underline{c}` and :math:`\overline{c}` 
+        respectively (:math:`\underline{c} > 0` i.e. the smallest non-zero score), the log-transform :math:`f` of some count :math:`x` is defined by
+
+        .. math::
+
+            f(x) = \frac{ \log\left(x / \underline{c}\right) }{ \log\left(\overline{c} / \underline{c}\right) },
+
+        so that :math:`f(x)\in[0,1]`. Then :math:`f(x)` is treated as an opacity score for plotting purposes.
+
 
 Example
 """""""
 
 .. code-block:: console
 
-    $ expam run -db DB_NAME -d /path/to/paired/reads --paired --name paired_reads_analysis --taxonomy
+    $ expam run -db DB_NAME -d /path/to/paired/reads --paired --out ~/paired_reads_analysis --taxonomy
 
 .. _download taxonomy:
 
@@ -279,4 +301,112 @@ Translate phylogenetic classification output to NCBI taxonomy.
 .. code-block:: console
 
     $ expam to_taxonomy --db DB_NAME
+
+Plotting results on phylotree
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Results are automatically visualised on top of a phylogenetic tree when during the :code:`expam run` command,
+but can also be done after classification using the :code:`phylotree` command.
+
+.. code-block::
+
+    $ expam phylotree -db DB_NAME --out /path/to/classification/output [args...]
+
+.. option:: -o <str>, --out <str>
+
+    Path to retrieve classification results for plotting.
+
+.. option:: --phyla
+
+    Colour phylotree results by phyla.
+
+.. option:: --keep_zeros
+
+    Keep nodes in output where no reads have been assigned.
+
+.. option:: --ignore_names
+
+    Don't plot names of reference genomes in output phylotree.
+
+.. option:: --colour_list <hex string> <hex string> ...
+
+    List of colours to use when plotting groups in phylotree.
+
+.. option:: --group <sample name> <sample name> ...
+
+    Space-separated list of sample files to be treated as a single group in phylotree.
+    Groups are explained above, and in this :ref:`tutorial <groups explanation>`.
+
+.. option:: --itol
+
+    Rather than use :code:`ete3` for plotting the phylogenetic tree, **expam** will output files that can be
+    used with iTOL for plotting. See the :ref:`classification tutorial <itol integration>` for details.
+
+.. option:: --log-scale
+
+    Compute a log-transform on the counts at each node in the phylogenetic tree before 
+    depiction on the phylotree.
+
+.. _limiting resource usage:
+
+Limiting resource usage
+-----------------------
+
+**expam** allows you to provide an :code:`expam_limit` context before the :code:`expam` call to limit
+how much RAM is used. *Note that this doesn't change any underlying algorithms, it simply
+prepares a graceful exit of the program if it exceeds the supplied limit.* See :ref:`examples<limit example>`
+for an example usage.
+
+.. option:: -m <int>, --memory <int>
+
+    Memory limit in bytes.
+
+.. option:: -x <float>, --x <float>
+
+    Percentage of total available memory to limit to.
+
+.. option:: -t <float>, --interval <float>
+
+    Intervals in which program memory usage is written to log file.
+
+.. option:: -o <str>, --out <str>
+
+    Log file to write to. By default, logs are written to console.
+
+.. _limit example:
+
+Example
+^^^^^^^
+ The following will perform a database build while restricting *expam*'s total
+ memory usage to half of the available machine's RAM, writing logs
+ in 1 second intervals to a :code:`build.log` file.
+
+ .. code-block:: console
+
+     $ expam_limit -x 0.5 -t 1.0 -o build.log expam build ...
+
+.. warning::
+
+    It is important that the :code:`expam_limit` command comes before
+    the :code:`expam` command.
+
+.. note::
+
+    The :code:`expam_limit` context works the same for any command. :code:`expam build`
+    can be replaced with :code:`expam run`, or any other command.
+
+The following is an example of the (tab-separated) log file output:
+
+.. code-block::
+
+    2022-03-11 02:25:05,888 ... 	total	used	free	shared	buff/cache	available
+    2022-03-11 02:25:05,903 ... Mem:	944Gi	1.6Gi	427Gi	0.0Ki	515Gi	938Gi
+    2022-03-11 02:25:06,915 ... Mem:	944Gi	1.6Gi	427Gi	0.0Ki	515Gi	938Gi
+    2022-03-11 02:25:07,928 ... Mem:	944Gi	2.2Gi	427Gi	38Mi	515Gi	937Gi
+    2022-03-11 02:25:08,940 ... Mem:	944Gi	2.2Gi	426Gi	195Mi	515Gi	937Gi
+    2022-03-11 02:25:09,953 ... Mem:	944Gi	2.2Gi	426Gi	353Mi	515Gi	937Gi
+    2022-03-11 02:25:10,966 ... Mem:	944Gi	2.2Gi	426Gi	516Mi	516Gi	937Gi
+    2022-03-11 02:25:11,980 ... Mem:	944Gi	2.2Gi	426Gi	682Mi	516Gi	936Gi
+    2022-03-11 02:25:12,992 ... Mem:	944Gi	2.2Gi	426Gi	848Mi	516Gi	936Gi
+    2022-03-11 02:25:14,005 ... Mem:	944Gi	2.2Gi	425Gi	1.0Gi	516Gi	936Gi
 

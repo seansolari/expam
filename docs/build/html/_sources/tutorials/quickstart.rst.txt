@@ -99,18 +99,13 @@ Running classifications
   
 * We use the :code:`run` command to classify reads.
 * These are paired reads, but for now we'll treat them as separate.
-* By default, run results are stored in the :code:`results` database folder,
-  
-    * here :code:`test/results`.
-    * This can be redirected using :code:`--out`.
-  
-* We can supply a :code:`--name` to label these results.
-  
-    * We'll call this first run :code:`unpaired`.
+* We supply the :code:`-o` or :code:`--out` flag to tell *expam* where to save classification results.
+
+    * *expam* automatically creates a :code:`results` subdirectory in the database directory, which is a convenient but not necessarily required place to keep classification results related to this database.
 
 .. code-block:: console
     
-    $ expam run -db test -d /Users/seansolari/Documents/expam/test/data/reads/ --name unpaired_test
+    $ expam run -db test -d /Users/seansolari/Documents/expam/test/data/reads/ --out test/results/unpaired_test
     Clearing old log files...
     Results directory created at /Users/seansolari/Documents/Databases/test/results/unpaired_test.
     Loading the map and phylogeny.
@@ -207,7 +202,7 @@ Running paired data
 
 .. code-block:: console
 
-    $ expam run -db test -d /Users/seansolari/Documents/expam/test/data/reads/ --name paired_test --paired
+    $ expam run -db test -d /Users/seansolari/Documents/expam/test/data/reads/ --out test/results/paired_test --paired
     Clearing old log files...
     Results directory created at /Users/seansolari/Documents/Databases/test/results/paired_test.
     Loading the map and phylogeny.
@@ -250,10 +245,11 @@ Taxonomic results
     This saves space by only downloading the data required for your specific reference sequences.
 
 * We will convert the previous :code:`paired_test` run to taxonomic format.
+* Specify the path to the classfication results folder using :code:`-o` or :code:`--out`.
 
 .. code-block:: console
 
-    $ expam to_taxonomy -db test --name paired_test
+    $ expam to_taxonomy -db test --out test/results/paired_test
 
     * Initialising node pool...
     * Checking for polytomies...
@@ -261,15 +257,15 @@ Taxonomic results
     * Finalising index...
     Phylogenetic tree written to /Users/seansolari/Documents/Databases/test/results/paired_test/phylotree.pdf!
 
-* The results to convert are specified using the :code:`--name` flag.
+* The results to convert are specified using the :code:`-o/--out` flag.
 
-    * This must point to the base of the results directory (ie. parent of :code:`phy` output).
+    * This must point to the base of the results directory (ie. parent of :code:`phy` output directory).
 
-* Taxonomic results can be found in :code:`tax` subdirectory within results folder (that you specified with :code:`--name`).
+* Taxonomic results can be found in :code:`tax` subdirectory within results folder (that you specified with :code:`--out`).
 
 .. code-block:: console
 
-    $ test/results/paired_test/tax/
+    $ ls test/results/paired_test/tax/
     GCF_000005845.2_ASM584v2_genomic.gz_2.csv       raw
     $ head test/results/paired_test/tax/GCF_000005845.2_ASM584v2_genomic.gz_2.csv
         c_perc  c_cumul c_count s_perc  s_cumul s_count rank    scientific name

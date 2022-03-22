@@ -43,7 +43,7 @@
 <li class="toctree-l1"><a class="reference internal" href="commands.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dependencies.html">Additional Dependencies (optional)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tree.html">expam’s Tree module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tree.html"><strong>expam</strong>’s tree module</a></li>
 </ul>
 
         </div>
@@ -91,7 +91,7 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li>
-    --alpha
+    --alpha &lt;float&gt;
 
       <ul>
         <li><a href="commands.html#cmdoption-alpha">command line option</a>
@@ -101,79 +101,128 @@
     --colour_list
 
       <ul>
-        <li><a href="commands.html#cmdoption-colour_list">command line option</a>, <a href="tutorials/graphical.html#cmdoption-colour_list">[1]</a>
+        <li><a href="tutorials/graphical.html#cmdoption-colour_list">command line option</a>
 </li>
       </ul></li>
       <li>
-    --cpm
+    --colour_list &lt;hex string&gt; &lt;hex string&gt; ...
+
+      <ul>
+        <li><a href="commands.html#cmdoption-8">command line option</a>, <a href="commands.html#cmdoption-colour_list">[1]</a>
+</li>
+      </ul></li>
+      <li>
+    --cpm &lt;int&gt;
 
       <ul>
         <li><a href="commands.html#cmdoption-cpm">command line option</a>
 </li>
       </ul></li>
       <li>
-    --cutoff
+    --cutoff &lt;int&gt;
 
       <ul>
         <li><a href="commands.html#cmdoption-cpm">command line option</a>
 </li>
       </ul></li>
       <li>
-    --directory
+    --directory &lt;file path&gt;
 
       <ul>
         <li><a href="commands.html#cmdoption-0">command line option</a>, <a href="commands.html#cmdoption-d">[1]</a>
 </li>
       </ul></li>
       <li>
-    --first_n
+    --first_n &lt;int&gt;
 
       <ul>
         <li><a href="commands.html#cmdoption-first_n">command line option</a>
 </li>
       </ul></li>
       <li>
-    --group
+    --group &lt;hex_colour (optional)&gt; &lt;sample_one&gt; &lt;sample_two&gt; ...
 
       <ul>
-        <li><a href="commands.html#cmdoption-2">command line option</a>, <a href="commands.html#cmdoption-group">[1]</a>, <a href="tutorials/graphical.html#cmdoption-group">[2]</a>
+        <li><a href="tutorials/graphical.html#cmdoption-group">command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --group &lt;sample name&gt; &lt;sample name&gt; ...
+
+      <ul>
+        <li><a href="commands.html#cmdoption-2">command line option</a>, <a href="commands.html#cmdoption-9">[1]</a>
+</li>
+      </ul></li>
+      <li>
+    --group &lt;str&gt;
+
+      <ul>
+        <li><a href="commands.html#cmdoption-group">command line option</a>
 </li>
       </ul></li>
       <li>
     --ignore_names
 
       <ul>
-        <li><a href="commands.html#cmdoption-ignore_names">command line option</a>, <a href="tutorials/graphical.html#cmdoption-ignore_names">[1]</a>
+        <li><a href="commands.html#cmdoption-7">command line option</a>, <a href="commands.html#cmdoption-ignore_names">[1]</a>, <a href="tutorials/graphical.html#cmdoption-ignore_names">[2]</a>
+</li>
+      </ul></li>
+      <li>
+    --interval &lt;float&gt;
+
+      <ul>
+        <li><a href="commands.html#cmdoption-t">command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --itol
+
+      <ul>
+        <li><a href="commands.html#cmdoption-10">command line option</a>, <a href="commands.html#cmdoption-itol">[1]</a>
 </li>
       </ul></li>
       <li>
     --keep_zeros
 
       <ul>
-        <li><a href="commands.html#cmdoption-keep_zeros">command line option</a>
+        <li><a href="commands.html#cmdoption-6">command line option</a>, <a href="commands.html#cmdoption-keep_zeros">[1]</a>
 </li>
       </ul></li>
       <li>
-    --kmer
+    --kmer &lt;int&gt;
 
       <ul>
         <li><a href="commands.html#cmdoption-k">command line option</a>
 </li>
       </ul></li>
+      <li>
+    --log-scale
+
+      <ul>
+        <li><a href="commands.html#cmdoption-11">command line option</a>, <a href="commands.html#cmdoption-log-scale">[1]</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li>
-    --n_processes
+    --memory &lt;int&gt;
+
+      <ul>
+        <li><a href="commands.html#cmdoption-m">command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --n_processes &lt;int&gt;
 
       <ul>
         <li><a href="commands.html#cmdoption-n">command line option</a>
 </li>
       </ul></li>
       <li>
-    --name
+    --out &lt;str&gt;
 
       <ul>
-        <li><a href="commands.html#cmdoption-name">command line option</a>
+        <li><a href="commands.html#cmdoption-12">command line option</a>, <a href="commands.html#cmdoption-3">[1]</a>, <a href="commands.html#cmdoption-o">[2]</a>
 </li>
       </ul></li>
       <li>
@@ -187,11 +236,11 @@
     --phyla
 
       <ul>
-        <li><a href="commands.html#cmdoption-phyla">command line option</a>, <a href="tutorials/graphical.html#cmdoption-phyla">[1]</a>
+        <li><a href="commands.html#cmdoption-5">command line option</a>, <a href="commands.html#cmdoption-phyla">[1]</a>, <a href="tutorials/graphical.html#cmdoption-phyla">[2]</a>
 </li>
       </ul></li>
       <li>
-    --phylogeny
+    --phylogeny &lt;file path&gt;
 
       <ul>
         <li><a href="commands.html#cmdoption-p">command line option</a>
@@ -205,31 +254,66 @@
 </li>
       </ul></li>
       <li>
-    -d
+    --x &lt;float&gt;
+
+      <ul>
+        <li><a href="commands.html#cmdoption-x">command line option</a>
+</li>
+      </ul></li>
+      <li>
+    -d &lt;file path&gt;
 
       <ul>
         <li><a href="commands.html#cmdoption-0">command line option</a>, <a href="commands.html#cmdoption-d">[1]</a>
 </li>
       </ul></li>
       <li>
-    -k
+    -k &lt;int&gt;
 
       <ul>
         <li><a href="commands.html#cmdoption-k">command line option</a>
 </li>
       </ul></li>
       <li>
-    -n
+    -m &lt;int&gt;
+
+      <ul>
+        <li><a href="commands.html#cmdoption-m">command line option</a>
+</li>
+      </ul></li>
+      <li>
+    -n &lt;int&gt;
 
       <ul>
         <li><a href="commands.html#cmdoption-n">command line option</a>
 </li>
       </ul></li>
       <li>
-    -p
+    -o &lt;str&gt;
+
+      <ul>
+        <li><a href="commands.html#cmdoption-12">command line option</a>, <a href="commands.html#cmdoption-3">[1]</a>, <a href="commands.html#cmdoption-o">[2]</a>
+</li>
+      </ul></li>
+      <li>
+    -p &lt;file path&gt;
 
       <ul>
         <li><a href="commands.html#cmdoption-p">command line option</a>
+</li>
+      </ul></li>
+      <li>
+    -t &lt;float&gt;
+
+      <ul>
+        <li><a href="commands.html#cmdoption-t">command line option</a>
+</li>
+      </ul></li>
+      <li>
+    -x &lt;float&gt;
+
+      <ul>
+        <li><a href="commands.html#cmdoption-x">command line option</a>
 </li>
       </ul></li>
   </ul></td>
@@ -250,45 +334,69 @@
     command line option
 
       <ul>
-        <li><a href="commands.html#cmdoption-alpha">--alpha</a>
+        <li><a href="commands.html#cmdoption-alpha">--alpha &lt;float&gt;</a>
 </li>
-        <li><a href="commands.html#cmdoption-colour_list">--colour_list</a>, <a href="tutorials/graphical.html#cmdoption-colour_list">[1]</a>
+        <li><a href="tutorials/graphical.html#cmdoption-colour_list">--colour_list</a>
 </li>
-        <li><a href="commands.html#cmdoption-cpm">--cpm</a>
+        <li><a href="commands.html#cmdoption-8">--colour_list &lt;hex string&gt; &lt;hex string&gt; ...</a>, <a href="commands.html#cmdoption-colour_list">[1]</a>
 </li>
-        <li><a href="commands.html#cmdoption-cpm">--cutoff</a>
+        <li><a href="commands.html#cmdoption-cpm">--cpm &lt;int&gt;</a>
 </li>
-        <li><a href="commands.html#cmdoption-0">--directory</a>, <a href="commands.html#cmdoption-d">[1]</a>
+        <li><a href="commands.html#cmdoption-cpm">--cutoff &lt;int&gt;</a>
 </li>
-        <li><a href="commands.html#cmdoption-first_n">--first_n</a>
+        <li><a href="commands.html#cmdoption-0">--directory &lt;file path&gt;</a>, <a href="commands.html#cmdoption-d">[1]</a>
 </li>
-        <li><a href="commands.html#cmdoption-2">--group</a>, <a href="commands.html#cmdoption-group">[1]</a>, <a href="tutorials/graphical.html#cmdoption-group">[2]</a>
+        <li><a href="commands.html#cmdoption-first_n">--first_n &lt;int&gt;</a>
 </li>
-        <li><a href="commands.html#cmdoption-ignore_names">--ignore_names</a>, <a href="tutorials/graphical.html#cmdoption-ignore_names">[1]</a>
+        <li><a href="tutorials/graphical.html#cmdoption-group">--group &lt;hex_colour (optional)&gt; &lt;sample_one&gt; &lt;sample_two&gt; ...</a>
 </li>
-        <li><a href="commands.html#cmdoption-keep_zeros">--keep_zeros</a>
+        <li><a href="commands.html#cmdoption-2">--group &lt;sample name&gt; &lt;sample name&gt; ...</a>, <a href="commands.html#cmdoption-9">[1]</a>
 </li>
-        <li><a href="commands.html#cmdoption-k">--kmer</a>
+        <li><a href="commands.html#cmdoption-group">--group &lt;str&gt;</a>
 </li>
-        <li><a href="commands.html#cmdoption-n">--n_processes</a>
+        <li><a href="commands.html#cmdoption-7">--ignore_names</a>, <a href="commands.html#cmdoption-ignore_names">[1]</a>, <a href="tutorials/graphical.html#cmdoption-ignore_names">[2]</a>
 </li>
-        <li><a href="commands.html#cmdoption-name">--name</a>
+        <li><a href="commands.html#cmdoption-t">--interval &lt;float&gt;</a>
+</li>
+        <li><a href="commands.html#cmdoption-10">--itol</a>, <a href="commands.html#cmdoption-itol">[1]</a>
+</li>
+        <li><a href="commands.html#cmdoption-6">--keep_zeros</a>, <a href="commands.html#cmdoption-keep_zeros">[1]</a>
+</li>
+        <li><a href="commands.html#cmdoption-k">--kmer &lt;int&gt;</a>
+</li>
+        <li><a href="commands.html#cmdoption-11">--log-scale</a>, <a href="commands.html#cmdoption-log-scale">[1]</a>
+</li>
+        <li><a href="commands.html#cmdoption-m">--memory &lt;int&gt;</a>
+</li>
+        <li><a href="commands.html#cmdoption-n">--n_processes &lt;int&gt;</a>
+</li>
+        <li><a href="commands.html#cmdoption-12">--out &lt;str&gt;</a>, <a href="commands.html#cmdoption-3">[1]</a>, <a href="commands.html#cmdoption-o">[2]</a>
 </li>
         <li><a href="commands.html#cmdoption-paired">--paired</a>
 </li>
-        <li><a href="commands.html#cmdoption-phyla">--phyla</a>, <a href="tutorials/graphical.html#cmdoption-phyla">[1]</a>
+        <li><a href="commands.html#cmdoption-5">--phyla</a>, <a href="commands.html#cmdoption-phyla">[1]</a>, <a href="tutorials/graphical.html#cmdoption-phyla">[2]</a>
 </li>
-        <li><a href="commands.html#cmdoption-p">--phylogeny</a>
+        <li><a href="commands.html#cmdoption-p">--phylogeny &lt;file path&gt;</a>
 </li>
         <li><a href="commands.html#cmdoption-taxonomy">--taxonomy</a>
 </li>
-        <li><a href="commands.html#cmdoption-0">-d</a>, <a href="commands.html#cmdoption-d">[1]</a>
+        <li><a href="commands.html#cmdoption-x">--x &lt;float&gt;</a>
 </li>
-        <li><a href="commands.html#cmdoption-k">-k</a>
+        <li><a href="commands.html#cmdoption-0">-d &lt;file path&gt;</a>, <a href="commands.html#cmdoption-d">[1]</a>
 </li>
-        <li><a href="commands.html#cmdoption-n">-n</a>
+        <li><a href="commands.html#cmdoption-k">-k &lt;int&gt;</a>
 </li>
-        <li><a href="commands.html#cmdoption-p">-p</a>
+        <li><a href="commands.html#cmdoption-m">-m &lt;int&gt;</a>
+</li>
+        <li><a href="commands.html#cmdoption-n">-n &lt;int&gt;</a>
+</li>
+        <li><a href="commands.html#cmdoption-12">-o &lt;str&gt;</a>, <a href="commands.html#cmdoption-3">[1]</a>, <a href="commands.html#cmdoption-o">[2]</a>
+</li>
+        <li><a href="commands.html#cmdoption-p">-p &lt;file path&gt;</a>
+</li>
+        <li><a href="commands.html#cmdoption-t">-t &lt;float&gt;</a>
+</li>
+        <li><a href="commands.html#cmdoption-x">-x &lt;float&gt;</a>
 </li>
       </ul></li>
   </ul></td>

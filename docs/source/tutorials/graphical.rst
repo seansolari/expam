@@ -37,6 +37,8 @@ For instance, :code:`sample_one.fq.tar.gz` :math:`\rightarrow` :code:`sample_one
 
     <hr>
 
+.. _groups explanation:
+
 Groups
 ^^^^^^
 
@@ -109,5 +111,51 @@ Example of colour list
 .. code-block:: console
 
     $ expam run ... --colour_list "#FF0000" "#00FF00" "#0000FF"
+
+
+.. _itol integration:
+
+
+iTOL integration
+----------------
+
+Rather than use :code:`ete3` for visualising classification results, supplying the 
+:code:`--itol` flag will instead create a :code:`itol` subdirectory within the output
+folder containing two files:
+
+* :code:`tree.nwk` - Newick format tree that can be inserted into iTOL.
+* :code:`style.txt` - An iTOL formatted text document that contains all the information needed for iTOL to style the tree.
+
+For instance, say we previously ran :code:`expam run --out my_run -d /some/samples`, and 
+now run :code:`expam phylotree --out my_run --itol`, the corresponding files
+would be located at
+
+* :code:`my_run/itol_classified/tree.nwk`,
+* :code:`my_run/itol_classified/style.txt`,
+* :code:`my_run/itol_splits/tree.nwk`,
+* :code:`my_run/itol_splits/style.txt`.
+
+To use these files,
+
+* Create a new tree in iTOL with :code:`tree.nwk`.
+* Open this tree using the iTOL interface.
+* Drag-and-drop the style.txt into the open tree interface, and iTOL will colour the tree accordingly.
+
+.. note::
+
+    By default, iTOL will only colour the leaf labels and clades with the supplied
+    colours. Using the *Colored ranges* window that appears after dragging the style
+    sheet onto the tree, you can select the *Cover --> Clade* option for more
+    effective highlighting of the distributions.
+
+An example is shown below.
+
+.. figure:: includes/gtdb-itol-example.png
+    :width: 500
+    :align: center
+    :alt: iTOL tree
+
+    **Figure 2:** Example tree containing three different sample classification results
+    plotted in red, green and blue shades respectively.
 
     

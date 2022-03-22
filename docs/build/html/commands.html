@@ -17,6 +17,7 @@
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
         <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
         <script>mermaid.initialize({startOnLoad:true});</script>
     <script src="_static/js/theme.js"></script>
@@ -65,13 +66,18 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#download-taxonomic-data">Download taxonomic data</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#convert-results-to-taxonomy">Convert results to taxonomy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plotting-results-on-phylotree">Plotting results on phylotree</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#limiting-resource-usage">Limiting resource usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#limit-example">Example</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="dependencies.html">Additional Dependencies (optional)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tree.html">expam’s Tree module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tree.html"><strong>expam</strong>’s tree module</a></li>
 </ul>
 
         </div>
@@ -240,7 +246,7 @@ resources used during build.</p>
 <h2>Classification<a class="headerlink" href="#classification" title="Permalink to this headline"></a></h2>
 <section id="classify">
 <h3>Classify<a class="headerlink" href="#classify" title="Permalink to this headline"></a></h3>
-<p>Run metagenomic reads against a succesfully built database. See <a class="reference internal" href="tutorials/classify.html"><span class="doc">Tutorial 2</span></a> form details.</p>
+<p>Run metagenomic reads against a succesfully built database. See <a class="reference internal" href="tutorials/classify.html"><span class="doc">Tutorial 2</span></a> for more details.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam run -db DB_NAME <span class="o">[</span>args...<span class="o">]</span>
 </pre></div>
 </div>
@@ -262,9 +268,9 @@ will process all sequence files in this folder.</p>
 </dd></dl>
 
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-name">
-<span class="sig-name descname"><span class="pre">--name</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;string&gt;</span></span><a class="headerlink" href="#cmdoption-name" title="Permalink to this definition"></a></dt>
-<dd><p>Name of results folder.</p>
+<dt class="sig sig-object std" id="cmdoption-o">
+<span id="cmdoption-out"></span><span class="sig-name descname"><span class="pre">-o</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;str&gt;</span></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--out</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;str&gt;</span></span><a class="headerlink" href="#cmdoption-o" title="Permalink to this definition"></a></dt>
+<dd><p>Path to save classification results and output in.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -312,7 +318,8 @@ and <em>cutoff</em> are supplied.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-2">
 <span class="sig-name descname"><span class="pre">--group</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;sample</span> <span class="pre">name&gt;</span> <span class="pre">&lt;sample</span> <span class="pre">name&gt;</span> <span class="pre">...</span></span><a class="headerlink" href="#cmdoption-2" title="Permalink to this definition"></a></dt>
-<dd><p>Space-separated list of sample files to be treated as a single group in phylotree.</p>
+<dd><p>Space-separated list of sample files to be treated as a single group in phylotree.
+Groups are explained in this <a class="reference internal" href="tutorials/graphical.html#groups-explanation"><span class="std std-ref">tutorial</span></a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>You may also supply a hex colour code directly after the <em>–group</em> flag
@@ -330,9 +337,31 @@ to assign some colour code to this group of samples.</p>
 and <a class="reference internal" href="tutorials/classify.html"><span class="doc">Tutorial 2</span></a>).</p>
 </dd></dl>
 
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-itol">
+<span class="sig-name descname"><span class="pre">--itol</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-itol" title="Permalink to this definition"></a></dt>
+<dd><p>Rather than use <code class="code docutils literal notranslate"><span class="pre">ete3</span></code> for plotting the phylogenetic tree, <strong>expam</strong> will output files that can be
+used with iTOL for plotting. See the <a class="reference internal" href="tutorials/graphical.html#itol-integration"><span class="std std-ref">classification tutorial</span></a> for details.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-log-scale">
+<span class="sig-name descname"><span class="pre">--log-scale</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-log-scale" title="Permalink to this definition"></a></dt>
+<dd><p>Compute a log-transform on the counts at each node in the phylogenetic tree before
+depiction on the phylotree.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For a given sample <span class="math notranslate nohighlight">\(S\)</span>, with minimum and maximum counts <span class="math notranslate nohighlight">\(\underline{c}\)</span> and <span class="math notranslate nohighlight">\(\overline{c}\)</span>
+respectively (<span class="math notranslate nohighlight">\(\underline{c} &gt; 0\)</span> i.e. the smallest non-zero score), the log-transform <span class="math notranslate nohighlight">\(f\)</span> of some count <span class="math notranslate nohighlight">\(x\)</span> is defined by</p>
+<div class="math notranslate nohighlight">
+\[f(x) = \frac{ \log\left(x / \underline{c}\right) }{ \log\left(\overline{c} / \underline{c}\right) },\]</div>
+<p>so that <span class="math notranslate nohighlight">\(f(x)\in[0,1]\)</span>. Then <span class="math notranslate nohighlight">\(f(x)\)</span> is treated as an opacity score for plotting purposes.</p>
+</div>
+</dd></dl>
+
 <section id="id1">
 <h4>Example<a class="headerlink" href="#id1" title="Permalink to this headline"></a></h4>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam run -db DB_NAME -d /path/to/paired/reads --paired --name paired_reads_analysis --taxonomy
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam run -db DB_NAME -d /path/to/paired/reads --paired --out ~/paired_reads_analysis --taxonomy
 </pre></div>
 </div>
 </section>
@@ -366,6 +395,130 @@ reference sequence, and uses these to search against the NCBI Entrez database.</
 <h3>Convert results to taxonomy<a class="headerlink" href="#convert-results-to-taxonomy" title="Permalink to this headline"></a></h3>
 <p>Translate phylogenetic classification output to NCBI taxonomy.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam to_taxonomy --db DB_NAME
+</pre></div>
+</div>
+</section>
+<section id="plotting-results-on-phylotree">
+<h3>Plotting results on phylotree<a class="headerlink" href="#plotting-results-on-phylotree" title="Permalink to this headline"></a></h3>
+<p>Results are automatically visualised on top of a phylogenetic tree when during the <code class="code docutils literal notranslate"><span class="pre">expam</span> <span class="pre">run</span></code> command,
+but can also be done after classification using the <code class="code docutils literal notranslate"><span class="pre">phylotree</span></code> command.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ expam phylotree -db DB_NAME --out /path/to/classification/output [args...]
+</pre></div>
+</div>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-3">
+<span id="cmdoption-4"></span><span class="sig-name descname"><span class="pre">-o</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;str&gt;</span></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--out</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;str&gt;</span></span><a class="headerlink" href="#cmdoption-3" title="Permalink to this definition"></a></dt>
+<dd><p>Path to retrieve classification results for plotting.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-5">
+<span class="sig-name descname"><span class="pre">--phyla</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-5" title="Permalink to this definition"></a></dt>
+<dd><p>Colour phylotree results by phyla.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-6">
+<span class="sig-name descname"><span class="pre">--keep_zeros</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-6" title="Permalink to this definition"></a></dt>
+<dd><p>Keep nodes in output where no reads have been assigned.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-7">
+<span class="sig-name descname"><span class="pre">--ignore_names</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-7" title="Permalink to this definition"></a></dt>
+<dd><p>Don’t plot names of reference genomes in output phylotree.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-8">
+<span class="sig-name descname"><span class="pre">--colour_list</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;hex</span> <span class="pre">string&gt;</span> <span class="pre">&lt;hex</span> <span class="pre">string&gt;</span> <span class="pre">...</span></span><a class="headerlink" href="#cmdoption-8" title="Permalink to this definition"></a></dt>
+<dd><p>List of colours to use when plotting groups in phylotree.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-9">
+<span class="sig-name descname"><span class="pre">--group</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;sample</span> <span class="pre">name&gt;</span> <span class="pre">&lt;sample</span> <span class="pre">name&gt;</span> <span class="pre">...</span></span><a class="headerlink" href="#cmdoption-9" title="Permalink to this definition"></a></dt>
+<dd><p>Space-separated list of sample files to be treated as a single group in phylotree.
+Groups are explained above, and in this <a class="reference internal" href="tutorials/graphical.html#groups-explanation"><span class="std std-ref">tutorial</span></a>.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-10">
+<span class="sig-name descname"><span class="pre">--itol</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-10" title="Permalink to this definition"></a></dt>
+<dd><p>Rather than use <code class="code docutils literal notranslate"><span class="pre">ete3</span></code> for plotting the phylogenetic tree, <strong>expam</strong> will output files that can be
+used with iTOL for plotting. See the <a class="reference internal" href="tutorials/graphical.html#itol-integration"><span class="std std-ref">classification tutorial</span></a> for details.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-11">
+<span class="sig-name descname"><span class="pre">--log-scale</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-11" title="Permalink to this definition"></a></dt>
+<dd><p>Compute a log-transform on the counts at each node in the phylogenetic tree before
+depiction on the phylotree.</p>
+</dd></dl>
+
+</section>
+</section>
+<section id="limiting-resource-usage">
+<span id="id2"></span><h2>Limiting resource usage<a class="headerlink" href="#limiting-resource-usage" title="Permalink to this headline"></a></h2>
+<p><strong>expam</strong> allows you to provide an <code class="code docutils literal notranslate"><span class="pre">expam_limit</span></code> context before the <code class="code docutils literal notranslate"><span class="pre">expam</span></code> call to limit
+how much RAM is used. <em>Note that this doesn’t change any underlying algorithms, it simply
+prepares a graceful exit of the program if it exceeds the supplied limit.</em> See <a class="reference internal" href="#limit-example"><span class="std std-ref">examples</span></a>
+for an example usage.</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-m">
+<span id="cmdoption-memory"></span><span class="sig-name descname"><span class="pre">-m</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;int&gt;</span></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--memory</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;int&gt;</span></span><a class="headerlink" href="#cmdoption-m" title="Permalink to this definition"></a></dt>
+<dd><p>Memory limit in bytes.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-x">
+<span id="cmdoption-x"></span><span class="sig-name descname"><span class="pre">-x</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;float&gt;</span></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--x</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;float&gt;</span></span><a class="headerlink" href="#cmdoption-x" title="Permalink to this definition"></a></dt>
+<dd><p>Percentage of total available memory to limit to.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-t">
+<span id="cmdoption-interval"></span><span class="sig-name descname"><span class="pre">-t</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;float&gt;</span></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--interval</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;float&gt;</span></span><a class="headerlink" href="#cmdoption-t" title="Permalink to this definition"></a></dt>
+<dd><p>Intervals in which program memory usage is written to log file.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-12">
+<span id="cmdoption-13"></span><span class="sig-name descname"><span class="pre">-o</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;str&gt;</span></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--out</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;str&gt;</span></span><a class="headerlink" href="#cmdoption-12" title="Permalink to this definition"></a></dt>
+<dd><p>Log file to write to. By default, logs are written to console.</p>
+</dd></dl>
+
+<section id="limit-example">
+<span id="id3"></span><h3>Example<a class="headerlink" href="#limit-example" title="Permalink to this headline"></a></h3>
+<blockquote>
+<div><p>The following will perform a database build while restricting <em>expam</em>’s total
+memory usage to half of the available machine’s RAM, writing logs
+in 1 second intervals to a <code class="code docutils literal notranslate"><span class="pre">build.log</span></code> file.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam_limit -x <span class="m">0</span>.5 -t <span class="m">1</span>.0 -o build.log expam build ...
+</pre></div>
+</div>
+</div></blockquote>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>It is important that the <code class="code docutils literal notranslate"><span class="pre">expam_limit</span></code> command comes before
+the <code class="code docutils literal notranslate"><span class="pre">expam</span></code> command.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="code docutils literal notranslate"><span class="pre">expam_limit</span></code> context works the same for any command. <code class="code docutils literal notranslate"><span class="pre">expam</span> <span class="pre">build</span></code>
+can be replaced with <code class="code docutils literal notranslate"><span class="pre">expam</span> <span class="pre">run</span></code>, or any other command.</p>
+</div>
+<p>The following is an example of the (tab-separated) log file output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">2022</span><span class="o">-</span><span class="mi">03</span><span class="o">-</span><span class="mi">11</span> <span class="mi">02</span><span class="p">:</span><span class="mi">25</span><span class="p">:</span><span class="mi">05</span><span class="p">,</span><span class="mi">888</span> <span class="o">...</span>         <span class="n">total</span>   <span class="n">used</span>    <span class="n">free</span>    <span class="n">shared</span>  <span class="n">buff</span><span class="o">/</span><span class="n">cache</span>      <span class="n">available</span>
+<span class="mi">2022</span><span class="o">-</span><span class="mi">03</span><span class="o">-</span><span class="mi">11</span> <span class="mi">02</span><span class="p">:</span><span class="mi">25</span><span class="p">:</span><span class="mi">05</span><span class="p">,</span><span class="mi">903</span> <span class="o">...</span> <span class="n">Mem</span><span class="p">:</span>    <span class="mi">944</span><span class="n">Gi</span>   <span class="mf">1.6</span><span class="n">Gi</span>   <span class="mi">427</span><span class="n">Gi</span>   <span class="mf">0.0</span><span class="n">Ki</span>   <span class="mi">515</span><span class="n">Gi</span>   <span class="mi">938</span><span class="n">Gi</span>
+<span class="mi">2022</span><span class="o">-</span><span class="mi">03</span><span class="o">-</span><span class="mi">11</span> <span class="mi">02</span><span class="p">:</span><span class="mi">25</span><span class="p">:</span><span class="mi">06</span><span class="p">,</span><span class="mi">915</span> <span class="o">...</span> <span class="n">Mem</span><span class="p">:</span>    <span class="mi">944</span><span class="n">Gi</span>   <span class="mf">1.6</span><span class="n">Gi</span>   <span class="mi">427</span><span class="n">Gi</span>   <span class="mf">0.0</span><span class="n">Ki</span>   <span class="mi">515</span><span class="n">Gi</span>   <span class="mi">938</span><span class="n">Gi</span>
+<span class="mi">2022</span><span class="o">-</span><span class="mi">03</span><span class="o">-</span><span class="mi">11</span> <span class="mi">02</span><span class="p">:</span><span class="mi">25</span><span class="p">:</span><span class="mi">07</span><span class="p">,</span><span class="mi">928</span> <span class="o">...</span> <span class="n">Mem</span><span class="p">:</span>    <span class="mi">944</span><span class="n">Gi</span>   <span class="mf">2.2</span><span class="n">Gi</span>   <span class="mi">427</span><span class="n">Gi</span>   <span class="mi">38</span><span class="n">Mi</span>    <span class="mi">515</span><span class="n">Gi</span>   <span class="mi">937</span><span class="n">Gi</span>
+<span class="mi">2022</span><span class="o">-</span><span class="mi">03</span><span class="o">-</span><span class="mi">11</span> <span class="mi">02</span><span class="p">:</span><span class="mi">25</span><span class="p">:</span><span class="mi">08</span><span class="p">,</span><span class="mi">940</span> <span class="o">...</span> <span class="n">Mem</span><span class="p">:</span>    <span class="mi">944</span><span class="n">Gi</span>   <span class="mf">2.2</span><span class="n">Gi</span>   <span class="mi">426</span><span class="n">Gi</span>   <span class="mi">195</span><span class="n">Mi</span>   <span class="mi">515</span><span class="n">Gi</span>   <span class="mi">937</span><span class="n">Gi</span>
+<span class="mi">2022</span><span class="o">-</span><span class="mi">03</span><span class="o">-</span><span class="mi">11</span> <span class="mi">02</span><span class="p">:</span><span class="mi">25</span><span class="p">:</span><span class="mi">09</span><span class="p">,</span><span class="mi">953</span> <span class="o">...</span> <span class="n">Mem</span><span class="p">:</span>    <span class="mi">944</span><span class="n">Gi</span>   <span class="mf">2.2</span><span class="n">Gi</span>   <span class="mi">426</span><span class="n">Gi</span>   <span class="mi">353</span><span class="n">Mi</span>   <span class="mi">515</span><span class="n">Gi</span>   <span class="mi">937</span><span class="n">Gi</span>
+<span class="mi">2022</span><span class="o">-</span><span class="mi">03</span><span class="o">-</span><span class="mi">11</span> <span class="mi">02</span><span class="p">:</span><span class="mi">25</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span><span class="mi">966</span> <span class="o">...</span> <span class="n">Mem</span><span class="p">:</span>    <span class="mi">944</span><span class="n">Gi</span>   <span class="mf">2.2</span><span class="n">Gi</span>   <span class="mi">426</span><span class="n">Gi</span>   <span class="mi">516</span><span class="n">Mi</span>   <span class="mi">516</span><span class="n">Gi</span>   <span class="mi">937</span><span class="n">Gi</span>
+<span class="mi">2022</span><span class="o">-</span><span class="mi">03</span><span class="o">-</span><span class="mi">11</span> <span class="mi">02</span><span class="p">:</span><span class="mi">25</span><span class="p">:</span><span class="mi">11</span><span class="p">,</span><span class="mi">980</span> <span class="o">...</span> <span class="n">Mem</span><span class="p">:</span>    <span class="mi">944</span><span class="n">Gi</span>   <span class="mf">2.2</span><span class="n">Gi</span>   <span class="mi">426</span><span class="n">Gi</span>   <span class="mi">682</span><span class="n">Mi</span>   <span class="mi">516</span><span class="n">Gi</span>   <span class="mi">936</span><span class="n">Gi</span>
+<span class="mi">2022</span><span class="o">-</span><span class="mi">03</span><span class="o">-</span><span class="mi">11</span> <span class="mi">02</span><span class="p">:</span><span class="mi">25</span><span class="p">:</span><span class="mi">12</span><span class="p">,</span><span class="mi">992</span> <span class="o">...</span> <span class="n">Mem</span><span class="p">:</span>    <span class="mi">944</span><span class="n">Gi</span>   <span class="mf">2.2</span><span class="n">Gi</span>   <span class="mi">426</span><span class="n">Gi</span>   <span class="mi">848</span><span class="n">Mi</span>   <span class="mi">516</span><span class="n">Gi</span>   <span class="mi">936</span><span class="n">Gi</span>
+<span class="mi">2022</span><span class="o">-</span><span class="mi">03</span><span class="o">-</span><span class="mi">11</span> <span class="mi">02</span><span class="p">:</span><span class="mi">25</span><span class="p">:</span><span class="mi">14</span><span class="p">,</span><span class="mi">005</span> <span class="o">...</span> <span class="n">Mem</span><span class="p">:</span>    <span class="mi">944</span><span class="n">Gi</span>   <span class="mf">2.2</span><span class="n">Gi</span>   <span class="mi">425</span><span class="n">Gi</span>   <span class="mf">1.0</span><span class="n">Gi</span>   <span class="mi">516</span><span class="n">Gi</span>   <span class="mi">936</span><span class="n">Gi</span>
 </pre></div>
 </div>
 </section>

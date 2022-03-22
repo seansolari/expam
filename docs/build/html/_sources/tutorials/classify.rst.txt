@@ -78,8 +78,8 @@ What do I do with splits?
   The :code:`--cutoff` flag sets a minimum count that any clade/taxa needs to reach before it is included in the classification results.
   The :code:`--cpm` flag sets the same cutoff, but in **count per million** as opposed to a flat cutoff number.
 
-  When both are supplied, :code:`--cpm` takes precedence, and by default **expam** requires each node to have at least
-  100 counts per million input reads.
+  When both are supplied, the highest of either cutoff is taken. *By default*, **expam** *requires each node to have at least
+  100 counts per million input reads*.
 
 * With both these mechanisms in place, we can be more confident that high split counts in a particular region of the phylogeny is suggestive of novel sequence in the biological sample.
 * The algorithm for classifying splits takes a conservative approach - **those that are interested only in a general profile can feel comfortable simply adding classification and split counts together to produce an overall profile.**
@@ -93,7 +93,7 @@ Phylogenetic classification results
 
   .. code-block:: console
 
-    $ expam run -db my_database -d /path/to/sample_one.fq --name sample_one
+    $ expam run -db my_database -d /path/to/sample_one.fq --out sample_one
 
 * In :code:`./sample_one`, there will be a :code:`phy` subdirectory containing three files:
 
@@ -199,12 +199,12 @@ Taxonomic results
 
 .. code-block:: console
 
-  $ expam run -d /path/to/reads --name example --taxonomy
+  $ expam run -d /path/to/reads --out example --taxonomy
 
 .. code-block:: console
 
-  $ expam run -d /path/to/reads --name example_one
-  $ expam to_taxonomy --name example_one
+  $ expam run -d /path/to/reads --out example_one
+  $ expam to_taxonomy --out example_one
 
 * Where before the results directory contained only a :code:`phy` subdirectory, it will now also contain a :code:`tax` folder.
 
@@ -214,6 +214,7 @@ Taxonomic sample summaries
 
 * For each sample input file, **expam** will translate a corresponding taxonomic sample summary.
 * These are tab-delimited matrices with nine columns:
+  
   1. **Taxon ID** - NCBI taxon id.
   2. **Percent classified (cumulative)** - total percentage of reads in this sample classified at or below this taxon id.
   3. **Total classified (cumulative)** - total number of reads classified at or below this taxon id.

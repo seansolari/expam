@@ -200,23 +200,15 @@ automatically detects how it should open most regular sequence files.</p>
 </li>
 <li><p>We use the <code class="code docutils literal notranslate"><span class="pre">run</span></code> command to classify reads.</p></li>
 <li><p>These are paired reads, but for now we’ll treat them as separate.</p></li>
-<li><p>By default, run results are stored in the <code class="code docutils literal notranslate"><span class="pre">results</span></code> database folder,</p>
+<li><p>We supply the <code class="code docutils literal notranslate"><span class="pre">-o</span></code> or <code class="code docutils literal notranslate"><span class="pre">--out</span></code> flag to tell <em>expam</em> where to save classification results.</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>here <code class="code docutils literal notranslate"><span class="pre">test/results</span></code>.</p></li>
-<li><p>This can be redirected using <code class="code docutils literal notranslate"><span class="pre">--out</span></code>.</p></li>
-</ul>
-</div></blockquote>
-</li>
-<li><p>We can supply a <code class="code docutils literal notranslate"><span class="pre">--name</span></code> to label these results.</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>We’ll call this first run <code class="code docutils literal notranslate"><span class="pre">unpaired</span></code>.</p></li>
+<li><p><em>expam</em> automatically creates a <code class="code docutils literal notranslate"><span class="pre">results</span></code> subdirectory in the database directory, which is a convenient but not necessarily required place to keep classification results related to this database.</p></li>
 </ul>
 </div></blockquote>
 </li>
 </ul>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam run -db <span class="nb">test</span> -d /Users/seansolari/Documents/expam/test/data/reads/ --name unpaired_test
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam run -db <span class="nb">test</span> -d /Users/seansolari/Documents/expam/test/data/reads/ --out test/results/unpaired_test
 <span class="go">Clearing old log files...</span>
 <span class="go">Results directory created at /Users/seansolari/Documents/Databases/test/results/unpaired_test.</span>
 <span class="go">Loading the map and phylogeny.</span>
@@ -314,7 +306,7 @@ automatically detects how it should open most regular sequence files.</p>
 <ul class="simple">
 <li><p>We’ll call this separate run <code class="code docutils literal notranslate"><span class="pre">paired_test</span></code>.</p></li>
 </ul>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam run -db <span class="nb">test</span> -d /Users/seansolari/Documents/expam/test/data/reads/ --name paired_test --paired
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam run -db <span class="nb">test</span> -d /Users/seansolari/Documents/expam/test/data/reads/ --out test/results/paired_test --paired
 <span class="go">Clearing old log files...</span>
 <span class="go">Results directory created at /Users/seansolari/Documents/Databases/test/results/paired_test.</span>
 <span class="go">Loading the map and phylogeny.</span>
@@ -356,8 +348,9 @@ taxonomic metadata for your reference genomes, using <code class="code docutils 
 </div>
 <ul class="simple">
 <li><p>We will convert the previous <code class="code docutils literal notranslate"><span class="pre">paired_test</span></code> run to taxonomic format.</p></li>
+<li><p>Specify the path to the classfication results folder using <code class="code docutils literal notranslate"><span class="pre">-o</span></code> or <code class="code docutils literal notranslate"><span class="pre">--out</span></code>.</p></li>
 </ul>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam to_taxonomy -db <span class="nb">test</span> --name paired_test
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam to_taxonomy -db <span class="nb">test</span> --out test/results/paired_test
 
 <span class="go">* Initialising node pool...</span>
 <span class="go">* Checking for polytomies...</span>
@@ -367,16 +360,16 @@ taxonomic metadata for your reference genomes, using <code class="code docutils 
 </pre></div>
 </div>
 <ul>
-<li><p>The results to convert are specified using the <code class="code docutils literal notranslate"><span class="pre">--name</span></code> flag.</p>
+<li><p>The results to convert are specified using the <code class="code docutils literal notranslate"><span class="pre">-o/--out</span></code> flag.</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>This must point to the base of the results directory (ie. parent of <code class="code docutils literal notranslate"><span class="pre">phy</span></code> output).</p></li>
+<li><p>This must point to the base of the results directory (ie. parent of <code class="code docutils literal notranslate"><span class="pre">phy</span></code> output directory).</p></li>
 </ul>
 </div></blockquote>
 </li>
-<li><p>Taxonomic results can be found in <code class="code docutils literal notranslate"><span class="pre">tax</span></code> subdirectory within results folder (that you specified with <code class="code docutils literal notranslate"><span class="pre">--name</span></code>).</p></li>
+<li><p>Taxonomic results can be found in <code class="code docutils literal notranslate"><span class="pre">tax</span></code> subdirectory within results folder (that you specified with <code class="code docutils literal notranslate"><span class="pre">--out</span></code>).</p></li>
 </ul>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>test/results/paired_test/tax/
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ls test/results/paired_test/tax/
 <span class="go">GCF_000005845.2_ASM584v2_genomic.gz_2.csv       raw</span>
 <span class="gp">$ </span>head test/results/paired_test/tax/GCF_000005845.2_ASM584v2_genomic.gz_2.csv
 <span class="go">    c_perc  c_cumul c_count s_perc  s_cumul s_count rank    scientific name</span>

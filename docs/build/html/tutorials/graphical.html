@@ -23,7 +23,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="expam’s Tree module" href="../tree.html" />
+    <link rel="next" title="expam’s tree module" href="../tree.html" />
     <link rel="prev" title="Tree building with expam" href="treebuilding.html" /> 
 </head>
 
@@ -56,11 +56,12 @@
 <li class="toctree-l4"><a class="reference internal" href="#visual-flags">Visual flags</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#itol-integration">iTOL integration</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../tree.html">expam’s Tree module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tree.html"><strong>expam</strong>’s tree module</a></li>
 </ul>
 
         </div>
@@ -102,10 +103,10 @@
 <li><p>If no colours are supplied (<em>see below</em>), a random colour is chosen for each sample.</p></li>
 <li><p>Colours are shaded based on how prevalent any given clade is.</p></li>
 </ul>
-<figure class="align-center" id="id1">
+<figure class="align-center" id="id2">
 <a class="reference internal image-reference" href="../_images/phylotree-removebg.png"><img alt="Example phylotree." src="../_images/phylotree-removebg.png" style="width: 500px;" /></a>
 <figcaption>
-<p><span class="caption-text"><strong>Figure 1:</strong> Example phylotree.</span><a class="headerlink" href="#id1" title="Permalink to this image"></a></p>
+<p><span class="caption-text"><strong>Figure 1:</strong> Example phylotree.</span><a class="headerlink" href="#id2" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 <ul class="simple">
@@ -116,7 +117,7 @@
 <hr><p><span class="redbackground">Sample names in the following refer to the original input file without any sequence or compression file extensions.</span></p>
 <p>For instance, <code class="code docutils literal notranslate"><span class="pre">sample_one.fq.tar.gz</span></code> <span class="math notranslate nohighlight">\(\rightarrow\)</span> <code class="code docutils literal notranslate"><span class="pre">sample_one</span></code>.</p>
 <hr><section id="groups">
-<h3>Groups<a class="headerlink" href="#groups" title="Permalink to this headline"></a></h3>
+<span id="groups-explanation"></span><h3>Groups<a class="headerlink" href="#groups" title="Permalink to this headline"></a></h3>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-group">
 <span class="sig-name descname"><span class="pre">--group</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;hex_colour</span> <span class="pre">(optional)&gt;</span> <span class="pre">&lt;sample_one&gt;</span> <span class="pre">&lt;sample_two&gt;</span> <span class="pre">...</span></span><a class="headerlink" href="#cmdoption-group" title="Permalink to this definition"></a></dt>
@@ -195,6 +196,46 @@ is given priority.</p>
 </section>
 </section>
 </section>
+<section id="itol-integration">
+<span id="id1"></span><h2>iTOL integration<a class="headerlink" href="#itol-integration" title="Permalink to this headline"></a></h2>
+<p>Rather than use <code class="code docutils literal notranslate"><span class="pre">ete3</span></code> for visualising classification results, supplying the
+<code class="code docutils literal notranslate"><span class="pre">--itol</span></code> flag will instead create a <code class="code docutils literal notranslate"><span class="pre">itol</span></code> subdirectory within the output
+folder containing two files:</p>
+<ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">tree.nwk</span></code> - Newick format tree that can be inserted into iTOL.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">style.txt</span></code> - An iTOL formatted text document that contains all the information needed for iTOL to style the tree.</p></li>
+</ul>
+<p>For instance, say we previously ran <code class="code docutils literal notranslate"><span class="pre">expam</span> <span class="pre">run</span> <span class="pre">--out</span> <span class="pre">my_run</span> <span class="pre">-d</span> <span class="pre">/some/samples</span></code>, and
+now run <code class="code docutils literal notranslate"><span class="pre">expam</span> <span class="pre">phylotree</span> <span class="pre">--out</span> <span class="pre">my_run</span> <span class="pre">--itol</span></code>, the corresponding files
+would be located at</p>
+<ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">my_run/itol_classified/tree.nwk</span></code>,</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">my_run/itol_classified/style.txt</span></code>,</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">my_run/itol_splits/tree.nwk</span></code>,</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">my_run/itol_splits/style.txt</span></code>.</p></li>
+</ul>
+<p>To use these files,</p>
+<ul class="simple">
+<li><p>Create a new tree in iTOL with <code class="code docutils literal notranslate"><span class="pre">tree.nwk</span></code>.</p></li>
+<li><p>Open this tree using the iTOL interface.</p></li>
+<li><p>Drag-and-drop the style.txt into the open tree interface, and iTOL will colour the tree accordingly.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, iTOL will only colour the leaf labels and clades with the supplied
+colours. Using the <em>Colored ranges</em> window that appears after dragging the style
+sheet onto the tree, you can select the <em>Cover –&gt; Clade</em> option for more
+effective highlighting of the distributions.</p>
+</div>
+<p>An example is shown below.</p>
+<figure class="align-center" id="id3">
+<a class="reference internal image-reference" href="../_images/gtdb-itol-example.png"><img alt="iTOL tree" src="../_images/gtdb-itol-example.png" style="width: 500px;" /></a>
+<figcaption>
+<p><span class="caption-text"><strong>Figure 2:</strong> Example tree containing three different sample classification results
+plotted in red, green and blue shades respectively.</span><a class="headerlink" href="#id3" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+</section>
 </section>
 
 
@@ -202,7 +243,7 @@ is given priority.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="treebuilding.html" class="btn btn-neutral float-left" title="Tree building with expam" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../tree.html" class="btn btn-neutral float-right" title="expam’s Tree module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../tree.html" class="btn btn-neutral float-right" title="expam’s tree module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

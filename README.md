@@ -1,4 +1,4 @@
-![expam logo](docs/source/expamlogo.png)
+![expam logo](docs/source/expam-logo.png)
 
 ## **Install**.
 

@@ -91,7 +91,7 @@ def string_to_tuple(st):
 def run_classifier(read_paths, out_dir, db_dir, k, n, phylogeny_path, keys_shape, values_shape, logging_dir,
                    taxonomy=False, cutoff=0.0, groups=None, keep_zeros=False, cpm=0.0, use_node_names=True,
                    phyla=False, name_taxa=None, colour_list=None, circle_scale=1.0,
-                   paired_end=False, alpha=1.0, log_scores=False):
+                   paired_end=False, alpha=1.0, log_scores=False, itol_mode=False):
 
     # Verify results path.
     if not os.path.exists(out_dir):
@@ -178,7 +178,7 @@ def run_classifier(read_paths, out_dir, db_dir, k, n, phylogeny_path, keys_shape
             name_to_lineage, taxon_to_rank = load_taxonomy_map(db_dir)
             results.to_taxonomy(name_to_lineage, taxon_to_rank, tax_results_path)
 
-        results.draw_results()
+        results.draw_results(itol_mode=itol_mode)
 
     finally:
 
@@ -1300,7 +1300,7 @@ class ClassificationResults:
 
         return intersection
 
-    def draw_results(self):
+    def draw_results(self, itol_mode=False):
         # Draw classified tree.
         self.phylogeny_index.draw_results(
             os.path.join(self.in_dir, "classified_counts.csv"),
@@ -1314,7 +1314,8 @@ class ClassificationResults:
             use_phyla=self.phyla,
             keep_zeros=self.keep_zeros,
             use_node_names=self.use_node_names,
-            log_scores=self.log_scores
+            log_scores=self.log_scores,
+            itol_mode=itol_mode
         )
 
         # Draw unclassified tree.
@@ -1329,5 +1330,6 @@ class ClassificationResults:
             use_phyla=self.phyla,
             keep_zeros=self.keep_zeros,
             use_node_names=self.use_node_names,
-            log_scores=self.log_scores
+            log_scores=self.log_scores,
+            itol_mode=itol_mode
         )

@@ -174,8 +174,8 @@ too few k-mers and are most likely due to sequencing error.</p>
 be filtered out before interpreting the prevalence of clades and species in your sample.</p>
 <p>The <code class="code docutils literal notranslate"><span class="pre">--cutoff</span></code> flag sets a minimum count that any clade/taxa needs to reach before it is included in the classification results.
 The <code class="code docutils literal notranslate"><span class="pre">--cpm</span></code> flag sets the same cutoff, but in <strong>count per million</strong> as opposed to a flat cutoff number.</p>
-<p>When both are supplied, <code class="code docutils literal notranslate"><span class="pre">--cpm</span></code> takes precedence, and by default <strong>expam</strong> requires each node to have at least
-100 counts per million input reads.</p>
+<p>When both are supplied, the highest of either cutoff is taken. <em>By default</em>, <strong>expam</strong> <em>requires each node to have at least
+100 counts per million input reads</em>.</p>
 </div>
 <ul class="simple">
 <li><p>With both these mechanisms in place, we can be more confident that high split counts in a particular region of the phylogeny is suggestive of novel sequence in the biological sample.</p></li>
@@ -188,7 +188,7 @@ The <code class="code docutils literal notranslate"><span class="pre">--cpm</spa
 <h2>Phylogenetic classification results<a class="headerlink" href="#phylogenetic-classification-results" title="Permalink to this headline"></a></h2>
 <ul>
 <li><p>Say we have just run a sample <code class="code docutils literal notranslate"><span class="pre">sample_one.fq</span></code> against the database, and the classification results are in a folder <code class="code docutils literal notranslate"><span class="pre">./sample_one</span></code>.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam run -db my_database -d /path/to/sample_one.fq --name sample_one
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam run -db my_database -d /path/to/sample_one.fq --out sample_one
 </pre></div>
 </div>
 </li>
@@ -297,11 +297,11 @@ needing to pre-process and align the corresponding rows and columns.</p>
 <li><p>Provided you have run the <code class="code docutils literal notranslate"><span class="pre">download_taxonomy</span></code> command (see <a class="reference internal" href="../commands.html#download-taxonomy"><span class="std std-ref">section in Commands documentation</span></a>), you can convert the above phylogenetic results into the taxonomic setting.</p></li>
 <li><p>The following two commands accomplish this task equivalently:</p></li>
 </ul>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam run -d /path/to/reads --name example --taxonomy
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam run -d /path/to/reads --out example --taxonomy
 </pre></div>
 </div>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam run -d /path/to/reads --name example_one
-<span class="gp">$ </span>expam to_taxonomy --name example_one
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam run -d /path/to/reads --out example_one
+<span class="gp">$ </span>expam to_taxonomy --out example_one
 </pre></div>
 </div>
 <ul class="simple">
@@ -311,16 +311,19 @@ needing to pre-process and align the corresponding rows and columns.</p>
 <h3>Taxonomic sample summaries<a class="headerlink" href="#taxonomic-sample-summaries" title="Permalink to this headline"></a></h3>
 <ul class="simple">
 <li><p>For each sample input file, <strong>expam</strong> will translate a corresponding taxonomic sample summary.</p></li>
-<li><p>These are tab-delimited matrices with nine columns:
-1. <strong>Taxon ID</strong> - NCBI taxon id.
-2. <strong>Percent classified (cumulative)</strong> - total percentage of reads in this sample classified at or below this taxon id.
-3. <strong>Total classified (cumulative)</strong> - total number of reads classified at or below this taxon id.
-4. <strong>Classified (raw)</strong> - number of reads classified directly to this taxon id.
-5. <strong>Percent split (cumulative)</strong> - total percentage of reads classified as a split, at or below this taxon id.
-6. <strong>Total split (cumulative)</strong> - total number of reads classified as a split, at or below this taxon id.
-7. <strong>Split (raw)</strong> - number of reads classified as a split directly at this taxon id.
-8. <strong>Rank</strong> - taxonomic rank associated with the taxon id.
-9. <strong>Scientific name (lineage)</strong> - (space-separated) taxonomic lineage associated with this taxon id.</p></li>
+<li><p>These are tab-delimited matrices with nine columns:</p>
+<ol class="arabic simple">
+<li><p><strong>Taxon ID</strong> - NCBI taxon id.</p></li>
+<li><p><strong>Percent classified (cumulative)</strong> - total percentage of reads in this sample classified at or below this taxon id.</p></li>
+<li><p><strong>Total classified (cumulative)</strong> - total number of reads classified at or below this taxon id.</p></li>
+<li><p><strong>Classified (raw)</strong> - number of reads classified directly to this taxon id.</p></li>
+<li><p><strong>Percent split (cumulative)</strong> - total percentage of reads classified as a split, at or below this taxon id.</p></li>
+<li><p><strong>Total split (cumulative)</strong> - total number of reads classified as a split, at or below this taxon id.</p></li>
+<li><p><strong>Split (raw)</strong> - number of reads classified as a split directly at this taxon id.</p></li>
+<li><p><strong>Rank</strong> - taxonomic rank associated with the taxon id.</p></li>
+<li><p><strong>Scientific name (lineage)</strong> - (space-separated) taxonomic lineage associated with this taxon id.</p></li>
+</ol>
+</li>
 </ul>
 <section id="id2">
 <h4>Example<a class="headerlink" href="#id2" title="Permalink to this headline"></a></h4>
