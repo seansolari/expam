@@ -1,4 +1,4 @@
-from ._build import \
+from ._build.kmers import \
     reverse_complement, \
     get_raw_kmers, \
     bytes_intersect, \

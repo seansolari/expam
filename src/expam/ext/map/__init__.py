@@ -1,4 +1,4 @@
-from ._build import \
+from ._build.map import \
     binarysearch, \
     binarysearch_put, \
     binarysearch_get, \

@@ -15,26 +15,38 @@ with open(os.path.join(SOURCE, "README.md"), mode="r", encoding="utf-8") as f:
 
 # Extension instances for Cython scripts.
 extensions = [
-    Extension(
-        "expam.ext.kmers._build",
-        sources=["src/expam/ext/kmers/extract.pyx", "src/expam/ext/kmers/kmers.c", "src/expam/ext/kmers/jellyfish.c"],
-        include_dirs=[np.get_include()],
-        extra_compile_args=["-std=c99"],
-        define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")]
+    *cythonize(
+        Extension(
+            "kmers._build.kmers",
+            sources=["src/expam/ext/kmers/extract.pyx", "src/expam/ext/kmers/kmers.c", "src/expam/ext/kmers/jellyfish.c"],
+            include_dirs=[np.get_include()],
+            extra_compile_args=["-std=c99"],
+            define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")]
+        ),
+        language_level="3",
+        build_dir="src/expam/ext/kmers/_build"
     ),
-    Extension(
-        "expam.ext.map._build",
-        sources=["src/expam/ext/map/map.pyx"],
-        include_dirs=[np.get_include()],
-        define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")]
+    *cythonize(
+        Extension(
+            "map._build.map",
+            sources=["src/expam/ext/map/map.pyx"],
+            include_dirs=[np.get_include()],
+            define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")]
+        ),
+        language_level="3",
+        build_dir="src/expam/ext/map/_build"
     ),
-    Extension(
-        "expam.ext.sets._build",
-        sources=["src/expam/ext/sets/sets.pyx", "src/expam/ext/sets/mfil.c"],
-        include_dirs=[np.get_include()],
-        extra_compile_args=["-std=c99"],
-        define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")]
-    ),
+    *cythonize(
+        Extension(
+            "sets._build.sets",
+            sources=["src/expam/ext/sets/sets.pyx", "src/expam/ext/sets/mfil.c"],
+            include_dirs=[np.get_include()],
+            extra_compile_args=["-std=c99"],
+            define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")]
+        ),
+        language_level="3",
+        build_dir="src/expam/ext/sets/_build"
+    )
 ]
 
 setup(
@@ -83,14 +95,14 @@ setup(
     # Cython modules.
     #
     ext_package="expam.ext",
-    ext_modules=cythonize(extensions, language_level="3"),
+    ext_modules=extensions,
     #
     # Make main callable from console.
     #
     entry_points={
         "console_scripts": [
-            "expam=expam.cli:main",
-            "expam_limit=expam.sandbox:main"
+            "expam=expam.main:main",
+            "expam_limit=expam.sandbox.main:main"
         ],
     },
     #
