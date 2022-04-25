@@ -5,7 +5,7 @@ from setuptools.extension import Extension
 from Cython.Build import cythonize
 import numpy as np
 
-EXPAM_VERSION = (0, 0, 9)
+EXPAM_VERSION = (1, 0, 0)
 
 SOURCE = os.path.dirname(os.path.abspath(__file__))
 
@@ -16,21 +16,21 @@ with open(os.path.join(SOURCE, "README.md"), mode="r", encoding="utf-8") as f:
 # Extension instances for Cython scripts.
 extensions = [
     Extension(
-        "map",
-        sources=["src/expam/c/map.pyx"],
-        include_dirs=[np.get_include()],
-        define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")]
-    ),
-    Extension(
-        "extract",
-        sources=["src/expam/c/extract.pyx", "src/expam/c/kmers.c", "src/expam/c/jellyfish.c"],
+        "expam.ext.kmers._build",
+        sources=["src/expam/ext/kmers/extract.pyx", "src/expam/ext/kmers/kmers.c", "src/expam/ext/kmers/jellyfish.c"],
         include_dirs=[np.get_include()],
         extra_compile_args=["-std=c99"],
         define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")]
     ),
     Extension(
-        "sets",
-        sources=["src/expam/c/sets.pyx", "src/expam/c/mfil.c"],
+        "expam.ext.map._build",
+        sources=["src/expam/ext/map/map.pyx"],
+        include_dirs=[np.get_include()],
+        define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")]
+    ),
+    Extension(
+        "expam.ext.sets._build",
+        sources=["src/expam/ext/sets/sets.pyx", "src/expam/ext/sets/mfil.c"],
         include_dirs=[np.get_include()],
         extra_compile_args=["-std=c99"],
         define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")]
@@ -82,7 +82,7 @@ setup(
     #
     # Cython modules.
     #
-    ext_package="expam.c",
+    ext_package="expam.ext",
     ext_modules=cythonize(extensions, language_level="3"),
     #
     # Make main callable from console.

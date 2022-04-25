@@ -1,20 +1,10 @@
 import io
-import gzip
 import os
 import random
-from os import listdir
-from os.path import basename, isfile, join
-
-from expam.c.extract import reverse_complement_combine
-from expam.run import timeit
-
-# Parsing of compressed files.
-DEFAULT_MODE = "rb"
-DEFAULT_OPENER = open
-COMP_PARSE = {
-    ".tar.gz": {"mode": "rb", "opener": gzip.open},
-    ".gz": {"mode": "rb", "opener": gzip.open}
-}
+import re
+from expam import COMP_PARSE, DEFAULT_MODE, DEFAULT_OPENER
+from expam.ext.kmers import reverse_complement_combine
+from expam.logger import timeit
 
 
 def get_opener(file_name):
@@ -40,20 +30,8 @@ def check_suffix(string, sfx):
     return False
 
 
-def ls(url, ext=""):
-    null_ext = not len(ext)
-
-    if isfile(url) and (url[-len(ext):] == ext or null_ext):
-        return [url]
-    else:
-        return [
-            f for f in listdir(url)
-            if isfile(join(url, f)) and (f[-len(ext):] == ext or null_ext)
-        ]
-
-
 def format_name(name, remove_comp=False):
-    name = basename(name)
+    name = os.path.basename(name)
     # Must not be a digit. If it is, add 'ref' to the start.
     if name.isdigit():
         name = "ref" + name
@@ -147,6 +125,115 @@ def get_sequence(url):
                 sequence.write(line)
 
     return sequence.getvalue()
+
+class MaskStore:
+    def __init__(self):
+        self.store = {}
+
+    def __setitem__(self, key, value):
+        # Place value in store.
+        self.store[key] = value
+
+    def __getitem__(self, key):
+        return self.store[key]
+
+    def __delitem__(self, key):
+        del self.store[key]
+
+
+class SequenceStore:
+    def __init__(self, k, out_dir):
+        self._store = {}
+        self.stream = io.BytesIO()
+        self.k = k
+        self.out_dir = out_dir
+
+        self.accession_ids = {}
+
+    def add_sequence(self, file_path):
+        # Check it is a valid file.
+        if not os.path.isfile(file_path):
+            raise ValueError("Directory %s is not a file!" % file_path)
+
+        print("Extracting sequences from %s..." % file_path)
+
+        # Determine opening mode based on compression of sequence file.
+        file_name = format_name(file_path)
+        file_name, (mode, opener) = get_opener(file_name)
+
+        with opener(file_path, mode=mode) as f:
+            # Extract the accession id.
+            metadata = f.readline()
+            assert b'>' in metadata
+
+            accession_id, tax_id = self.extract_accession_id(metadata)
+
+            if accession_id is None and tax_id is None:
+                raise ValueError("Couldn't identify sequence %s!" % file_name)
+
+            for line in f:
+                line = line.strip()
+                # Skip information line at start of FASTA format.
+                if b'>' in line:
+                    self.stream.write(b'N')
+                else:
+                    self.stream.write(line)
+
+        # Convert to numeric sequence and put in store.
+        sequence_view = self.stream.getvalue()
+        self._store[file_name] = sequence_view
+
+        # Save accession ID for this file.
+        self.accession_ids[file_name] = [accession_id, tax_id]
+
+        # Clear stream.
+        self.stream.seek(0)
+        self.stream.truncate()
+
+        return file_name, len(self._store[file_name])
+
+    def __getitem__(self, key):
+        # If it is a branch, this is a valid request,
+        # but no information from the Sequence Store is required.
+        if key.isdigit():
+            return None
+        else:
+            return self._store.__getitem__(key)
+
+    def __setitem__(self, key, value):
+        self._store.__setitem__(key, value)
+
+    def __delitem__(self, key):
+        self._store.__delitem__(key)
+
+    def keys(self):
+        return self._store.keys()
+
+    @staticmethod
+    def extract_accession_id(string):
+        def try_convert(byte_string):
+            try:
+                return byte_string.decode("utf8")
+
+            except AttributeError:
+                return byte_string
+
+        accn_id = re.findall(b'(?:^\s*\>)(.*?)(?:\s+|\|)', string)
+        tax_id = re.findall(b'(?:\|kraken:taxid\||\|taxid\|)(\d+)(?:\s+|\|)', string)
+
+        accn_id = None if not accn_id else try_convert(accn_id[0])
+        tax_id = None if not tax_id else try_convert(tax_id[0])
+
+        return accn_id, tax_id
+
+    def save_accession_ids(self, suffix=""):
+        id_data = "\n".join([
+            "%s,%s,%s" % (name, keys[0], keys[1])
+            for name, keys in self.accession_ids.items()
+        ])
+
+        with open(os.path.join(self.out_dir, "phylogeny", "accession_ids_%s.csv" % suffix), "w") as f:
+            f.write(id_data)
 
 
 def make_reads(in_url, l, n, out_url, e=0.0):

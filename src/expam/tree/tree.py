@@ -1,6 +1,5 @@
 import random
 from math import floor, log
-import json
 import os
 import re
 import sys
@@ -8,76 +7,9 @@ import traceback
 
 import numpy as np
 import pandas as pd
+from expam.tree import PHYLA_COLOURS
 
-PHYLA_COLOURS = [("Proteobacteria", "#E85343"), ("Bacteroidetes", "#30B674"),
-                 ("Firmicutes", "#6585C3"), ("Actinobacteria", "#FEDB45")]
-
-
-def simulate_balanced_phylogeny(names):
-    """
-    :param names: List - list of leaf names.
-    """
-
-    # Declare an index.
-    index = Index()
-
-    # Insert all children.
-    for name in names:
-        # Make child node.
-        childNode = Location(
-            name=name,
-            type="Leaf",
-            dist=1.0
-        )
-        # Insert into tree.
-        index.append(childNode)
-
-    # Naming string.
-    _NAME = len(names) - 1
-
-    # Repeatedly join pairs until a full tree is made.
-    while len(names) > 1:
-        new_names = []
-
-        while len(names) > 0:
-            try:
-                # Get next two children.
-                child_names = []
-                i = 0
-                while i < 2:
-                    child_names.append(names.pop())
-                    i += 1
-
-            except IndexError:
-                # Only one child left. Just pass on the name.
-                new_names.append(child_names[0])
-                break
-
-            # Join these children:
-            # Make a parent node.
-            parentName = str(_NAME)
-            _NAME -= 1
-            # Make a new Location.
-            parentNode = Location(
-                name=parentName,
-                type="Branch"
-            )
-            print(f'New Parent {parentName}...')
-            # Apply join.
-            index.join(
-                child_names[0],
-                child_names[1],
-                parentNode
-            )
-
-            # Append parent name to new_names.
-            new_names.append(parentName)
-
-        # New lot of children.
-        names = new_names
-
-    # Convert tree to newick format.
-    return index.to_newick() + ";"
+from expam.tree.location import Location
 
 
 def propose_lca(c1, c2):
@@ -101,188 +33,14 @@ def propose_lca(c1, c2):
         return c1[-m:]
 
 
-class Location:
-    """Represents a node in the phylogeny."""
-    is_root = False
-
-    def __init__(self, name="", type="", dist=0.0, coord=None, accession_id=None, taxid=None, **kwargs):
-        """__init__ 
-
-        :param name: name of node, defaults to ""
-        :type name: str, optional
-        :param type: Leaf or Branch, defaults to ""
-        :type type: str, optional
-        :param dist: distance to parent node, defaults to 0.0
-        :type dist: float, optional
-        :param coord: binary coordinate from root to node, defaults to None
-        :type coord: list, optional
-        :param accession_id: NCBI accession id, defaults to None
-        :type accession_id: str, optional
-        :param taxid: NCBI taxonomy id, defaults to None
-        :type taxid: int, optional
-        :ivar name: node name
-        :ivar type: "Leaf" or "Branch"
-        :ivar distance: distance to parent node
-        :ivar coordinate: list of binary binary numbers representing path from root to node
-        :ivar nchildren: number of children below this node
-        :ivar accession_id: NCBI accession id (only valid for leaves)
-        :ivar taxid: NCBI taxonomy id
-        """
-        self._name = name
-        self._type = type
-        self._distance = dist
-        self._coordinate = [] if coord is None else coord
-        self._nchildren = 0
-        self._accession_id = accession_id
-        self._taxid = taxid
-
-        self.children = []
-        self.primaryChild = None
-
-    def __str__(self):
-        return (f"Location - {self._name} ({self._type}):"
-                f"\n\t+ Coordinate: {self._coordinate}"
-                f"\n\t+ Children: {self._nchildren}")
-
-    def name():
-        doc = "The name property."
-
-        def fget(self):
-            return self._name
-
-        def fset(self, value):
-            self._name = value
-
-        def fdel(self):
-            del self._name
-
-        return locals()
-
-    name = property(**name())
-
-    def type():
-        doc = "The type property."
-
-        def fget(self):
-            return self._type
-
-        def fset(self, value):
-            self._type = value
-
-        def fdel(self):
-            del self._type
-
-        return locals()
-
-    type = property(**type())
-
-    def distance():
-        doc = "The distance property."
-
-        def fget(self):
-            return self._distance
-
-        def fset(self, value):
-            self._distance = value
-
-        def fdel(self):
-            del self._distance
-
-        return locals()
-
-    distance = property(**distance())
-
-    def coordinate():
-        doc = "The coordinate property."
-
-        def fget(self):
-            return self._coordinate
-
-        def fset(self, value):
-            self._coordinate = value
-
-        def fdel(self):
-            del self._coordinate
-
-        return locals()
-
-    coordinate = property(**coordinate())
-
-    def nchildren():
-        doc = "The nchildren property."
-
-        def fget(self):
-            return self._nchildren
-
-        def fset(self, value):
-            self._nchildren = value
-
-        def fdel(self):
-            del self._nchildren
-
-        return locals()
-
-    nchildren = property(**nchildren())
-
-    def accession_id():
-        doc = "The accession id property."
-
-        def fget(self):
-            return self._accession_id
-
-        def fset(self, value):
-            self._accession_id = value
-
-        def fdel(self):
-            del self._accession_id
-
-        return locals()
-
-    accession_id = property(**accession_id())
-
-    def taxid():
-        doc = "The accession id property."
-
-        def fget(self):
-            return self._taxid
-
-        def fset(self, value):
-            self._taxid = value
-
-        def fdel(self):
-            del self._taxid
-
-        return locals()
-
-    taxid = property(**taxid())
-
-    @classmethod
-    def make_branch(cls, branch_name):
-        return Location(branch_name, "Branch", 0)
-
-    @classmethod
-    def make_leaf(cls, tree, leaf_name, dist):
-        return Location(leaf_name, "Leaf", dist)
-
-    def add_child(self, child, primary_child=False):
-        self.children.__setitem__(child.name, child)
-
-        if primary_child:
-            self.set_primary(child)
-
-    def set_primary(self, node):
-        self.primaryChild = node
-
-    def save(self, out_dir):
-        fname = f'{self._name}.loc'
-        with open(os.path.join(out_dir, "phylogeny", "loc", fname), 'w') as f:
-            json.dump(self.__dict__, f)
-
-
 class Index:
     """ Phylogeny index that can load, save and manipulate Newick trees.
     """
     def __init__(self):
+        self.db = None
+        self.leaf_taxid = None
+        self.taxid_lineage = None
+
         self._pointers = {}  # Pointers is a map from node name to pool location.
         self.pool = [Location()]  # Empty location to represent an 'unclassified' location.
 
@@ -294,6 +52,47 @@ class Index:
 
     def __str__(self):
         return f'<Phylogeny Index, length={len(self)}>'
+    def use_db(self, db_path: str):
+        if not os.path.exists(db_path):
+            raise OSError("Can't find database path %s." % db_path)
+
+        phy_path = os.path.join(db_path, 'phylogeny')
+        accession_ids_path = os.path.join(phy_path, 'accession_ids.csv')
+        taxid_lineage_path = os.path.join(phy_path, 'taxid_lineage.csv')
+
+        for path in (phy_path, accession_ids_path, taxid_lineage_path):
+            if not os.path.exists(path):
+                raise OSError("Can't find required data %s. Have you run download_taxonomy?")
+
+        self.load_leaf_taxid(accession_ids_path)
+        self.load_taxid_lineage(taxid_lineage_path)
+
+    def load_leaf_taxid(self, accession_ids_path: str):
+        if self.leaf_taxid is None:
+            self.leaf_taxid = {}
+        else:
+            return
+
+        with open(accession_ids_path, 'r') as f:
+            for line in f:
+                name, _, taxid = line.strip().split(',')
+                self.leaf_taxid[name] = taxid
+
+    def load_taxid_lineage(self, taxid_lineage_path: str):
+        if self.taxid_lineage is None:
+            self.taxid_lineage = {}
+        else:
+            return
+
+        with open(taxid_lineage_path, 'r') as f:
+            for line in f:
+                data = line.strip().split(',')
+                self.taxid_lineage[data[0]] = tuple(data[1:])
+
+    def get_node_lineages(self, node):
+        node_leaves = self.get_child_leaves(node)
+        taxids = [self.leaf_taxid[leaf] for leaf in node_leaves]
+        return [self.taxid_lineage[taxa] for taxa in taxids]
 
     @classmethod
     def load_newick(cls, path, keep_names=False, verbose=True):

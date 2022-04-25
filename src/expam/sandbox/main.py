@@ -2,11 +2,21 @@
 
 import logging
 import multiprocessing as mp
+import sys
 import psutil
 import re
 import resource
 import subprocess
 import time
+
+
+def check_free_command():
+    err = subprocess.run(['free', '--mega'], capture_output=True, shell=True).stderr
+
+    if err:
+        return False
+    else:
+        return True
 
 
 def limit(mem_limit):
@@ -56,6 +66,10 @@ def sandbox(logging_name, mem_limit, interval):
             logger = logging.getLogger(logging_name)
             logger.info("\ttotal\tused\tfree\tshared\tbuff/cache\tavailable")
 
+            # Initial log for starting memory usage.
+            mem_info = subprocess.run(['free', '--mega'], capture_output=True).stdout.decode()
+            logger.info("Initial...%s" % "\t".join(re.findall(r"[^\s]+", mem_info)[6:13]))
+
             # Start new child process.
             ctx = mp.get_context('fork')
 
@@ -66,7 +80,7 @@ def sandbox(logging_name, mem_limit, interval):
 
             while p.is_alive():
                 # Log memory usage.
-                mem_info = subprocess.run(['free', '-h'], capture_output=True).stdout.decode()
+                mem_info = subprocess.run(['free', '--mega'], capture_output=True).stdout.decode()
                 logger.info("\t".join(re.findall(r"[^\s]+", mem_info)[6:13]))
 
                 time.sleep(interval)
@@ -77,41 +91,39 @@ def sandbox(logging_name, mem_limit, interval):
     return inner
 
 
-def parse(cmd, mem_limit=None, interval=1, out=None):
-    i = 0
+def parse():
+    from argparse import ArgumentParser, RawTextHelpFormatter, REMAINDER
 
-    if len(cmd) > 0 and 'sandbox' in cmd[i]:
-        i += 1
+    parser = ArgumentParser(description="::: expam_limit ::: \n\n\tcommand for limiting and logging memory usage.", formatter_class=RawTextHelpFormatter)
+    parser.add_argument('-m', '--memory', type=int, dest='memory', help="Explicit memory limit in bytes.")
+    parser.add_argument('-x', '--x', type=float, dest='x', help="Memory limit as a percentage of total system memory.")
+    parser.add_argument('-t', '--interval', type=float, dest='interval', default=1.0, help="Time between memory logs.")
+    parser.add_argument('-o', '--out', type=str, dest='out', help="File to log to (default is stdout).")
+    parser.add_argument('command', nargs=REMAINDER, help="Command to run in limited regime.")
 
-    while i < len(cmd):
-        if cmd[i] in {'--memory', '-m'}:
-            mem_limit = int(cmd[i + 1])
-            i += 1
+    args = parser.parse_args()
 
-        elif cmd[i] in {'--interval', '-t'}:
-            interval = float(cmd[i + 1])
-            i += 1
+    # Establish memory limit.
+    byte_limit = args.memory
+    perc_limit = None if args.x is None else int(args.x * psutil.virtual_memory().total)
 
-        elif cmd[i] in {'--out', '-o'}:
-            out = cmd[i + 1]
-            i += 1
+    if byte_limit is not None and perc_limit is not None:
+        mem_limit = min(byte_limit, perc_limit)
 
-        elif cmd[i] in {'--x', '-x'}:
-            total_memory = psutil.virtual_memory().total
-            mem_limit = int(float(cmd[i + 1]) * total_memory)
-            i += 1
+    elif byte_limit is not None:
+        mem_limit = byte_limit
+    
+    elif perc_limit is not None:
+        mem_limit = byte_limit
+    
+    else:
+        mem_limit = None
 
-        else:
-            break
-
-        i += 1
-
-    cmd = cmd[i:]
-    return mem_limit, interval, out, cmd
+    return mem_limit, args.interval, args.out, args.command
 
 
-def sandbox_command(data):
-    mem_limit, interval, out_file, cmd = parse(data)
+def sandbox_command():
+    mem_limit, interval, out_file, cmd = parse()
 
     if mem_limit is None:
         soft, hard = resource.getrlimit(resource.RLIMIT_RSS)
@@ -141,8 +153,11 @@ def sandbox_command(data):
 
 
 def main():
-    import sys
-    sandbox_command(sys.argv)
+    if not check_free_command():
+        print("Must run on Linux system (or have `free` command available).")
+        sys.exit(1)
+    
+    sandbox_command()
 
 
 if __name__ == '__main__':
