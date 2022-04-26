@@ -1,3 +1,6 @@
 include LICENSE
 include README.md
 include MANIFEST.in
+include src/expam/ext/kmers/*.pyx
+include src/expam/ext/map/*.pyx
+include src/expam/ext/sets/*.pyx
