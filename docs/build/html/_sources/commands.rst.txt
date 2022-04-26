@@ -165,7 +165,7 @@ Run metagenomic reads against a succesfully built database. See :doc:`Tutorial 2
 
 .. code-block:: console
 
-    $ expam run -db DB_NAME [args...]
+    $ expam classify -db DB_NAME [args...]
 
 .. option:: -d <file path>, --directory <file path>
 
@@ -226,7 +226,7 @@ Run metagenomic reads against a succesfully built database. See :doc:`Tutorial 2
 
         .. code-block:: console
 
-            $ expam run ... --group #FF0000 sample_one sample_two
+            $ expam classify ... --group #FF0000 sample_one sample_two
 
 .. option:: --alpha <float>
 
@@ -260,7 +260,7 @@ Example
 
 .. code-block:: console
 
-    $ expam run -db DB_NAME -d /path/to/paired/reads --paired --out ~/paired_reads_analysis --taxonomy
+    $ expam classify -db DB_NAME -d /path/to/paired/reads --paired --out ~/paired_reads_analysis --taxonomy
 
 .. _download taxonomy:
 

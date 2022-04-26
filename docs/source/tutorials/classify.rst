@@ -93,7 +93,7 @@ Phylogenetic classification results
 
   .. code-block:: console
 
-    $ expam run -db my_database -d /path/to/sample_one.fq --out sample_one
+    $ expam classify -db my_database -d /path/to/sample_one.fq --out sample_one
 
 * In :code:`./sample_one`, there will be a :code:`phy` subdirectory containing three files:
 
@@ -199,11 +199,11 @@ Taxonomic results
 
 .. code-block:: console
 
-  $ expam run -d /path/to/reads --out example --taxonomy
+  $ expam classify -d /path/to/reads --out example --taxonomy
 
 .. code-block:: console
 
-  $ expam run -d /path/to/reads --out example_one
+  $ expam classify -d /path/to/reads --out example_one
   $ expam to_taxonomy --out example_one
 
 * Where before the results directory contained only a :code:`phy` subdirectory, it will now also contain a :code:`tax` folder.

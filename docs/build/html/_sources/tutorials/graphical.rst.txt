@@ -61,8 +61,8 @@ Example of grouping
 
 .. code-block:: console
 
-    $ expam run ... --group a1 a2 a3 --group b1 b2 b3
-    $ expam run ... --group "#FF0000" a1 a2 a3 --group "#00FF00" b1 b2 b3
+    $ expam classify ... --group a1 a2 a3 --group b1 b2 b3
+    $ expam classify ... --group "#FF0000" a1 a2 a3 --group "#00FF00" b1 b2 b3
 
 .. note:: 
 
@@ -82,7 +82,7 @@ Example of grouping
 
     .. code-block:: console
 
-        $ expam run ... --paired --group a1_f a2_f --group b1_f b2_f
+        $ expam classify ... --paired --group a1_f a2_f --group b1_f b2_f
 
 Visual flags
 ^^^^^^^^^^^^
@@ -110,7 +110,7 @@ Example of colour list
 
 .. code-block:: console
 
-    $ expam run ... --colour_list "#FF0000" "#00FF00" "#0000FF"
+    $ expam classify ... --colour_list "#FF0000" "#00FF00" "#0000FF"
 
 
 .. _itol integration:
@@ -126,7 +126,7 @@ folder containing two files:
 * :code:`tree.nwk` - Newick format tree that can be inserted into iTOL.
 * :code:`style.txt` - An iTOL formatted text document that contains all the information needed for iTOL to style the tree.
 
-For instance, say we previously ran :code:`expam run --out my_run -d /some/samples`, and 
+For instance, say we previously ran :code:`expam classify --out my_run -d /some/samples`, and 
 now run :code:`expam phylotree --out my_run --itol`, the corresponding files
 would be located at
 

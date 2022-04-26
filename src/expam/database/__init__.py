@@ -30,7 +30,7 @@ DATABASE_FILE_RELATIVE_PATH = os.path.join(DATABASE_RELATIVE_PATH, "expam_db.h5"
 FileLocationConfig = namedtuple(
     'FileLocationConfig',
     [
-        'database', 'phylogeny', 'logs', 'conf',
+        'base', 'database', 'phylogeny', 'logs', 'conf',
         'accession_id', 'taxid_lineage', 'taxon_rank',
         'lca_matrix',
         'database_file'

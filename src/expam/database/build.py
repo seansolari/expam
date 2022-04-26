@@ -3,15 +3,13 @@ import math
 from multiprocessing import Pipe, Value, shared_memory
 import os
 import subprocess
-
 import numpy as np
-from expam import COMP_PARSE
 from expam.database import CHUNK_SIZE, TIMEOUT, UNION_RATIO, FileLocationConfig, expam_dtypes
 from expam.database.config import load_database_config
 from expam.process.genome import ExtractWorker
 from expam.process.manager import ControlCenter, ExpamProcesses
 from expam.process.piler import UnionWorker
-from expam.sequences import check_suffix
+from expam.sequences import COMP_PARSE, check_suffix
 from expam.tree.tree import Index, propose_lca
 from expam.utils import ls
 
@@ -176,7 +174,7 @@ def sort_by_size(dirs):
     return ordered_files, max_size
 
 def prepare_kmer_allocations(rows, cols, n_processes):
-    allocation_params = ()
+    allocation_params = tuple()
     allocation_size = rows * cols * expam_dtypes.keys_dtype_size
     allocation_shape = (rows, cols)
 
@@ -195,7 +193,7 @@ def prepare_kmer_allocations(rows, cols, n_processes):
         next_arr[:] = 0
 
         # Pass on allocation details to children.
-        allocation_params += tuple(next_shm_allocation.name, allocation_shape)
+        allocation_params += (next_shm_allocation.name, allocation_shape)
         next_shm_allocation.close()
 
     return allocation_params

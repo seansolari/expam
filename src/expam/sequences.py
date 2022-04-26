@@ -1,10 +1,18 @@
+import gzip
 import io
 import os
 import random
 import re
-from expam import COMP_PARSE, DEFAULT_MODE, DEFAULT_OPENER
 from expam.ext.kmers import reverse_complement_combine
 from expam.logger import timeit
+
+COMPRESSION_EXTNS = ['.tar.gz', '.tar', '.gz']
+DEFAULT_MODE = "rb"
+DEFAULT_OPENER = open
+COMP_PARSE = {
+    ".tar.gz": {"mode": "rb", "opener": gzip.open},
+    ".gz": {"mode": "rb", "opener": gzip.open}
+}
 
 
 def get_opener(file_name):

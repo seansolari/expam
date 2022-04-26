@@ -68,7 +68,7 @@
 <li class="toctree-l2"><a class="reference internal" href="graphical.html">Graphical output</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../tree.html">expam’s Tree module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tree.html"><strong>expam</strong>’s tree module</a></li>
 </ul>
 
         </div>
@@ -198,7 +198,7 @@ automatically detects how it should open most regular sequence files.</p>
 </ul>
 </div></blockquote>
 </li>
-<li><p>We use the <code class="code docutils literal notranslate"><span class="pre">run</span></code> command to classify reads.</p></li>
+<li><p>We use the <code class="code docutils literal notranslate"><span class="pre">classify</span></code> command to classify reads.</p></li>
 <li><p>These are paired reads, but for now we’ll treat them as separate.</p></li>
 <li><p>We supply the <code class="code docutils literal notranslate"><span class="pre">-o</span></code> or <code class="code docutils literal notranslate"><span class="pre">--out</span></code> flag to tell <em>expam</em> where to save classification results.</p>
 <blockquote>
@@ -208,7 +208,7 @@ automatically detects how it should open most regular sequence files.</p>
 </div></blockquote>
 </li>
 </ul>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam run -db <span class="nb">test</span> -d /Users/seansolari/Documents/expam/test/data/reads/ --out test/results/unpaired_test
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam classify -db <span class="nb">test</span> -d /Users/seansolari/Documents/expam/test/data/reads/ --out test/results/unpaired_test
 <span class="go">Clearing old log files...</span>
 <span class="go">Results directory created at /Users/seansolari/Documents/Databases/test/results/unpaired_test.</span>
 <span class="go">Loading the map and phylogeny.</span>
@@ -306,7 +306,7 @@ automatically detects how it should open most regular sequence files.</p>
 <ul class="simple">
 <li><p>We’ll call this separate run <code class="code docutils literal notranslate"><span class="pre">paired_test</span></code>.</p></li>
 </ul>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam run -db <span class="nb">test</span> -d /Users/seansolari/Documents/expam/test/data/reads/ --out test/results/paired_test --paired
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam classify -db <span class="nb">test</span> -d /Users/seansolari/Documents/expam/test/data/reads/ --out test/results/paired_test --paired
 <span class="go">Clearing old log files...</span>
 <span class="go">Results directory created at /Users/seansolari/Documents/Databases/test/results/paired_test.</span>
 <span class="go">Loading the map and phylogeny.</span>

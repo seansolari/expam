@@ -136,8 +136,8 @@ will treat the rest of the command as a comment (and be ignored).</p>
 <ul class="simple">
 <li><p>Say we have six samples to be profiled and grouped - <code class="code docutils literal notranslate"><span class="pre">a1</span></code>, <code class="code docutils literal notranslate"><span class="pre">a2</span></code>, <code class="code docutils literal notranslate"><span class="pre">a3</span></code>, <code class="code docutils literal notranslate"><span class="pre">b1</span></code>, <code class="code docutils literal notranslate"><span class="pre">b2</span></code>, <code class="code docutils literal notranslate"><span class="pre">b3</span></code>.</p></li>
 </ul>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam run ... --group a1 a2 a3 --group b1 b2 b3
-<span class="gp">$ </span>expam run ... --group <span class="s2">&quot;#FF0000&quot;</span> a1 a2 a3 --group <span class="s2">&quot;#00FF00&quot;</span> b1 b2 b3
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam classify ... --group a1 a2 a3 --group b1 b2 b3
+<span class="gp">$ </span>expam classify ... --group <span class="s2">&quot;#FF0000&quot;</span> a1 a2 a3 --group <span class="s2">&quot;#00FF00&quot;</span> b1 b2 b3
 </pre></div>
 </div>
 <div class="admonition note">
@@ -156,7 +156,7 @@ will treat the rest of the command as a comment (and be ignored).</p>
 </ul>
 </div></blockquote>
 <p>We could do so through</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam run ... --paired --group a1_f a2_f --group b1_f b2_f
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam classify ... --paired --group a1_f a2_f --group b1_f b2_f
 </pre></div>
 </div>
 </div>
@@ -190,7 +190,7 @@ is given priority.</p>
 
 <section id="example-of-colour-list">
 <h4>Example of colour list<a class="headerlink" href="#example-of-colour-list" title="Permalink to this headline"></a></h4>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam run ... --colour_list <span class="s2">&quot;#FF0000&quot;</span> <span class="s2">&quot;#00FF00&quot;</span> <span class="s2">&quot;#0000FF&quot;</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam classify ... --colour_list <span class="s2">&quot;#FF0000&quot;</span> <span class="s2">&quot;#00FF00&quot;</span> <span class="s2">&quot;#0000FF&quot;</span>
 </pre></div>
 </div>
 </section>
@@ -205,7 +205,7 @@ folder containing two files:</p>
 <li><p><code class="code docutils literal notranslate"><span class="pre">tree.nwk</span></code> - Newick format tree that can be inserted into iTOL.</p></li>
 <li><p><code class="code docutils literal notranslate"><span class="pre">style.txt</span></code> - An iTOL formatted text document that contains all the information needed for iTOL to style the tree.</p></li>
 </ul>
-<p>For instance, say we previously ran <code class="code docutils literal notranslate"><span class="pre">expam</span> <span class="pre">run</span> <span class="pre">--out</span> <span class="pre">my_run</span> <span class="pre">-d</span> <span class="pre">/some/samples</span></code>, and
+<p>For instance, say we previously ran <code class="code docutils literal notranslate"><span class="pre">expam</span> <span class="pre">classify</span> <span class="pre">--out</span> <span class="pre">my_run</span> <span class="pre">-d</span> <span class="pre">/some/samples</span></code>, and
 now run <code class="code docutils literal notranslate"><span class="pre">expam</span> <span class="pre">phylotree</span> <span class="pre">--out</span> <span class="pre">my_run</span> <span class="pre">--itol</span></code>, the corresponding files
 would be located at</p>
 <ul class="simple">

@@ -27,7 +27,7 @@ TAX_SPLIT_FILE = os.path.join(TAX_RESULTS, SPLIT_NAME)
 ResultsPathConfig = namedtuple(
     'ResultsPathConfig',
     [
-        'phy', 'tax',
+        'base', 'phy', 'tax',
         'temp',
         'phy_raw', 'tax_raw',
         'phy_classified', 'phy_split',

@@ -1,5 +1,5 @@
-from ctypes import Array, c_int8
-from multiprocessing import Pipe, Queue, shared_memory
+from ctypes import *
+from multiprocessing import Array, Pipe, Queue, shared_memory
 import os
 import queue
 import time
@@ -673,7 +673,6 @@ class ExpamProcesses(ControlCenter):
 
             # Save database parameters to config file.
             self.save_db_params(
-                out_dir=self.out_dir,
                 db_params={
                     "keys_shape": current_shape,
                     "keys_data_type": self.dtypes.keys_dtype_str,

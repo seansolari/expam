@@ -1,7 +1,8 @@
 import os
-from expam.main import CommandGroup, ExpamOptions, clear_logs
+from expam.cli.main import CommandGroup, ExpamOptions, clear_logs
 from expam.database import FileLocationConfig
-from expam.database.config import JSONConfig, create_database, make_database_config, validate_database_file_configuration
+from expam.database.build import main as expam
+from expam.database.config import ExpamDatabaseDoesNotExistError, JSONConfig, create_database, make_database_config, validate_database_file_configuration
 from expam.logger import Timer
 from expam.utils import die, ls, make_path_absolute
 
@@ -15,9 +16,7 @@ class BuildCommand(CommandGroup):
     def __init__(
         self, config: FileLocationConfig,
         k: int, n: int, s: int, phylogeny_path: str, pile_size: int,
-        files: list[str], group: str,
-        first_n: int,
-        make_plot: bool = False
+        files: list[str], group: str, first_n: int
     ) -> None:
         super().__init__()
         self.config: FileLocationConfig = config
@@ -32,8 +31,6 @@ class BuildCommand(CommandGroup):
         self.group = group
         self.first_n = first_n
 
-        self.make_plot = make_plot
-
     @classmethod
     def take_args(cls: CommandGroup, args: ExpamOptions) -> dict:
         k, n, s, pile_size, first_n = cls.parse_ints(args.k, args.n, args.s, args.pile, args.first_n)
@@ -47,12 +44,13 @@ class BuildCommand(CommandGroup):
             'pile_size': pile_size,
             'files': args.directory,
             'group': None if args.groups is None else args.groups[0][0],
-            'first_n': first_n,
-            'make_plot': args.plot
+            'first_n': first_n
         }
 
     def validate_database(self):
-        if not validate_database_file_configuration(self.config):
+        try:
+            validate_database_file_configuration(self.config)
+        except ExpamDatabaseDoesNotExistError:
             die("%s is not a database." % self.config.database)
 
     """
@@ -64,7 +62,7 @@ class BuildCommand(CommandGroup):
         self.create()
         self.set()
         self.add()
-        self.build_database()
+        self.build()
 
     """
     Default database command
@@ -89,9 +87,8 @@ class BuildCommand(CommandGroup):
     ======================
     
     """
-    def build_database(self):
+    def build(self):
         self.validate_database()
-
         conf = JSONConfig(self.config.conf)
 
         # Check if a phylogeny has been provided.
@@ -100,7 +97,7 @@ class BuildCommand(CommandGroup):
 
         # Read configuration file.
         k, n, phylogeny, genome_paths, pile = conf.get_build_params()
-        phylogeny_path = make_path_absolute(phylogeny_path, self.config.phylogeny)
+        phylogeny_path = make_path_absolute(phylogeny, self.config.phylogeny)
 
         clear_logs(self.config.logs)
 
@@ -108,13 +105,12 @@ class BuildCommand(CommandGroup):
         try:
             with Timer() as t:
                 expam(
-                    out_dir=self.config.database,
+                    db_path=self.config.base,
                     genome_paths=genome_paths,
-                    phylogeny_path=phylogeny,
+                    phylogeny_path=phylogeny_path,
                     k=k,
                     n=n - 1,  # Account for main process.
                     pile_size=pile,
-                    plot=self.make_plot
                 )
 
             print("expam: " + str(t))

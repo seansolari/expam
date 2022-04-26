@@ -1,0 +1,6 @@
+numpy
+Cython
+matplotlib
+pandas
+psutil
+tables

@@ -71,7 +71,7 @@
 <li class="toctree-l2"><a class="reference internal" href="graphical.html">Graphical output</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../tree.html">expam’s Tree module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tree.html"><strong>expam</strong>’s tree module</a></li>
 </ul>
 
         </div>
@@ -188,7 +188,7 @@ The <code class="code docutils literal notranslate"><span class="pre">--cpm</spa
 <h2>Phylogenetic classification results<a class="headerlink" href="#phylogenetic-classification-results" title="Permalink to this headline"></a></h2>
 <ul>
 <li><p>Say we have just run a sample <code class="code docutils literal notranslate"><span class="pre">sample_one.fq</span></code> against the database, and the classification results are in a folder <code class="code docutils literal notranslate"><span class="pre">./sample_one</span></code>.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam run -db my_database -d /path/to/sample_one.fq --out sample_one
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam classify -db my_database -d /path/to/sample_one.fq --out sample_one
 </pre></div>
 </div>
 </li>
@@ -297,10 +297,10 @@ needing to pre-process and align the corresponding rows and columns.</p>
 <li><p>Provided you have run the <code class="code docutils literal notranslate"><span class="pre">download_taxonomy</span></code> command (see <a class="reference internal" href="../commands.html#download-taxonomy"><span class="std std-ref">section in Commands documentation</span></a>), you can convert the above phylogenetic results into the taxonomic setting.</p></li>
 <li><p>The following two commands accomplish this task equivalently:</p></li>
 </ul>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam run -d /path/to/reads --out example --taxonomy
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam classify -d /path/to/reads --out example --taxonomy
 </pre></div>
 </div>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam run -d /path/to/reads --out example_one
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam classify -d /path/to/reads --out example_one
 <span class="gp">$ </span>expam to_taxonomy --out example_one
 </pre></div>
 </div>

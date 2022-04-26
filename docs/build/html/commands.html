@@ -247,7 +247,7 @@ resources used during build.</p>
 <section id="classify">
 <h3>Classify<a class="headerlink" href="#classify" title="Permalink to this headline"></a></h3>
 <p>Run metagenomic reads against a succesfully built database. See <a class="reference internal" href="tutorials/classify.html"><span class="doc">Tutorial 2</span></a> for more details.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam run -db DB_NAME <span class="o">[</span>args...<span class="o">]</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam classify -db DB_NAME <span class="o">[</span>args...<span class="o">]</span>
 </pre></div>
 </div>
 <dl class="std option">
@@ -324,7 +324,7 @@ Groups are explained in this <a class="reference internal" href="tutorials/graph
 <p class="admonition-title">Note</p>
 <p>You may also supply a hex colour code directly after the <em>–group</em> flag
 to assign some colour code to this group of samples.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam run ... --group <span class="c1">#FF0000 sample_one sample_two</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam classify ... --group <span class="c1">#FF0000 sample_one sample_two</span>
 </pre></div>
 </div>
 </div>
@@ -361,7 +361,7 @@ respectively (<span class="math notranslate nohighlight">\(\underline{c} &gt; 0\
 
 <section id="id1">
 <h4>Example<a class="headerlink" href="#id1" title="Permalink to this headline"></a></h4>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam run -db DB_NAME -d /path/to/paired/reads --paired --out ~/paired_reads_analysis --taxonomy
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam classify -db DB_NAME -d /path/to/paired/reads --paired --out ~/paired_reads_analysis --taxonomy
 </pre></div>
 </div>
 </section>

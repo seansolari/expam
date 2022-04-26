@@ -3,7 +3,7 @@ from expam.classify import ResultsPathConfig
 from expam.classify.classify import ClassificationResults, name_to_id, run_classifier
 from expam.classify.config import make_results_config, validate_results_configuration
 from expam.classify.taxonomy import TaxonomyNCBI
-from expam.main import CommandGroup, ExpamOptions, clear_logs
+from expam.cli.main import CommandGroup, ExpamOptions, clear_logs
 from expam.database import FileLocationConfig
 from expam.database.config import JSONConfig, make_database_config, validate_database_file_configuration
 from expam.utils import die, is_hex, make_path_absolute
@@ -11,7 +11,7 @@ from expam.utils import die, is_hex, make_path_absolute
 
 class ClassifyCommand(CommandGroup):
     commands: set[str] = {
-        'run', 'to_taxonomy', 'download_taxonomy'
+        'classify', 'to_taxonomy'
     }
 
     def __init__(
@@ -49,6 +49,9 @@ class ClassifyCommand(CommandGroup):
     def take_args(cls: CommandGroup, args: ExpamOptions) -> dict:
         cutoff = cls.parse_ints(args.cutoff)
         cpm, alpha = cls.parse_floats(args.cpm, args.alpha)
+
+        if args.out_url is None:
+            die("Must supply -o/--out.")
 
         # Format groups.
         if args.groups is not None:
@@ -90,8 +93,7 @@ class ClassifyCommand(CommandGroup):
         }
 
     def check_database_exists(self):
-        if not validate_database_file_configuration(self.config):
-            die("Database %s does not exist!" % self.config.database)
+        validate_database_file_configuration(self.config)
 
         if not os.path.exists(self.config.database_file):
             die("Database has not been built! Not found at %s." % self.config.database_file)
@@ -101,7 +103,7 @@ class ClassifyCommand(CommandGroup):
     ===========
     
     """
-    def run(self):
+    def classify(self):
         self.check_database_exists()
         clear_logs(self.config.logs)
 
@@ -114,14 +116,20 @@ class ClassifyCommand(CommandGroup):
         if len(keys_shape) == 1:
             keys_shape = keys_shape + (1,)
 
-        tax_obj = TaxonomyNCBI()
-        name_to_lineage, _ = tax_obj.load_taxonomy_map(self.config)
+        try:
+            tax_obj = TaxonomyNCBI(self.config)
+            name_to_lineage, _ = tax_obj.load_taxonomy_map(self.config)
+        except OSError:
+            if self.convert_to_taxonomy:
+                die("First run `download_taxonomy` to collect associated taxonomy data.")
+            else:
+                name_to_lineage = None
 
         # Run expam classification.
         run_classifier(
             read_paths=self.files,
             out_dir=self.out_dir,
-            db_dir=self.config.database,
+            db_dir=self.config.base,
             k=k,
             n=n - 1,  # Account for main process.
             phylogeny_path=phylogeny_path,
@@ -153,7 +161,7 @@ class ClassifyCommand(CommandGroup):
         if self.out_dir is None:
             die("Require output directory (-o, --out_dir)!")
         else:
-            validate_results_configuration(self.out_dir)
+            validate_results_configuration(self.results_config)
 
         if not os.path.exists(self.config.taxid_lineage):
             die("Run command `download_taxonomy` first to collect taxa for your genomes!")
@@ -163,7 +171,7 @@ class ClassifyCommand(CommandGroup):
 
         index, phylogenyIndex = name_to_id(phylogeny_path)
 
-        tax_obj = TaxonomyNCBI()
+        tax_obj = TaxonomyNCBI(self.config)
         name_to_lineage, taxon_to_rank = tax_obj.load_taxonomy_map(self.config)
 
         if not os.path.exists(self.results_config.tax):
@@ -172,8 +180,7 @@ class ClassifyCommand(CommandGroup):
         results = ClassificationResults(
             index=index,
             phylogeny_index=phylogenyIndex,
-            in_dir=self.results_config.phy,
-            out_dir=self.out_dir,
+            results_config=self.results_config,
             groups=self.groups,
             keep_zeros=self.keep_zeros,
             cutoff=self.cutoff,
@@ -185,15 +192,4 @@ class ClassifyCommand(CommandGroup):
             log_scores=self.log_scores
         )
         results.to_taxonomy(name_to_lineage, taxon_to_rank, self.results_config.tax)
-
-    """
-    Download taxonomy command
-    =========================
-    
-    """
-    def download_taxonomy(self):
-        self.check_database_exists()
-
-        tax_obj: TaxonomyNCBI = TaxonomyNCBI(self.config)
-        tax_obj.accession_to_taxonomy()
     

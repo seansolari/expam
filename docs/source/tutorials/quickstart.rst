@@ -97,7 +97,7 @@ Running classifications
   
     * :code:`../expam/test/data/reads/`
   
-* We use the :code:`run` command to classify reads.
+* We use the :code:`classify` command to classify reads.
 * These are paired reads, but for now we'll treat them as separate.
 * We supply the :code:`-o` or :code:`--out` flag to tell *expam* where to save classification results.
 
@@ -105,7 +105,7 @@ Running classifications
 
 .. code-block:: console
     
-    $ expam run -db test -d /Users/seansolari/Documents/expam/test/data/reads/ --out test/results/unpaired_test
+    $ expam classify -db test -d /Users/seansolari/Documents/expam/test/data/reads/ --out test/results/unpaired_test
     Clearing old log files...
     Results directory created at /Users/seansolari/Documents/Databases/test/results/unpaired_test.
     Loading the map and phylogeny.
@@ -202,7 +202,7 @@ Running paired data
 
 .. code-block:: console
 
-    $ expam run -db test -d /Users/seansolari/Documents/expam/test/data/reads/ --out test/results/paired_test --paired
+    $ expam classify -db test -d /Users/seansolari/Documents/expam/test/data/reads/ --out test/results/paired_test --paired
     Clearing old log files...
     Results directory created at /Users/seansolari/Documents/Databases/test/results/paired_test.
     Loading the map and phylogeny.

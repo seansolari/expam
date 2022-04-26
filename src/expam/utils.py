@@ -1,7 +1,7 @@
 import os
 import sys
 
-from expam import COMPRESSION_EXTNS
+from expam.sequences import COMPRESSION_EXTNS
 
 def die(msg):
     print("ERROR\n", msg, "\n")
@@ -79,4 +79,32 @@ def is_hex(string):
         return False
 
     return True
+
+def parse_int(param):
+    INVALID_PARAM_MSG = ("Invalid parameter (%s), must be integer!" % str(param))
+    if param is not None:
+        try:
+            # Convert to float.
+            param = float(param)
+        except ValueError:
+            die(INVALID_PARAM_MSG)
+
+        # Convert to int and see if the value changes.
+        new_param = int(param)
+        if new_param != param:
+            die(INVALID_PARAM_MSG)
+    else:
+        new_param = None
+
+    return new_param
+
+def parse_float(param):
+    INVALID_PARAM_MSG = ("Invalid parameter (%s), must be integer!" % str(param))
+    if param is not None:
+        try:
+            param = float(param)
+        except ValueError:
+            die(INVALID_PARAM_MSG)
+
+    return param
 

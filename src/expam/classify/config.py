@@ -6,6 +6,7 @@ from expam.utils import die
 
 def make_results_config(out_path: str) -> ResultsPathConfig:
     output_file_locations = {
+        'base': out_path,
         'phy': os.path.join(out_path, PHY_RESULTS),
         'tax': os.path.join(out_path, TAX_RESULTS),
         'temp': os.path.join(out_path, TEMP_RESULTS),
@@ -30,14 +31,13 @@ def load_results_config(out_path: str, create: bool = False) -> ResultsPathConfi
                 print("Failed to make results path %s." % out_path)
 
         create_results(proposed_config)
-
-    if not validate_results_configuration(proposed_config, check_taxonomy=False):
+    elif not validate_results_configuration(proposed_config, check_taxonomy=False):
         die("Results path does not exist!")
         
     return proposed_config
 
 def create_results(config: ResultsPathConfig):
-    for path_field in ('phy', 'tax', 'phy_raw', 'tax_raw'):
+    for path_field in ('phy', 'tax', 'phy_raw', 'tax_raw', 'temp'):
         path = getattr(config, path_field)
 
         if not os.path.exists(path):

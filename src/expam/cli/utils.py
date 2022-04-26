@@ -2,7 +2,8 @@ import os
 import matplotlib.pyplot as plt
 from expam.classify import ResultsPathConfig
 from expam.classify.config import make_results_config, validate_classification_results, validate_results_configuration
-from expam.main import CommandGroup, ExpamOptions
+from expam.classify.taxonomy import TaxonomyNCBI
+from expam.cli.main import CommandGroup, ExpamOptions
 from expam.database import FileLocationConfig
 from expam.database.config import JSONConfig, make_database_config, validate_database_file_configuration
 from expam.sequences import format_name
@@ -12,7 +13,7 @@ from expam.utils import die, ls
 
 class UtilsCommand(CommandGroup):
     commands: set[str] = {
-        'cutoff', 'fake_phylogeny', 'plot_memory'
+        'download_taxonomy', 'cutoff', 'fake_phylogeny', 'plot_memory'
     }
 
     def __init__(
@@ -22,7 +23,7 @@ class UtilsCommand(CommandGroup):
 
         self.config: FileLocationConfig = config
         self.out_dir: str = out_dir
-        self.results_config: ResultsPathConfig = make_results_config(out_dir)
+        self.results_config: ResultsPathConfig = None if out_dir is None else make_results_config(out_dir)
 
         self.json_conf = None
 
@@ -49,8 +50,18 @@ class UtilsCommand(CommandGroup):
         return self.json_conf
 
     def check_database_exists(self):
-        if not validate_database_file_configuration(self.config):
-            die("Database %s does not exist!" % self.config.database)
+        validate_database_file_configuration(self.config)
+
+    """
+    Download taxonomy command
+    =========================
+    
+    """
+    def download_taxonomy(self):
+        self.check_database_exists()
+
+        tax_obj: TaxonomyNCBI = TaxonomyNCBI(self.config)
+        tax_obj.accession_to_taxonomy()
 
     """
     Employ cutoff on taxonomic classification output
@@ -58,6 +69,9 @@ class UtilsCommand(CommandGroup):
     
     """
     def cutoff(self):
+        if self.out_dir is None:
+            die("Must supply -o/--out!")
+
         validate_results_configuration(self.results_config, check_taxonomy=True)
 
         if os.path.exists(self.out_dir):

@@ -198,13 +198,13 @@ class JSONConfig:
 
         # Check group has more than zero sequences.
         for group in groups:
-            k, s, sequences = self.group_get(group)
+            _, _, sequences = self.group_get(group)
 
             if len(sequences) > 0:
-                if k is None or s is None:
-                    raise ValueError("Parameters unspecified for group %s (k=%s, s=%s)!" % (group, str(k), str(s)))
-
                 yield group
+
+    def get_n_processes(self):
+        return self['n']
 
 
 class ExpamDatabaseDoesNotExistError(Exception):
@@ -216,6 +216,7 @@ class ExpamDatabaseExistsError(Exception):
 
 def make_database_config(db_path: str) -> FileLocationConfig:
     database_file_locations = {
+        'base': db_path,
         'database': os.path.join(db_path, DATABASE_RELATIVE_PATH),
         'phylogeny': os.path.join(db_path, PHYLOGENY_RELATIVE_PATH),
         'logs': os.path.join(db_path, LOG_RELATIVE_PATH),
@@ -232,14 +233,12 @@ def make_database_config(db_path: str) -> FileLocationConfig:
 def load_database_config(db_path: str) -> FileLocationConfig:
     proposed_config: FileLocationConfig = make_database_config(db_path)
 
-    if not validate_database_file_configuration(proposed_config):
-        raise ExpamDatabaseDoesNotExistError("Database does not exist at %s" % db_path)
-
+    validate_database_file_configuration(proposed_config)
     return proposed_config
 
 
 def create_database(config: FileLocationConfig) -> None:
-    for field_to_check in ('database', 'phylogeny', 'logs'):
+    for field_to_check in ('base', 'database', 'phylogeny', 'logs'):
         path: str = getattr(config, field_to_check)
 
         if not os.path.exists(path):
@@ -247,13 +246,18 @@ def create_database(config: FileLocationConfig) -> None:
         else:
             raise ExpamDatabaseExistsError("Database %s already exists!" % config.database)
 
+    # Create new configuration file.
+    conf: JSONConfig = JSONConfig()
+    conf.save(url=config.conf)
+
 
 def validate_database_file_configuration(proposed_config: FileLocationConfig) -> bool:
-    for field_to_check in ('database', 'phylogeny', 'conf'):
-        if not os.path.exists(getattr(proposed_config, field_to_check)):
-            return False
-    else:
-        return True
+    for field_to_check in ('base', 'database', 'phylogeny', 'conf'):
+        path_to_check = getattr(proposed_config, field_to_check)
+
+        if not os.path.exists(path_to_check):
+            print(path_to_check)
+            raise ExpamDatabaseDoesNotExistError("Database does not exist at %s" % path_to_check)
 
 
 def validate_taxonomy_files(config: FileLocationConfig) -> bool:

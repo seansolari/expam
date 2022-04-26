@@ -165,7 +165,7 @@ Run metagenomic reads against a succesfully built database. See :doc:`Tutorial 2
 
 .. code-block:: console
 
-    $ expam run -db DB_NAME [args...]
+    $ expam classify -db DB_NAME [args...]
 
 .. option:: -d <file path>, --directory <file path>
 
@@ -226,7 +226,7 @@ Run metagenomic reads against a succesfully built database. See :doc:`Tutorial 2
 
         .. code-block:: console
 
-            $ expam run ... --group #FF0000 sample_one sample_two
+            $ expam classify ... --group #FF0000 sample_one sample_two
 
 .. option:: --alpha <float>
 
@@ -260,7 +260,7 @@ Example
 
 .. code-block:: console
 
-    $ expam run -db DB_NAME -d /path/to/paired/reads --paired --out ~/paired_reads_analysis --taxonomy
+    $ expam classify -db DB_NAME -d /path/to/paired/reads --paired --out ~/paired_reads_analysis --taxonomy
 
 .. _download taxonomy:
 
@@ -305,7 +305,7 @@ Translate phylogenetic classification output to NCBI taxonomy.
 Plotting results on phylotree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Results are automatically visualised on top of a phylogenetic tree when during the :code:`expam run` command,
+Results are automatically visualised on top of a phylogenetic tree when during the :code:`expam classify` command,
 but can also be done after classification using the :code:`phylotree` command.
 
 .. code-block::
@@ -393,7 +393,7 @@ Example
 .. note::
 
     The :code:`expam_limit` context works the same for any command. :code:`expam build`
-    can be replaced with :code:`expam run`, or any other command.
+    can be replaced with :code:`expam classify`, or any other command.
 
 The following is an example of the (tab-separated) log file output:
 

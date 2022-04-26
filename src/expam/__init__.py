@@ -1,5 +1,5 @@
 import gzip
-
+from .cli.main import ExpamOptions, clear_logs, CommandGroup, PlotLogs
 
 COMPRESSION_EXTNS = ['.tar.gz', '.tar', '.gz']
 DEFAULT_MODE = "rb"
@@ -9,4 +9,3 @@ COMP_PARSE = {
     ".gz": {"mode": "rb", "opener": gzip.open}
 }
 
-from .main import ExpamOptions, clear_logs, CommandGroup, PlotLogs

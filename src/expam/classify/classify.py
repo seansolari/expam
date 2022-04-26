@@ -2,6 +2,7 @@ from math import floor
 from multiprocessing import shared_memory
 import os
 import re
+import shutil
 from typing import Union
 
 import numpy as np
@@ -37,7 +38,7 @@ def run_classifier(
     colour_list: list[str] = None, paired_end: bool = False, alpha: float = 1.0,
     log_scores: bool = False, itol_mode: bool = False
 ):
-    output_config: ResultsPathConfig = load_results_config(out_dir)
+    output_config: ResultsPathConfig = load_results_config(out_dir, create=True)
     database_config: FileLocationConfig = load_database_config(db_dir)
 
     # Load the kmer dictionary.
@@ -83,8 +84,7 @@ def run_classifier(
         results = ClassificationResults(
             index=index,
             phylogeny_index=phylogeny_index,
-            in_dir=output_config.phy,
-            out_dir=out_dir,
+            results_config=output_config,
             groups=groups,
             keep_zeros=keep_zeros,
             cutoff=cutoff,
@@ -99,13 +99,10 @@ def run_classifier(
         if taxonomy:
             # Attempt to update taxon ids.
             tax_obj: TaxonomyNCBI = TaxonomyNCBI(database_config)
-            tax_obj.accession_to_taxonomy(db_dir)
+            tax_obj.accession_to_taxonomy()
 
-            tax_results_path = os.path.join(out_dir, output_config.tax)
-            os.mkdir(output_config.tax)
-
-            name_to_lineage, taxon_to_rank = tax_obj.load_taxonomy_map(db_dir)
-            results.to_taxonomy(name_to_lineage, taxon_to_rank, tax_results_path)
+            name_to_lineage, taxon_to_rank = tax_obj.load_taxonomy_map()
+            results.to_taxonomy(name_to_lineage, taxon_to_rank)
 
         results.draw_results(itol_mode=itol_mode)
     finally:
@@ -123,7 +120,7 @@ def run_classifier(
         values_shm.unlink()
         values_shm.close()
 
-        os.rmdir(output_config.temp)
+        shutil.rmtree(output_config.temp)
 
 
 def name_to_id(phylogeny_path: str):
@@ -141,7 +138,7 @@ def name_to_id(phylogeny_path: str):
 
 
 class Distribution:
-    def __init__(self, k, kmer_db, index, lca_matrix, read_paths, out_dir, temp_dir, logging_dir, alpha,
+    def __init__(self, k, kmer_db, index: Index, lca_matrix, read_paths, out_dir, temp_dir, logging_dir, alpha,
                  keep_zeros=False, cutoff=0.0, cpm=0.0, paired_end=False):
         """
 
@@ -160,7 +157,7 @@ class Distribution:
         self.temp_dir = temp_dir
         self.logging_dir = logging_dir
 
-        self.index = index
+        self.index: Index = index
         self.node_names = [node.name if i > 0 else "unclassified" for i, node in enumerate(index.pool)]
 
         self.keep_zeros = keep_zeros
@@ -227,18 +224,15 @@ class Distribution:
         # Combine raw read output.
         temporary_files = ls(self.temp_dir, ext=".reads_%s" % EXPAM_TEMP_EXT)
         base_file_names = {
-            re.match(r'(\S+)_\d+.reads_%s' % EXPAM_TEMP_EXT, file_name).group(1)
+            re.match(r'(\S+)_\d+.reads_%s' % EXPAM_TEMP_EXT, os.path.basename(file_name)).group(1)
             for file_name in temporary_files
         }
 
         result_files = []
         for base_file in base_file_names:
             results_file_name = os.path.join(results_config.phy_raw, base_file + ".csv")
-            results = [
-                self.get_data(os.path.join(self.temp_dir, file))
-                for file in temporary_files
-                if file[:len(base_file)] == base_file
-            ]
+            raw_files = [file for file in temporary_files if re.match(r'.*{base}_\d+.reads_{ext}$'.format(base=base_file, ext=EXPAM_TEMP_EXT), file)] 
+            results = [self.get_data(file) for file in raw_files]
 
             with open(results_file_name, "w") as f:
                 f.write("\n".join(results))
@@ -446,14 +440,12 @@ class Distribution:
 
 
 class ClassificationResults:
-    def __init__(self, index, phylogeny_index, in_dir, out_dir, groups=None, keep_zeros=False, cutoff=0.0, cpm=0.0,
+    def __init__(self, index, phylogeny_index, results_config, groups=None, keep_zeros=False, cutoff=0.0, cpm=0.0,
                  use_node_names=True, phyla=False, name_taxa=None, colour_list=None, circle_scale=1.0,
                  log_scores=False):
         self.index = index
         self.phylogeny_index: Index = phylogeny_index
-
-        self.in_dir = in_dir
-        self.out_dir = out_dir
+        self.results_config: ResultsPathConfig = results_config
 
         self.groups = groups  # [(colour, (name1, name2, ...)), ...]
         self.keep_zeros = keep_zeros
@@ -474,20 +466,14 @@ class ClassificationResults:
         self.tax_id_hierarchy = {"1": set()}  # Map from tax_id -> immediate children.
         self.tax_id_pool = ["1"]  # Children must appear later than parent this list.
 
-    def to_taxonomy(self, name_to_lineage, taxon_to_rank, tax_dir):
+    def to_taxonomy(self, name_to_lineage, taxon_to_rank):
         col_names = ["c_perc", "c_cumul", "c_count", "s_perc", "s_cumul", "s_count", "rank", "scientific name"]
 
-        raw_counts_dir = os.path.join(self.in_dir, 'raw')
-        raw_output_dir = os.path.join(tax_dir, 'raw')
-
-        if not os.path.exists(raw_output_dir):
-            os.mkdir(raw_output_dir)
-
-        class_counts = pd.read_csv(os.path.join(self.in_dir, "classified_counts.csv"), sep="\t", index_col=0, header=0)
-        split_counts = pd.read_csv(os.path.join(self.in_dir, "splits_counts.csv"), sep="\t", index_col=0, header=0)
+        class_counts = pd.read_csv(self.results_config.phy_classified, sep="\t", index_col=0, header=0)
+        split_counts = pd.read_csv(self.results_config.phy_split, sep="\t", index_col=0, header=0)
 
         # Get rid of phylogenetically printed node names.
-        def fix_index(df):
+        def fix_index(df: pd.DataFrame):
             df.index = [
                 index.lstrip("p")
                 if index not in self.phylogeny_index._pointers
@@ -552,16 +538,16 @@ class ClassificationResults:
             df.loc[:, "s_perc"] = round(df["s_perc"], 3).map(str) + "%"
 
             # Employ cutoff.
-            cutoff = max((self.cutoff, (total_counts / 1e6) * self.cpm))
+            cutoff = max(self.cutoff, (total_counts / 1e6) * self.cpm)
             df = df[(df['c_cumul'] > cutoff) | (df['s_cumul'] > cutoff) | (df.index == 'unclassified')]
 
-            df.to_csv(os.path.join(tax_dir, sample_name + ".csv"), sep="\t", header=True)
+            df.to_csv(os.path.join(self.results_config.tax, sample_name + ".csv"), sep="\t", header=True)
 
             #
             # Map raw read output to taxonomy.
             #
 
-            raw_counts_file = os.path.join(raw_counts_dir, sample_name + ".csv")
+            raw_counts_file = os.path.join(self.results_config.phy_raw, sample_name + ".csv")
             raw_read_data = []
 
             with open(raw_counts_file, 'r') as f:
@@ -577,7 +563,7 @@ class ClassificationResults:
 
                     raw_read_data.append('\t'.join(read_data))
 
-            with open(os.path.join(raw_output_dir, sample_name + '.csv'), 'w') as f:
+            with open(os.path.join(self.results_config.tax_raw, sample_name + '.csv'), 'w') as f:
                 f.write('\n'.join(raw_read_data))
 
     def map_phylogeny_node(self, node_name, name_to_lineage, taxon_to_rank):
@@ -644,8 +630,8 @@ class ClassificationResults:
     def draw_results(self, itol_mode=False):
         # Draw classified tree.
         self.phylogeny_index.draw_results(
-            os.path.join(self.in_dir, "classified_counts.csv"),
-            os.path.join(self.out_dir, "phylotree_classified.pdf"),
+            self.results_config.phy_classified,
+            os.path.join(self.results_config.base, "phylotree_classified.pdf"),
             skiprows=[1],
             groups=self.groups,
             cutoff=self.cutoff,
@@ -661,8 +647,8 @@ class ClassificationResults:
 
         # Draw unclassified tree.
         self.phylogeny_index.draw_results(
-            os.path.join(self.in_dir, "splits_counts.csv"),
-            os.path.join(self.out_dir, "phylotree_splits.pdf"),
+            self.results_config.phy_split,
+            os.path.join(self.results_config.base, "phylotree_splits.pdf"),
             groups=self.groups,
             cutoff=self.cutoff,
             cpm=self.cpm,

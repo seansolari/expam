@@ -1,3 +1,4 @@
+import os
 import re
 import time
 import requests
@@ -10,12 +11,15 @@ from expam.utils import yield_csv
 
 class TaxonomyNCBI:
     def __init__(self, file_config: FileLocationConfig) -> None:
-        self.config = file_config
+        self.config: FileLocationConfig = file_config
 
-        if not validate_taxonomy_files(file_config):
+    def find_downloaded_taxonomy(self):
+        if not validate_taxonomy_files(self.config):
             raise OSError("Taxonomy files not located!")
 
     def load_taxonomy_map(self, convert_to_name=True):
+        self.find_downloaded_taxonomy()
+
         # Create map from scientific name --> (taxid, rank).
         taxon_data = {}
         for data in yield_csv(self.config.taxon_rank):
@@ -40,14 +44,18 @@ class TaxonomyNCBI:
         return list(yield_csv(self.config.accession_id))
 
     def load_taxid_lineage_map(self):
-        return list(yield_csv(self.config.taxid_lineage))
+        if os.path.exists(self.config.taxid_lineage):
+            return list(yield_csv(self.config.taxid_lineage))
+        else:
+            return []
 
     def load_rank_map(self):
         name_to_rank = {}
         
-        for data in yield_csv(self.config.taxon_rank):
-            if len(data) > 1:
-                name_to_rank[data[0]] = ",".join(data[1:])
+        if os.path.exists(self.config.taxon_rank):
+            for data in yield_csv(self.config.taxon_rank):
+                if len(data) > 1:
+                    name_to_rank[data[0]] = ",".join(data[1:])
         
         return name_to_rank
 

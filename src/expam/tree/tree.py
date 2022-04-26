@@ -8,7 +8,6 @@ import traceback
 import numpy as np
 import pandas as pd
 from expam.tree import PHYLA_COLOURS
-
 from expam.tree.location import Location
 
 
