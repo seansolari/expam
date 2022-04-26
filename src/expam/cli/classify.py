@@ -1,4 +1,5 @@
 import os
+from typing import List, Set, Tuple
 from expam.classify import ResultsPathConfig
 from expam.classify.classify import ClassificationResults, name_to_id, run_classifier
 from expam.classify.config import make_results_config, validate_results_configuration
@@ -10,16 +11,16 @@ from expam.utils import die, is_hex, make_path_absolute
 
 
 class ClassifyCommand(CommandGroup):
-    commands: set[str] = {
+    commands: Set[str] = {
         'classify', 'to_taxonomy'
     }
 
     def __init__(
         self, config: FileLocationConfig,
-        files: list[str], out_dir: str,
-        convert_to_taxonomy: bool, cutoff: int, cpm: float, groups: list[tuple[str]],
+        files: List[str], out_dir: str,
+        convert_to_taxonomy: bool, cutoff: int, cpm: float, groups: List[Tuple[str]],
         use_node_names: bool, keep_zeros: bool, plot_phyla: bool,
-        colour_list: list[str], paired_end: bool, alpha: float,
+        colour_list: List[str], paired_end: bool, alpha: float,
         log_scores: bool, itol_mode: bool
     ) -> None:
         super().__init__()

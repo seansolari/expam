@@ -3,6 +3,7 @@ import math
 from multiprocessing import Pipe, Value, shared_memory
 import os
 import subprocess
+from typing import List, Mapping
 import numpy as np
 from expam.database import CHUNK_SIZE, TIMEOUT, UNION_RATIO, FileLocationConfig, expam_dtypes
 from expam.database.config import load_database_config
@@ -15,7 +16,7 @@ from expam.utils import ls
 
 
 def main(
-    db_path: str, genome_paths: list[str], phylogeny_path: str, k: int,
+    db_path: str, genome_paths: List[str], phylogeny_path: str, k: int,
     n=None, n_extract=None, n_union=None, pile_size=None,
 ):
     # Configure number of processes.
@@ -211,7 +212,7 @@ def yield_coordinates(index: Index):
 def compute_lca(i, j, coord_one, coord_two):
     return i, j, propose_lca(coord_one, coord_two)
 
-def make_lca_matrix(index: Index, node_to_index: dict[str, str]):
+def make_lca_matrix(index: Index, node_to_index: Mapping[str, str]):
     print("Creating LCA matrix...")
 
     def get_children(fixed_node, flexible_index_list):

@@ -1,4 +1,5 @@
 import os
+from typing import Set
 import matplotlib.pyplot as plt
 from expam.classify import ResultsPathConfig
 from expam.classify.config import make_results_config, validate_classification_results, validate_results_configuration
@@ -12,7 +13,7 @@ from expam.utils import die, ls
 
 
 class UtilsCommand(CommandGroup):
-    commands: set[str] = {
+    commands: Set[str] = {
         'download_taxonomy', 'cutoff', 'fake_phylogeny', 'plot_memory'
     }
 

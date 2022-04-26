@@ -101,7 +101,7 @@ class Index:
         :type path: str
         :raises OSError: file does not exist
         :return: name of leaves and phylogeny Index object
-        :rtype: list[str], expam.tree.Index
+        :rtype: List[str], expam.tree.Index
         """
         newick_str = ""
 
@@ -121,7 +121,7 @@ class Index:
         :param newick_string: Newick string encoding tree.
         :type newick_string: str
         :return: name of leaves and phylogeny Index object
-        :rtype: list[str], expam.tree.Index
+        :rtype: List[str], expam.tree.Index
         """
         stream = sys.stdout if verbose else open(os.devnull, 'w')
 
@@ -570,7 +570,7 @@ class Index:
         :param node_name: name of node 
         :type node_name: str
         :return: list of node names
-        :rtype: list[str]
+        :rtype: List[str]
         """
         return list(self.yield_child_nodes(node_name))
 
@@ -580,7 +580,7 @@ class Index:
         :param node_name: name of node
         :type node_name: str
         :return: list of leaf names
-        :rtype: list[str]
+        :rtype: List[str]
         """
         return list(self.yield_leaves(node_name))
 

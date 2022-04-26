@@ -1,5 +1,6 @@
 import multiprocessing
 import platform
+from typing import Tuple
 
 from expam.cli.build import BuildCommand
 from expam.cli.classify import ClassifyCommand
@@ -16,7 +17,7 @@ def main():
 
     args: ExpamOptions = retrieve_arguments()
 
-    handlers: tuple[CommandGroup] = (BuildCommand, ClassifyCommand, TreeCommand, UtilsCommand)
+    handlers: Tuple[CommandGroup] = (BuildCommand, ClassifyCommand, TreeCommand, UtilsCommand)
     for handler in handlers:
         if args.command in handler.commands:
             handler(**handler.take_args(args)).run(args.command)

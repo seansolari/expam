@@ -3,6 +3,7 @@ from collections import namedtuple
 import datetime
 import os
 import shutil
+from typing import Set
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -154,7 +155,7 @@ def clear_logs(log_path) -> None:
 
 
 class CommandGroup:
-    commands: set[str] = {}
+    commands: Set[str] = {}
 
     @classmethod
     def take_args(cls, args: ExpamOptions) -> dict:

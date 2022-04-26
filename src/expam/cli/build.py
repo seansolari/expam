@@ -1,4 +1,5 @@
 import os
+from typing import List, Set
 from expam.cli.main import CommandGroup, ExpamOptions, clear_logs
 from expam.database import FileLocationConfig
 from expam.database.build import main as expam
@@ -8,7 +9,7 @@ from expam.utils import die, ls, make_path_absolute
 
 
 class BuildCommand(CommandGroup):
-    commands: set[str] = {
+    commands: Set[str] = {
         'quickrun', 'default_db', 'create',
         'build', 'print', 'add', 'remove', 'set'
     }
@@ -16,7 +17,7 @@ class BuildCommand(CommandGroup):
     def __init__(
         self, config: FileLocationConfig,
         k: int, n: int, s: int, phylogeny_path: str, pile_size: int,
-        files: list[str], group: str, first_n: int
+        files: List[str], group: str, first_n: int
     ) -> None:
         super().__init__()
         self.config: FileLocationConfig = config

@@ -1,9 +1,8 @@
-from functools import partial
 import os
 import re
 import shutil
 import subprocess
-from typing import Union
+from typing import List, Set, Tuple, Union
 from expam.classify import ResultsPathConfig
 from expam.classify.classify import ClassificationResults, name_to_id
 from expam.classify.config import make_results_config, validate_results_configuration
@@ -17,16 +16,16 @@ from expam.utils import die, is_hex, ls, make_path_absolute
 
 
 class TreeCommand(CommandGroup):
-    commands: set[str] = {
+    commands: Set[str] = {
         'phylotree', 'draw_tree', 'tree', 
         'mashtree', 'sketch', 'distance', 'nj'
     }
 
     def __init__(
         self, config: FileLocationConfig,
-        out_dir: str, cutoff: int, cpm: float, groups: list[tuple[str]],
+        out_dir: str, cutoff: int, cpm: float, groups: List[Tuple[str]],
         use_node_names: bool, keep_zeros: bool, plot_phyla: bool,
-        colour_list: list[str], log_scores: bool, itol_mode: bool,
+        colour_list: List[str], log_scores: bool, itol_mode: bool,
         at_rank: str, use_sourmash: bool, use_quicktree: bool
     ) -> None:
         super().__init__()
@@ -493,7 +492,7 @@ class TreeCommand(CommandGroup):
                 file_path = os.path.join(sketch_dir, file_name % "msh")
                 self.mash_sketch(k=k, s=s, p=n, sequences=sequences, out_dir=file_path)
 
-    def sour_sketch(self, k: int, s: int, sequences: list[str], sig_dir: str):
+    def sour_sketch(self, k: int, s: int, sequences: List[str], sig_dir: str):
         from expam.tree.sourmash import make_signatures
         make_signatures(self.get_n_processes(), sequences, sig_dir, k, s)
 

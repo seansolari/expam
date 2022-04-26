@@ -5,7 +5,7 @@ from setuptools.extension import Extension
 from Cython.Build import cythonize
 import numpy as np
 
-EXPAM_VERSION = (1, 0, 1)
+EXPAM_VERSION = (1, 0, 4)
 
 SOURCE = os.path.dirname(os.path.abspath(__file__))
 

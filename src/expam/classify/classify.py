@@ -3,7 +3,7 @@ from multiprocessing import shared_memory
 import os
 import re
 import shutil
-from typing import Union
+from typing import List, Mapping, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -29,13 +29,13 @@ def run_classifier(
     k: int,
     n: int,
     phylogeny_path: str,
-    keys_shape: tuple[int],
-    values_shape: tuple[int],
+    keys_shape: Tuple[int],
+    values_shape: Tuple[int],
     logging_dir: str,
-    taxonomy: bool = False, cutoff: float = 0.0, groups: Union[None, list[tuple]] = None,
+    taxonomy: bool = False, cutoff: float = 0.0, groups: Union[None, List[tuple]] = None,
     keep_zeros: bool = False, cpm: float = 0.0, use_node_names: bool = True,
-    phyla: bool = False, name_taxa: Union[dict[str, str], None] = None,
-    colour_list: list[str] = None, paired_end: bool = False, alpha: float = 1.0,
+    phyla: bool = False, name_taxa: Union[Mapping[str, str], None] = None,
+    colour_list: List[str] = None, paired_end: bool = False, alpha: float = 1.0,
     log_scores: bool = False, itol_mode: bool = False
 ):
     output_config: ResultsPathConfig = load_results_config(out_dir, create=True)
