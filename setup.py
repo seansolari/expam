@@ -1,3 +1,31 @@
+"""
+
+███████╗██╗░░██╗██████╗░░█████╗░███╗░░░███╗
+██╔════╝╚██╗██╔╝██╔══██╗██╔══██╗████╗░████║
+█████╗░░░╚███╔╝░██████╔╝███████║██╔████╔██║
+██╔══╝░░░██╔██╗░██╔═══╝░██╔══██║██║╚██╔╝██║
+███████╗██╔╝╚██╗██║░░░░░██║░░██║██║░╚═╝░██║
+╚══════╝╚═╝░░╚═╝╚═╝░░░░░╚═╝░░╚═╝╚═╝░░░░░╚═╝
+
+
+Metagenomic analysis using a reference phylogeny.
+
+
+Uploading to PyPi
+=================
+
+Run ./buildandtwine.sh Shell script to build source code and upload.
+
+
+Uploading to bioconda
+=====================
+
+Create skeleton recipe from PyPi repo.
+    conda skeleton pypi --extra-specs numpy --extra-specs Cython expam
+
+
+"""
+
 import os
 from setuptools import setup, find_packages
 from setuptools.extension import Extension
