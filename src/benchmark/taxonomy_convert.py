@@ -107,7 +107,8 @@ class CleanRaw(Process):
                     parts = line.strip().split('\t')
 
                     try:
-                        parts[2] = self.taxid_map[parts[2]]
+                        new_taxid = self.taxid_map[parts[2]]
+                        parts[2] = new_taxid
                     except KeyError:
                         pass
 
@@ -129,6 +130,8 @@ def distribute(iterable, n):
 def make_results_compatible(db_path: str, results_config: ResultsPathConfig, bad_taxids: List[str], n: int = 5):
     taxid_map = find_compatible_names(db_path, bad_taxids)
     bad_taxids_set = set(bad_taxids)
+
+    print(taxid_map)
 
     # Replace names in tax summary files.
     summary_files = distribute(ls(results_config.tax, ext=".csv"), n)

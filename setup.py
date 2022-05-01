@@ -109,16 +109,16 @@ setup(
     #
     python_requires=">=3.8",
     install_requires=[
-        # "ete3",
-        # "PyQt5==5.12",
         "numpy",
         "matplotlib",
         "pandas",
         "psutil",
         "requests",
-        # "sourmash",
         "tables"
     ],
+    extras_require={
+        "treeplot": ["ete3", "PyQt5==5.12", "sourmash"]
+    },
     #
     # Cython modules.
     #
