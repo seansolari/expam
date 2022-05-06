@@ -33,7 +33,7 @@ from setuptools.extension import Extension
 from Cython.Build import cythonize
 import numpy as np
 
-EXPAM_VERSION = (1, 0, 4)
+EXPAM_VERSION = (1, 0, 5)
 
 SOURCE = os.path.dirname(os.path.abspath(__file__))
 

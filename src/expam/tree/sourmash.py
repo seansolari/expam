@@ -4,13 +4,14 @@ import os
 
 import numpy as np                     # Pairwise distances.
 from expam.sequences import get_sequence
+from expam.utils import die
 
 try:
     from sourmash import signature as sm_signature
     import sourmash
 
 except ModuleNotFoundError:
-    print("Could not import sourmash! Install sourmash to use this feature.")
+    die("Could not import sourmash! Install sourmash to use this feature.")
 
 
 def make_signature(genome_url, k, s):

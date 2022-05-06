@@ -39,14 +39,11 @@ def ls(path, ext=None):
 
     return files
 
-def isfiletype(path, ext, check_compressed=False):
-    if ext[0] != '.':
-        ext = '.' + ext
-
+def isfiletype(path: str, ext: str, check_compressed=False):
     if check_compressed:
         path = removecompressedextension(path)
 
-    if path[-len(ext):] == ext:
+    if path.endswith(ext):
         return True
     else:
         return False

@@ -23,4 +23,10 @@ results/
 */expam.egg*
 ./expam/
 
+# Compiled C files.
+src/expam/ext/kmers/_build/src
+src/expam/ext/map/_build/src
+src/expam/ext/sets/_build/src
+
+
 buildandtwine.sh
