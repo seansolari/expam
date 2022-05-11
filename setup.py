@@ -29,13 +29,16 @@ Create skeleton recipe from PyPi repo.
 import os
 from setuptools import setup, find_packages
 from setuptools.extension import Extension
+import sys
 
 from Cython.Build import cythonize
 import numpy as np
 
-EXPAM_VERSION = (1, 0, 5)
-
 SOURCE = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(SOURCE)
+
+from src.expam import __version__
+
 
 # Get project description.
 with open(os.path.join(SOURCE, "README.md"), mode="r", encoding="utf-8") as f:
@@ -82,7 +85,7 @@ setup(
     # Metadata.
     #
     name="expam",
-    version="%d.%d.%d" % EXPAM_VERSION,
+    version="%d.%d.%d" % __version__,
     description="Metagenomic profiling using a reference phylogeny",
     long_description=long_description,
     long_description_content_type="text/markdown",

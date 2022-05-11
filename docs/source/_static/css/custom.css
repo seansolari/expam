@@ -11,3 +11,200 @@ p {
     background-color: rgba(255, 0, 0, 0.1)!important;
     font-weight: bold;
 }
+
+.red {
+    color: red;
+    font-weight: bold;
+}
+
+.green {
+    /* color: white;
+    background-color: rgba(0, 255, 0, 1.0); */
+
+    border-left: 1em solid rgba(0, 255, 0, 1.0);
+
+    font-weight: 600;
+    padding: 15px;
+}
+
+.blue {
+    /* color: white;*/ 
+    /* background-color: rgba(0, 0, 255, 0.5); */
+
+    border-left: 1em solid rgba(0, 0, 255, 0.5);
+
+    font-weight: 600;
+    padding: 15px;
+}
+
+.flexcontainer {
+    width: 400px;
+    margin: 0 auto;
+    margin-top: 3em;
+    margin-bottom: 3em;
+
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+
+    align-items: center;
+    justify-content: center;
+}
+
+.wideflexcontainer {
+    width: 600px;
+    margin: 0 auto;
+    margin-top: 1em;
+    margin-bottom: 1em;
+
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+
+    align-items: center;
+    justify-content: center;
+}
+
+.colone {
+    border-left: 1em solid rgba(2, 110, 129, 1.0);
+    margin: 15px;
+
+    font-weight: 600;
+    padding: 15px;
+
+    flex: 1;
+    flex-basis: 30%;
+}
+
+.colone:hover {
+    background-color: rgba(2, 110, 129, 0.3);
+}
+
+.colone p {
+    margin: 0 auto;
+}
+
+.colone a {
+    color: black;
+    padding: 15px;
+}
+
+.coltwo {
+    border-left: 1em solid rgba(0, 171, 189, 1.0);
+    margin: 15px;
+
+    font-weight: 600;
+    padding: 15px;
+
+    flex: 1;
+    flex-basis: 30%;
+}
+
+.coltwo:hover {
+    background-color: rgba(0, 171, 189, 0.3);
+}
+
+.coltwo p {
+    margin: 0 auto;
+}
+
+.coltwo a {
+    color: black;
+    padding: 15px;
+}
+
+.colthree {
+    border-left: 1em solid rgba(0, 153, 221, 1.0);
+    margin: 15px;
+
+    font-weight: 600;
+    padding: 15px;
+
+    flex: 1;
+    flex-basis: 30%;
+}
+
+.colthree:hover {
+    background-color: rgba(0, 153, 221, 0.3);
+}
+
+.colthree p {
+    margin: 0 auto;
+}
+
+.colthree a {
+    color: black;
+    padding: 15px;
+}
+
+.colfour {
+    border-left: 1em solid rgba(255, 153, 51, 1.0);
+    margin: 15px;
+
+    font-weight: 600;
+    padding: 15px;
+
+    flex: 1;
+    flex-basis: 30%;
+}
+
+.colfour:hover {
+    background-color: rgba(255, 153, 51, 0.3);
+}
+
+.colfour p {
+    margin: 0 auto;
+}
+
+.colfour a {
+    color: black;
+    padding: 15px;
+}
+
+.colfive {
+    border-left: 1em solid rgba(161, 199, 224, 1.0);
+    margin: 15px;
+
+    font-weight: 600;
+    padding: 15px;
+
+    flex: 1;
+    flex-basis: 30%;
+}
+
+.colfive:hover {
+    background-color: rgba(161, 199, 224, 0.3);
+}
+
+.colfive p {
+    margin: 0 auto;
+}
+
+.colfive a {
+    color: black;
+    padding: 15px;
+}
+
+.colsix {
+    border-left: 1em solid rgba(242, 205, 172, 1.0);
+    margin: 15px;
+
+    font-weight: 600;
+    padding: 15px;
+
+    flex: 1;
+    flex-basis: 30%;
+}
+
+.colsix:hover {
+    background-color: rgba(242, 205, 172, 0.3);
+}
+
+.colsix p {
+    margin: 0 auto;
+}
+
+.colsix a {
+    color: black;
+    padding: 15px;
+}

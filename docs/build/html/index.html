@@ -22,7 +22,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Available commands" href="commands.html" /> 
+    <link rel="next" title="Quickstart Tutorial" href="quickstart.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -42,6 +42,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="commands.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dependencies.html">Additional Dependencies (optional)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
@@ -76,39 +77,31 @@
 <section id="welcome-to-the-expam-documentation">
 <h1>Welcome to the <strong>expam</strong> documentation!<a class="headerlink" href="#welcome-to-the-expam-documentation" title="Permalink to this headline"></a></h1>
 <p class="page-break"><strong>expam</strong> is a Python package for phylogenetic analysis of metagenomic data.</p>
-<p>Here is the <a class="reference external" href="https://github.com/seansolari/expam">GitHub page</a>.</p>
-<div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="commands.html">Documentation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="commands.html#setting-the-default-database">Setting the default database</a></li>
-<li class="toctree-l2"><a class="reference internal" href="commands.html#create-a-new-database">Create a new database</a></li>
-<li class="toctree-l2"><a class="reference internal" href="commands.html#build-a-database">Build a database</a></li>
-<li class="toctree-l2"><a class="reference internal" href="commands.html#classification">Classification</a></li>
-<li class="toctree-l2"><a class="reference internal" href="commands.html#limiting-resource-usage">Limiting resource usage</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="dependencies.html">Additional Dependencies (optional)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="dependencies.html#setting-up-a-conda-environment">Setting up a conda environment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dependencies.html#additional-software">Additional Software</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/quickstart.html">Quickstart</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/classify.html">Classifying metagenomic samples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/treebuilding.html">Tree building with <strong>expam</strong></a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/graphical.html">Graphical output</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="tree.html"><strong>expam</strong>’s tree module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tree.html#expam-tree-location-location">expam.tree.location.Location</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tree.html#expam-tree-tree-index">expam.tree.tree.Index</a></li>
-</ul>
-</li>
-</ul>
+<div class="flexcontainer docutils container">
+<div class="colone docutils container">
+<p><a class="reference internal" href="#installation-instructions"><span class="std std-ref">Installation</span></a></p>
+</div>
+<div class="coltwo docutils container">
+<p><a class="reference internal" href="quickstart.html"><span class="doc">Quickstart</span></a></p>
+</div>
+<div class="colthree docutils container">
+<p><a class="reference internal" href="tutorials/index.html"><span class="doc">Tutorials</span></a></p>
+</div>
+<div class="colfour docutils container">
+<p>
+   <a class="reference internal" href="https://github.com/seansolari/expam" target="_blank">GitHub</a>
+</p></div>
+<div class="colfive docutils container">
+<p>
+   <a class="reference internal" href="https://figshare.com/s/3475c3a9aa926a40c722" target="_blank">Database</a>
+</p></div>
+<div class="colsix docutils container">
+<p>
+   <a class="reference internal" href="https://github.com/seansolari/expam/issues" target="_blank">Report Bug</a>
+</p></div>
 </div>
 <section id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline"></a></h2>
+<span id="installation-instructions"></span><h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline"></a></h2>
 <p>See the <a class="reference internal" href="dependencies.html"><span class="doc">dependencies</span></a> tutorial for more detailed instructions for creating
 a virtual environment and managing expam’s code and dependencies.</p>
 <section id="conda">
@@ -124,6 +117,20 @@ a virtual environment and managing expam’s code and dependencies.</p>
 </pre></div>
 </div>
 </section>
+<section id="from-github-source">
+<h3>From GitHub source<a class="headerlink" href="#from-github-source" title="Permalink to this headline"></a></h3>
+<p>To install from source, you need a local installation of Python &gt;=3.8, as well as <em>numpy</em> and <em>cython</em>.
+There are some commonly encountered problems when installing on Linux, the most common of which are
+outlined in the FAQ section on the <a class="reference external" href="https://github.com/seansolari/expam">GitHub page</a>.</p>
+<p>First download the source code from the GitLab repository.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git clone git@github.com:seansolari/expam.git
+</pre></div>
+</div>
+<p>This can then be installed locally by executing the following command from the source code root.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python3 setup.py install
+</pre></div>
+</div>
+</section>
 </section>
 <section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline"></a></h2>
@@ -133,11 +140,48 @@ a virtual environment and managing expam’s code and dependencies.</p>
 </div>
 <p>For a comprehensive list of commands and arguments, see <a class="reference internal" href="commands.html"><span class="doc">commands</span></a>. Practical usage
 of these commands for building and classifying are given in the <a class="reference internal" href="tutorials/index.html"><span class="doc">tutorials</span></a>.</p>
+<img alt="expam Pipeline." class="align-center" src="_images/expam-figure-v4.2.jpg" />
 </section>
 <section id="important-monitoring-memory-usage">
 <h2><strong>Important</strong> - monitoring memory usage<a class="headerlink" href="#important-monitoring-memory-usage" title="Permalink to this headline"></a></h2>
 <p>Be aware of the built-in tools for monitoring and restricting <strong>expam</strong>’s memory usage,
 outlined <a class="reference internal" href="commands.html#limiting-resource-usage"><span class="std std-ref">here</span></a>.</p>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#get-the-database">Get the database</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#phylogenetic-classification">Phylogenetic classification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#convert-to-taxonomy">Convert to taxonomy</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="commands.html">Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="commands.html#setting-the-default-database">Setting the default database</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commands.html#create-a-new-database">Create a new database</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commands.html#build-a-database">Build a database</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commands.html#classification">Classification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commands.html#limiting-resource-usage">Limiting resource usage</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dependencies.html">Additional Dependencies (optional)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dependencies.html#setting-up-a-conda-environment">Setting up a conda environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dependencies.html#additional-software">Additional Software</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/overview.html">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/classify.html">Classifying metagenomic samples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/treebuilding.html">Tree building with <strong>expam</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/graphical.html">Graphical output</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tree.html"><strong>expam</strong>’s tree module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tree.html#expam-tree-location-location">expam.tree.location.Location</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tree.html#expam-tree-tree-index">expam.tree.tree.Index</a></li>
+</ul>
+</li>
+</ul>
+</div>
 </section>
 </section>
 <section id="indices-and-tables">
@@ -153,7 +197,7 @@ outlined <a class="reference internal" href="commands.html#limiting-resource-usa
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="commands.html" class="btn btn-neutral float-right" title="Available commands" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="quickstart.html" class="btn btn-neutral float-right" title="Quickstart Tutorial" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

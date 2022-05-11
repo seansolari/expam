@@ -5,7 +5,7 @@ Tutorials
    :maxdepth: 2
    :caption: Contents:
 
-   quickstart
+   overview
    classify
    treebuilding
    graphical

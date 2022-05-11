@@ -1,0 +1,15 @@
+.. Colour profiles for sphinx.
+
+.. role:: red
+.. role:: green
+.. role:: blue
+
+.. role:: flexcontainer
+.. role:: wideflexcontainer
+
+.. role:: colone
+.. role:: coltwo
+.. role:: colthree
+.. role:: colfour
+.. role:: colfive
+.. role:: colsix

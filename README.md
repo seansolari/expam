@@ -18,7 +18,7 @@ most common of which are outlined in the FAQ section below.
 
 First download the source code from the GitLab repository.
 ```console
-user@computer:~$ git clone git@gitlab.erc.monash.edu.au:ssol0002/pam.git
+user@computer:~$ git clone git@github.com:seansolari/expam.git
 ```
 This can then be installed locally by executing the following command from the
 source code root:
@@ -33,6 +33,10 @@ user@computer:~$ python3 setup.py install
 View our online documentation!
 
 [https://expam.readthedocs.io/en/latest/index.html](https://expam.readthedocs.io/en/latest/index.html)
+
+See the Quick Start Tutorial for a guide to expam's basic usage and download links for pre-built databases.
+
+[Quick Start Tutorial](https://expam.readthedocs.io/en/latest/quickstart.html)
 
 
 <hr style="border:1px solid #ADD8E6"> </hr>

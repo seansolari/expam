@@ -200,7 +200,7 @@ resources used during build.</p>
 <span class="sig-name descname"><span class="pre">--group</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;str&gt;</span></span><a class="headerlink" href="#cmdoption-group" title="Permalink to this definition"></a></dt>
 <dd><p><em>(optional)</em></p>
 <p>Add sequences to particular sequence group.</p>
-<p>See <a class="reference internal" href="tutorials/quickstart.html"><span class="doc">Tutorial 1</span></a> for details.</p>
+<p>See <a class="reference internal" href="tutorials/overview.html"><span class="doc">Tutorial 1</span></a> for details.</p>
 </dd></dl>
 
 <section id="examples">
@@ -333,7 +333,7 @@ to assign some colour code to this group of samples.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-alpha">
 <span class="sig-name descname"><span class="pre">--alpha</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;float&gt;</span></span><a class="headerlink" href="#cmdoption-alpha" title="Permalink to this definition"></a></dt>
-<dd><p>Percentage requirement for classification subtrees (see <a class="reference internal" href="tutorials/quickstart.html"><span class="doc">Tutorial 1</span></a>
+<dd><p>Percentage requirement for classification subtrees (see <a class="reference internal" href="tutorials/overview.html"><span class="doc">Tutorial 1</span></a>
 and <a class="reference internal" href="tutorials/classify.html"><span class="doc">Tutorial 2</span></a>).</p>
 </dd></dl>
 
@@ -400,7 +400,7 @@ reference sequence, and uses these to search against the NCBI Entrez database.</
 </section>
 <section id="plotting-results-on-phylotree">
 <h3>Plotting results on phylotree<a class="headerlink" href="#plotting-results-on-phylotree" title="Permalink to this headline"></a></h3>
-<p>Results are automatically visualised on top of a phylogenetic tree when during the <code class="code docutils literal notranslate"><span class="pre">expam</span> <span class="pre">run</span></code> command,
+<p>Results are automatically visualised on top of a phylogenetic tree when during the <code class="code docutils literal notranslate"><span class="pre">expam</span> <span class="pre">classify</span></code> command,
 but can also be done after classification using the <code class="code docutils literal notranslate"><span class="pre">phylotree</span></code> command.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ expam phylotree -db DB_NAME --out /path/to/classification/output [args...]
 </pre></div>
@@ -506,7 +506,7 @@ the <code class="code docutils literal notranslate"><span class="pre">expam</spa
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The <code class="code docutils literal notranslate"><span class="pre">expam_limit</span></code> context works the same for any command. <code class="code docutils literal notranslate"><span class="pre">expam</span> <span class="pre">build</span></code>
-can be replaced with <code class="code docutils literal notranslate"><span class="pre">expam</span> <span class="pre">run</span></code>, or any other command.</p>
+can be replaced with <code class="code docutils literal notranslate"><span class="pre">expam</span> <span class="pre">classify</span></code>, or any other command.</p>
 </div>
 <p>The following is an example of the (tab-separated) log file output:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">2022</span><span class="o">-</span><span class="mi">03</span><span class="o">-</span><span class="mi">11</span> <span class="mi">02</span><span class="p">:</span><span class="mi">25</span><span class="p">:</span><span class="mi">05</span><span class="p">,</span><span class="mi">888</span> <span class="o">...</span>         <span class="n">total</span>   <span class="n">used</span>    <span class="n">free</span>    <span class="n">shared</span>  <span class="n">buff</span><span class="o">/</span><span class="n">cache</span>      <span class="n">available</span>

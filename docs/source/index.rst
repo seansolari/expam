@@ -15,17 +15,48 @@ Welcome to the **expam** documentation!
 
 **expam** is a Python package for phylogenetic analysis of metagenomic data.
 
-Here is the `GitHub page <https://github.com/seansolari/expam>`_.
+.. include:: .special.rst
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+.. container:: flexcontainer
 
-   Documentation<commands>
-   dependencies
-   tutorials/index
-   tree
+   .. container:: colone
 
+      :ref:`Installation Instructions`
+
+   .. container:: coltwo
+
+      :doc:`Quickstart <quickstart>`
+
+   .. container:: colthree
+
+      :doc:`Tutorials <tutorials/index>`
+
+   .. container:: colfour
+
+      .. raw:: html
+
+         <p>
+            <a class="reference internal" href="https://github.com/seansolari/expam" target="_blank">GitHub</a>
+         </p>
+
+   .. container:: colfive
+
+      .. raw:: html
+
+         <p>
+            <a class="reference internal" href="https://figshare.com/s/3475c3a9aa926a40c722" target="_blank">Database</a>
+         </p>
+
+   .. container:: colsix
+
+      .. raw:: html
+
+         <p>
+            <a class="reference internal" href="https://github.com/seansolari/expam/issues" target="_blank">Report Bug</a>
+         </p>
+
+
+.. _Installation Instructions:
 
 Installation
 ------------
@@ -50,6 +81,26 @@ Python Package Index (pip)
    $ pip install expam
 
 
+From GitHub source
+^^^^^^^^^^^^^^^^^^
+
+To install from source, you need a local installation of Python >=3.8, as well as *numpy* and *cython*.
+There are some commonly encountered problems when installing on Linux, the most common of which are
+outlined in the FAQ section on the `GitHub page <https://github.com/seansolari/expam>`_.
+
+First download the source code from the GitLab repository.
+
+.. code-block:: console
+
+   $ git clone git@github.com:seansolari/expam.git
+
+This can then be installed locally by executing the following command from the source code root.
+
+.. code-block:: console
+
+   $ python3 setup.py install
+
+
 Usage
 -----
 
@@ -63,6 +114,10 @@ expam's CLI uses the same structure for all commands and operations:
 For a comprehensive list of commands and arguments, see :doc:`commands <commands>`. Practical usage
 of these commands for building and classifying are given in the :doc:`tutorials <tutorials/index>`.
 
+.. image:: expam-figure-v4.2.jpg
+    :align: center
+    :alt: expam Pipeline.
+
 
 **Important** - monitoring memory usage
 ---------------------------------------
@@ -70,6 +125,15 @@ of these commands for building and classifying are given in the :doc:`tutorials 
 Be aware of the built-in tools for monitoring and restricting **expam**'s memory usage,
 outlined :ref:`here <limiting resource usage>`.
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+   quickstart
+   Documentation<commands>
+   dependencies
+   tutorials/index
+   tree
 
 Indices and tables
 ==================

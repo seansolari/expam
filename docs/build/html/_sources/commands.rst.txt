@@ -110,7 +110,7 @@ Add reference sequences to the database.
 
     Add sequences to particular sequence group.
 
-    See :doc:`Tutorial 1 <tutorials/quickstart>` for details.
+    See :doc:`Tutorial 1 <tutorials/overview>` for details.
 
 
 Examples
@@ -230,7 +230,7 @@ Run metagenomic reads against a succesfully built database. See :doc:`Tutorial 2
 
 .. option:: --alpha <float>
 
-    Percentage requirement for classification subtrees (see :doc:`Tutorial 1 <tutorials/quickstart>`
+    Percentage requirement for classification subtrees (see :doc:`Tutorial 1 <tutorials/overview>`
     and :doc:`Tutorial 2 <tutorials/classify>`).
 
 .. option:: --itol
@@ -305,7 +305,7 @@ Translate phylogenetic classification output to NCBI taxonomy.
 Plotting results on phylotree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Results are automatically visualised on top of a phylogenetic tree when during the :code:`expam run` command,
+Results are automatically visualised on top of a phylogenetic tree when during the :code:`expam classify` command,
 but can also be done after classification using the :code:`phylotree` command.
 
 .. code-block::
@@ -393,7 +393,7 @@ Example
 .. note::
 
     The :code:`expam_limit` context works the same for any command. :code:`expam build`
-    can be replaced with :code:`expam run`, or any other command.
+    can be replaced with :code:`expam classify`, or any other command.
 
 The following is an example of the (tab-separated) log file output:
 

@@ -110,7 +110,7 @@ Add reference sequences to the database.
 
     Add sequences to particular sequence group.
 
-    See :doc:`Tutorial 1 <tutorials/quickstart>` for details.
+    See :doc:`Tutorial 1 <tutorials/overview>` for details.
 
 
 Examples
@@ -230,7 +230,7 @@ Run metagenomic reads against a succesfully built database. See :doc:`Tutorial 2
 
 .. option:: --alpha <float>
 
-    Percentage requirement for classification subtrees (see :doc:`Tutorial 1 <tutorials/quickstart>`
+    Percentage requirement for classification subtrees (see :doc:`Tutorial 1 <tutorials/overview>`
     and :doc:`Tutorial 2 <tutorials/classify>`).
 
 .. option:: --itol

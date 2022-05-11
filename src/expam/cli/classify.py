@@ -192,5 +192,5 @@ class ClassifyCommand(CommandGroup):
             colour_list=self.colour_list,
             log_scores=self.log_scores
         )
-        results.to_taxonomy(name_to_lineage, taxon_to_rank, self.results_config.tax)
+        results.to_taxonomy(name_to_lineage, taxon_to_rank)
     

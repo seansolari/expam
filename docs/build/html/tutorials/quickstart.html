@@ -53,6 +53,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#build-a-tree-for-the-reference-database">Build a tree for the reference database</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#build-the-database">Build the database</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#running-classifications">Running classifications</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#classified-counts-csv">classified_counts.csv</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#gcf-000005845-2-asm584v2-genomic-gz-1-csv">GCF_000005845.2_ASM584v2_genomic.gz_1.csv</a></li>
@@ -188,6 +189,31 @@ automatically detects how it should open most regular sequence files.</p>
 </pre></div>
 </div>
 </section>
+<section id="build-the-database">
+<h2>Build the database<a class="headerlink" href="#build-the-database" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>Now that we have a distance-tree for our added reference sequences, we can build the database.</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam build -db <span class="nb">test</span>
+<span class="go">Clearing old log files...</span>
+<span class="go">Importing phylogeny...</span>
+<span class="go">* Initialising node pool...</span>
+<span class="go">* Checking for polytomies...</span>
+<span class="go">    Polytomy (degree=3) detected! Resolving...</span>
+<span class="go">* Finalising index...</span>
+<span class="go">Creating LCA matrix...</span>
+<span class="go">Extracting sequences from /Users/ssol0002/Documents/Projects/pam/test/data/sequences/GCF_000008725.1_ASM872v1_genomic.fna.gz...</span>
+<span class="go">Extracting sequences from /Users/ssol0002/Documents/Projects/pam/test/data/sequences/GCF_000007765.2_ASM776v2_genomic.fna.gz...</span>
+<span class="go">Extracting sequences from /Users/ssol0002/Documents/Projects/pam/test/data/sequences/GCF_000005845.2_ASM584v2_genomic.fna.gz...</span>
+<span class="go">Extracting sequences from /Users/ssol0002/Documents/Projects/pam/test/data/sequences/GCF_000006925.2_ASM692v2_genomic.fna.gz...</span>
+<span class="go">Extracting sequences from /Users/ssol0002/Documents/Projects/pam/test/data/sequences/GCF_000006945.2_ASM694v2_genomic.fna.gz...</span>
+<span class="go">Extracting sequences from /Users/ssol0002/Documents/Projects/pam/test/data/sequences/GCF_000006765.1_ASM676v1_genomic.fna.gz...</span>
+<span class="go">expam: 42.359643852s</span>
+
+<span class="go">PID - 65856 dying...</span>
+</pre></div>
+</div>
+</section>
 <section id="running-classifications">
 <h2>Running classifications<a class="headerlink" href="#running-classifications" title="Permalink to this headline"></a></h2>
 <ul>
@@ -200,13 +226,7 @@ automatically detects how it should open most regular sequence files.</p>
 </li>
 <li><p>We use the <code class="code docutils literal notranslate"><span class="pre">classify</span></code> command to classify reads.</p></li>
 <li><p>These are paired reads, but for now we’ll treat them as separate.</p></li>
-<li><p>We supply the <code class="code docutils literal notranslate"><span class="pre">-o</span></code> or <code class="code docutils literal notranslate"><span class="pre">--out</span></code> flag to tell <em>expam</em> where to save classification results.</p>
-<blockquote>
-<div><ul class="simple">
-<li><p><em>expam</em> automatically creates a <code class="code docutils literal notranslate"><span class="pre">results</span></code> subdirectory in the database directory, which is a convenient but not necessarily required place to keep classification results related to this database.</p></li>
-</ul>
-</div></blockquote>
-</li>
+<li><p>We supply the <code class="code docutils literal notranslate"><span class="pre">-o</span></code> or <code class="code docutils literal notranslate"><span class="pre">--out</span></code> flag to tell <em>expam</em> where to save classification results.</p></li>
 </ul>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam classify -db <span class="nb">test</span> -d /Users/seansolari/Documents/expam/test/data/reads/ --out test/results/unpaired_test
 <span class="go">Clearing old log files...</span>

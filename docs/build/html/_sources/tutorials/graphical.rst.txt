@@ -1,7 +1,7 @@
 Graphical output
 ================
 
-* When a :code:`run` or :code:`to_taxonomy` command is executed, raw summary files are produced (as described in :doc:`Classification <classify>`) and a phylotree is also produced as a graphical depiction of the sample summary.
+* When a :code:`classify` or :code:`to_taxonomy` command is executed, raw summary files are produced (as described in :doc:`Classification <classify>`) and a phylotree is also produced as a graphical depiction of the sample summary.
 * This graphical representation has some customisable features:
   
   * Multiple samples can be plotted on the same tree, with different colours for different samples.

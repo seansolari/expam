@@ -1,5 +1,5 @@
-Quickstart
-==========
+Overview
+========
 
 Creating a database
 -------------------

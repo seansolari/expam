@@ -8,8 +8,8 @@ from typing import Set
 import matplotlib.pyplot as plt
 import numpy as np
 
+from expam import __version__
 from expam.utils import die, ls, make_path_absolute, parse_float, parse_int
-
 
 ExpamOptions = namedtuple(
     'ExpamOptions',
@@ -31,7 +31,8 @@ ExpamOptions = namedtuple(
 
 def retrieve_arguments() -> ExpamOptions:
     parser = ArgumentParser(description="  expam CLI\n--------------\n", formatter_class=RawTextHelpFormatter)
-    
+
+    parser.add_argument('--version', action='version', version='%(prog)s ' + ".".join(str(v) for v in __version__))
     parser.add_argument("command", default=None,
                         help='\nCommand to execute. Valid commands include:\n'
                              '-------------------------------------------\n'
