@@ -88,6 +88,49 @@ Install the corresponding Python interface to Qt.
 > pip3 install pyqt5==5.12
 ```
 
+### OOM Killer
+
+If you run into the unlikely circumstance where the OOM killer has been invoked and the program experiences an ungraceful exit, the operating system may not have cleaned all shared memory resources expam used, leading to potentially problematic memory leaks.
+
+To prevent this occurring, make prudent use of the `expam_limit` functionality (see documentation), and don't use an extremely high number of processes (particularly for large databases). Within the range of 10-30 processes will likely be suitable for high-memory machines.
+
+If you suspect that OOM killer has been invoked, this can be confirmed using the following command:
+
+```bash
+dmesg -T | egrep -i 'killed process'
+```
+
+In the event OOM killer has been called, it is prudent to check
+how much shared memory is currently being used by the system.
+
+```bash
+df -h /dev/shm
+```
+
+If the amount of shared memory used is higher than you would expect, you can first check if there are any residual resources that need to be cleaned up.
+
+```bash
+ls -lah /dev/shm
+```
+
+If there are files starting with 'psm' and owned by you, these may be residual files that need to be cleaned up. Contact your systems administrator to remove these files.
+
+It may also be the case that OOM killer has killed some child process, leaving the parent process sleeping (and therefore holding onto resources). You will need your system administrator's assistance to clean this up. 
+
+To check for sleeping (expam) processes, run 
+
+```bash
+sudo lsof /dev/shm | grep "expam"
+```
+
+These sleeping processes should then be killed by running
+
+```bash
+kill -9 <PID>
+```
+
+Confirm that the leaked memory has been freed by running `df -h /dev/shm`.
+
 
 <hr style="border:1px solid #ADD8E6"> </hr>
 

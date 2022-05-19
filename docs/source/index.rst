@@ -44,7 +44,7 @@ Welcome to the **expam** documentation!
       .. raw:: html
 
          <p>
-            <a class="reference internal" href="https://figshare.com/s/3475c3a9aa926a40c722" target="_blank">Database</a>
+            <a class="reference internal" href="https://doi.org/10.26180/19653840" target="_blank">Database</a>
          </p>
 
    .. container:: colsix

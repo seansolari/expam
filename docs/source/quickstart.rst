@@ -15,7 +15,7 @@ Get the database
       .. raw:: html
 
          <p>
-            <a class="reference internal" href="https://drive.google.com/file/d/1K1sVA4LGgmGBVg_0GeUppVa_xcfWxxGL/view?usp=sharing" target="_blank">Test Database (110.7 Mb)</a>
+            <a class="reference internal" href="https://drive.google.com/file/d/1KRrEvG5Sr28wvkEFW5CXKwcYqLHAu6f7/view?usp=sharing" target="_blank">Test Database (110.7 Mb)</a>
          </p>
 
    .. container:: coltwo
@@ -23,7 +23,7 @@ Get the database
       .. raw:: html
 
          <p>
-            <a class="reference internal" href="https://figshare.com/s/3475c3a9aa926a40c722" target="_blank">expam RefSeq (122.35 Gb)</a>
+            <a class="reference internal" href="https://doi.org/10.26180/19653840" target="_blank">expam RefSeq (122.35 Gb)</a>
          </p>
 
 * Unzip the compressed file. For instance, if you downloaded :code:`Test Database` (:code:`test.tar.gz`) into your home directory :code:`~`, run

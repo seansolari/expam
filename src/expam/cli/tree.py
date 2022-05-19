@@ -176,8 +176,7 @@ class TreeCommand(CommandGroup):
     def phylotree(self):
         self.check_results_exist()
         config: JSONConfig = self.get_conf()
-
-        phylogeny_path = make_path_absolute(config["phylogeny_path"], self.config.database)
+        _, _, phylogeny_path, _, _ = config.get_build_params()
         index, phylogenyIndex = name_to_id(phylogeny_path)
 
         try:
@@ -216,9 +215,9 @@ class TreeCommand(CommandGroup):
             die("First install ete3 tools...`pip install ete3`.")
         
         config: JSONConfig = self.get_conf()
-        try:
-            phylogeny_path = make_path_absolute(config["phylogeny_path"], self.config.database)
-        except TypeError:
+        _, _, phylogeny_path, _, _ = config.get_build_params()
+
+        if phylogeny_path is None:
             die("Phylogeny not set!")
 
         try:

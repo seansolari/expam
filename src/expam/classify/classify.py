@@ -393,6 +393,8 @@ class Distribution:
         return match_ind
 
     def prepare_queue(self, paired_end=False):
+        file_queue = []
+
         for path in self.read_paths:
             # Create a list of all the files containing reads to be processed.
             file_list = [
@@ -400,8 +402,6 @@ class Distribution:
                 for file_name in ls(path)
                 if re.match(r"(\S+)\.(?:fa|fna|ffn|fq|fasta|fastq)(?:\.tar)*(?:\.gz)*$", file_name)
             ]
-
-            file_queue = []
 
             if paired_end:  # This implies path is a folder, not a file.
                 while file_list:
@@ -412,7 +412,6 @@ class Distribution:
                     paired_file = file_list.pop(match_ind)
 
                     file_queue.append((os.path.join(path, next_file), os.path.join(path, paired_file)))
-
             else:
                 for file_name in file_list:
                     if os.path.isfile(file_name):

@@ -168,7 +168,7 @@ class ClassifyCommand(CommandGroup):
             die("Run command `download_taxonomy` first to collect taxa for your genomes!")
 
         config = JSONConfig(self.config.conf)
-        phylogeny_path = make_path_absolute(config["phylogeny_path"], self.config.conf)
+        _, _, phylogeny_path, _, _ = config.get_build_params()
 
         index, phylogenyIndex = name_to_id(phylogeny_path)
 

@@ -23,6 +23,10 @@ results/
 */expam.egg*
 ./expam/
 
+src/benchmark/database_access_profiling/data
+src/benchmark/database_access_profiling/raw
+
+
 # Compiled C files.
 src/expam/ext/kmers/_build/src
 src/expam/ext/map/_build/src

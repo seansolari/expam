@@ -112,7 +112,7 @@ setup(
     #
     python_requires=">=3.8",
     install_requires=[
-        "numpy",
+        "numpy>=1.22.0",
         "matplotlib",
         "pandas",
         "psutil",

@@ -98,7 +98,6 @@ class BuildCommand(CommandGroup):
 
         # Read configuration file.
         k, n, phylogeny, genome_paths, pile = conf.get_build_params()
-        phylogeny_path = make_path_absolute(phylogeny, self.config.phylogeny)
 
         clear_logs(self.config.logs)
 
@@ -108,7 +107,7 @@ class BuildCommand(CommandGroup):
                 expam(
                     db_path=self.config.base,
                     genome_paths=genome_paths,
-                    phylogeny_path=phylogeny_path,
+                    phylogeny_path=phylogeny,
                     k=k,
                     n=n - 1,  # Account for main process.
                     pile_size=pile,

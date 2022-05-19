@@ -1,5 +1,6 @@
 import json
 import os
+from posixpath import isabs
 
 import numpy as np
 from expam.database import ACCESSION_ID_RELATIVE_PATH, CONF_RELATIVE_PATH, DATABASE_FILE_RELATIVE_PATH, DATABASE_RELATIVE_PATH, LCA_MATRIX_RELATIVE_PATH, LOG_RELATIVE_PATH, PHYLOGENY_RELATIVE_PATH, TAXID_LINEAGE_MAP_RELATIVE_PATH, TAXON_RANK_MAP_RELATIVE_PATH, FileLocationConfig
@@ -94,10 +95,28 @@ class JSONConfig:
 
     def set(self, **kwargs):
         for arg in kwargs:
-            if arg in self.params and arg != 'groups':
+            if arg in self.params and arg != 'groups' and arg != 'phylogeny_path':
                 if kwargs[arg] is not None:
                     self.params[arg] = kwargs[arg]
+            elif arg == "phylogeny_path":
+                phylogeny_path = kwargs[arg]
 
+                if phylogeny_path is not None:
+                    if not os.path.isabs(phylogeny_path):
+                        abs_path = os.path.abspath(phylogeny_path)
+
+                        if not os.path.exists(abs_path) and self.url is not None:
+                            db_path = self.url.rstrip(CONF_RELATIVE_PATH)
+                            phy_db_rel_path = os.path.join(db_path, phylogeny_path)
+
+                            if not os.path.exists(phy_db_rel_path):
+                                die("Can't find path %s." % kwargs[arg])
+                        elif not os.path.exists(abs_path) and self.url is None:
+                            die("Can't find path %s." % kwargs[arg])
+                        else:
+                            phylogeny_path = abs_path
+                
+                    self.params[arg] = phylogeny_path
             else:
                 raise ValueError("Unknown configuration category %s!" % arg)
 
@@ -191,6 +210,18 @@ class JSONConfig:
     def get_build_params(self):
         """Returns k, n, phylogeny_path, genome_paths, pile_size"""
         genome_paths, phylogeny_path, k, n, pile_size = self.get_paths(), self["phylogeny_path"], int(self["k"]), int(self["n"]), self["pile"]
+
+        if not os.path.exists(phylogeny_path):
+            assert self.url is not None
+            db_path = self.url.rstrip(CONF_RELATIVE_PATH)
+            print(CONF_RELATIVE_PATH)
+            full_path = os.path.join(db_path, phylogeny_path)
+
+            if not os.path.join(full_path):
+                die("Can't find phylogeny! Original path is %s." % phylogeny_path)
+            else:
+                phylogeny_path = full_path
+
         return k, n, phylogeny_path, genome_paths, pile_size
 
     def get_groups(self, input_group: str = None):
