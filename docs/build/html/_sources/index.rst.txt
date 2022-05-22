@@ -44,7 +44,7 @@ Welcome to the **expam** documentation!
       .. raw:: html
 
          <p>
-            <a class="reference internal" href="https://figshare.com/s/3475c3a9aa926a40c722" target="_blank">Database</a>
+            <a class="reference internal" href="https://doi.org/10.26180/19653840" target="_blank">Database</a>
          </p>
 
    .. container:: colsix
@@ -61,8 +61,19 @@ Welcome to the **expam** documentation!
 Installation
 ------------
 
+It is highly recommended that you use a virtual environment (venv, conda, etc.) when installing and executing expam, so as 
+to isolate its dependencies from the rest of your system.
+
 See the :doc:`dependencies <dependencies>` tutorial for more detailed instructions for creating
 a virtual environment and managing expam's code and dependencies.
+
+To confirm an installation, you can run 
+
+.. code-block:: console
+
+   $ expam --version
+   $ expam --help
+
 
 Conda
 ^^^^^
@@ -70,15 +81,25 @@ Conda installation is recommended.
 
 .. code-block:: console
 
-   $ conda install expam
+   $ conda install -c bioconda expam
 
 
 Python Package Index (pip)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+You may need to update *g++* resources on your local machine. For linux, you can run the following.
+
 .. code-block:: console
 
-   $ pip install expam
+   $ apt update
+   $ apt-get install build-essential
+
+Then install from PyPi.
+
+.. code-block:: console
+
+   $ python3 -m pip install --upgrade pip
+   $ python3 -m pip install expam
 
 
 From GitHub source
@@ -88,16 +109,26 @@ To install from source, you need a local installation of Python >=3.8, as well a
 There are some commonly encountered problems when installing on Linux, the most common of which are
 outlined in the FAQ section on the `GitHub page <https://github.com/seansolari/expam>`_.
 
+You may need to update *g++* resources on your local machine. For linux, you can run the following.
+
+.. code-block:: console
+
+   $ apt update
+   $ apt-get install build-essential
+
 First download the source code from the GitLab repository.
 
 .. code-block:: console
 
-   $ git clone git@github.com:seansolari/expam.git
+   $ git clone https://github.com/seansolari/expam.git
 
 This can then be installed locally by executing the following command from the source code root.
 
 .. code-block:: console
 
+   $ cd expam
+   $ python3 -m pip install --upgrade pip
+   $ python3 -m pip install -r requirements.txt
    $ python3 setup.py install
 
 

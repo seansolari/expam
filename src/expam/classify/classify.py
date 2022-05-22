@@ -411,13 +411,10 @@ class Distribution:
                     match_ind = self.best_match(next_file, file_list)
                     paired_file = file_list.pop(match_ind)
 
-                    file_queue.append((os.path.join(path, next_file), os.path.join(path, paired_file)))
+                    file_queue.append((next_file, paired_file))
             else:
                 for file_name in file_list:
-                    if os.path.isfile(file_name):
-                        file_queue.append((file_name, ))
-                    else:
-                        file_queue.append((os.path.join(path, file_name),))
+                    file_queue.append((file_name, ))
 
         return file_queue
 

@@ -4,9 +4,9 @@ Classifying metagenomic samples
 The classification algorithm
 ----------------------------
 
-* There are three classes of results:
+* There are three types of results;
   
-  1. confident classifications,
+  1. single-lineage (SL) classifications,
   2. *split* classifications,
   3. reads that are not like anything currently in the database.
 
@@ -49,7 +49,7 @@ The classification algorithm
   of the k-mer distribution. This should ignore those lineages in the k-mer distribution that contain
   too few k-mers and are most likely due to sequencing error.
 
-.. image:: includes/figure1better.png
+.. image:: includes/figure1.png
     :width: 500
     :align: center
     :alt: Classification figure.
@@ -76,14 +76,14 @@ What do I do with splits?
   be filtered out before interpreting the prevalence of clades and species in your sample.
 
   The :code:`--cutoff` flag sets a minimum count that any clade/taxa needs to reach before it is included in the classification results.
-  The :code:`--cpm` flag sets the same cutoff, but in **count per million** as opposed to a flat cutoff number.
+  The :code:`--cpm` flag sets the same cutoff, but as a rate of **count required per million reads in the sample**, as opposed to a flat cutoff number.
 
   When both are supplied, the highest of either cutoff is taken. *By default*, **expam** *requires each node to have at least
   100 counts per million input reads*.
 
 * With both these mechanisms in place, we can be more confident that high split counts in a particular region of the phylogeny is suggestive of novel sequence in the biological sample.
 * The algorithm for classifying splits takes a conservative approach - **those that are interested only in a general profile can feel comfortable simply adding classification and split counts together to produce an overall profile.**
-* *Splits* can also be used as a marker for genome discovery however - samples reported with a high split counts are potential targets for culturing novel isolates, a useful tool for groups culturing capability.
+* *Splits* can also be used as a marker for genome discovery however - samples reported with a high split counts are potential targets for culturing novel isolates.
 
 
 Phylogenetic classification results

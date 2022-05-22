@@ -214,7 +214,6 @@ class JSONConfig:
         if not os.path.exists(phylogeny_path):
             assert self.url is not None
             db_path = self.url.rstrip(CONF_RELATIVE_PATH)
-            print(CONF_RELATIVE_PATH)
             full_path = os.path.join(db_path, phylogeny_path)
 
             if not os.path.join(full_path):

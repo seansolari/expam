@@ -63,14 +63,15 @@ Build a tree for the reference database
     $ expam set -db test -s 1000
 
 * We'll use :code:`RapidNJ` to make a tree from the :code:`sourmash` distances (see :doc:`here <../dependencies>` to install).
-* Run the :code:`tree` command to build the tree.
+* We'll first ensure that :code:`sourmash` is installed, before running the :code:`tree` command to build the tree.
 
 .. code-block:: console
 
+    $ python3 -m pip install sourmash
     $ expam tree -db test --sourmash
     ...
 
-* :code:`print` and match with my output.
+* :code:`print` and match with the following output:
 
 .. code-block:: console
 

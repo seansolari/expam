@@ -105,9 +105,9 @@
 <section id="the-classification-algorithm">
 <h2>The classification algorithm<a class="headerlink" href="#the-classification-algorithm" title="Permalink to this headline"></a></h2>
 <ul class="simple">
-<li><p>There are three classes of results:</p>
+<li><p>There are three types of results;</p>
 <ol class="arabic simple">
-<li><p>confident classifications,</p></li>
+<li><p>single-lineage (SL) classifications,</p></li>
 <li><p><em>split</em> classifications,</p></li>
 <li><p>reads that are not like anything currently in the database.</p></li>
 </ol>
@@ -153,7 +153,7 @@ impacted by the incorrect base. m</p>
 of the k-mer distribution. This should ignore those lineages in the k-mer distribution that contain
 too few k-mers and are most likely due to sequencing error.</p>
 </div>
-<a class="reference internal image-reference" href="../_images/figure1better.png"><img alt="Classification figure." class="align-center" src="../_images/figure1better.png" style="width: 500px;" /></a>
+<a class="reference internal image-reference" href="../_images/figure1.png"><img alt="Classification figure." class="align-center" src="../_images/figure1.png" style="width: 500px;" /></a>
 <section id="what-do-i-do-with-splits">
 <h3>What do I do with splits?<a class="headerlink" href="#what-do-i-do-with-splits" title="Permalink to this headline"></a></h3>
 <span style="color: rgba(0, 0, 0, 0.5);">
@@ -174,14 +174,14 @@ too few k-mers and are most likely due to sequencing error.</p>
 <p>Sequencing errors can produce spurious classifications that manifest as low abundance clades/taxa in the summary files. These should
 be filtered out before interpreting the prevalence of clades and species in your sample.</p>
 <p>The <code class="code docutils literal notranslate"><span class="pre">--cutoff</span></code> flag sets a minimum count that any clade/taxa needs to reach before it is included in the classification results.
-The <code class="code docutils literal notranslate"><span class="pre">--cpm</span></code> flag sets the same cutoff, but in <strong>count per million</strong> as opposed to a flat cutoff number.</p>
+The <code class="code docutils literal notranslate"><span class="pre">--cpm</span></code> flag sets the same cutoff, but as a rate of <strong>count required per million reads in the sample</strong>, as opposed to a flat cutoff number.</p>
 <p>When both are supplied, the highest of either cutoff is taken. <em>By default</em>, <strong>expam</strong> <em>requires each node to have at least
 100 counts per million input reads</em>.</p>
 </div>
 <ul class="simple">
 <li><p>With both these mechanisms in place, we can be more confident that high split counts in a particular region of the phylogeny is suggestive of novel sequence in the biological sample.</p></li>
 <li><p>The algorithm for classifying splits takes a conservative approach - <strong>those that are interested only in a general profile can feel comfortable simply adding classification and split counts together to produce an overall profile.</strong></p></li>
-<li><p><em>Splits</em> can also be used as a marker for genome discovery however - samples reported with a high split counts are potential targets for culturing novel isolates, a useful tool for groups culturing capability.</p></li>
+<li><p><em>Splits</em> can also be used as a marker for genome discovery however - samples reported with a high split counts are potential targets for culturing novel isolates.</p></li>
 </ul>
 </section>
 </section>

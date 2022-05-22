@@ -144,6 +144,10 @@ def sort_by_size(dirs):
         return os.stat(file_dir).st_size
 
     def _get_file_size(file_dir):
+        # Check if file is symlink.
+        if os.path.islink(file_dir):
+            file_dir = os.path.realpath(file_dir)
+
         for suffix in _file_suffixes:
             if _suffix_check(file_dir, suffix):
                 return _gzip_size(file_dir)

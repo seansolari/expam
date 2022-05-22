@@ -93,7 +93,7 @@
 </p></div>
 <div class="colfive docutils container">
 <p>
-   <a class="reference internal" href="https://figshare.com/s/3475c3a9aa926a40c722" target="_blank">Database</a>
+   <a class="reference internal" href="https://doi.org/10.26180/19653840" target="_blank">Database</a>
 </p></div>
 <div class="colsix docutils container">
 <p>
@@ -102,18 +102,32 @@
 </div>
 <section id="installation">
 <span id="installation-instructions"></span><h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline"></a></h2>
+<p>It is highly recommended that you use a virtual environment (venv, conda, etc.) when installing and executing expam, so as
+to isolate its dependencies from the rest of your system.</p>
 <p>See the <a class="reference internal" href="dependencies.html"><span class="doc">dependencies</span></a> tutorial for more detailed instructions for creating
 a virtual environment and managing expam’s code and dependencies.</p>
+<p>To confirm an installation, you can run</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam --version
+<span class="gp">$ </span>expam --help
+</pre></div>
+</div>
 <section id="conda">
 <h3>Conda<a class="headerlink" href="#conda" title="Permalink to this headline"></a></h3>
 <p>Conda installation is recommended.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda install expam
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda install -c bioconda expam
 </pre></div>
 </div>
 </section>
 <section id="python-package-index-pip">
 <h3>Python Package Index (pip)<a class="headerlink" href="#python-package-index-pip" title="Permalink to this headline"></a></h3>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip install expam
+<p>You may need to update <em>g++</em> resources on your local machine. For linux, you can run the following.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>apt update
+<span class="gp">$ </span>apt-get install build-essential
+</pre></div>
+</div>
+<p>Then install from PyPi.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python3 -m pip install --upgrade pip
+<span class="gp">$ </span>python3 -m pip install expam
 </pre></div>
 </div>
 </section>
@@ -122,12 +136,20 @@ a virtual environment and managing expam’s code and dependencies.</p>
 <p>To install from source, you need a local installation of Python &gt;=3.8, as well as <em>numpy</em> and <em>cython</em>.
 There are some commonly encountered problems when installing on Linux, the most common of which are
 outlined in the FAQ section on the <a class="reference external" href="https://github.com/seansolari/expam">GitHub page</a>.</p>
+<p>You may need to update <em>g++</em> resources on your local machine. For linux, you can run the following.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>apt update
+<span class="gp">$ </span>apt-get install build-essential
+</pre></div>
+</div>
 <p>First download the source code from the GitLab repository.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git clone git@github.com:seansolari/expam.git
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git clone https://github.com/seansolari/expam.git
 </pre></div>
 </div>
 <p>This can then be installed locally by executing the following command from the source code root.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python3 setup.py install
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span> expam
+<span class="gp">$ </span>python3 -m pip install --upgrade pip
+<span class="gp">$ </span>python3 -m pip install -r requirements.txt
+<span class="gp">$ </span>python3 setup.py install
 </pre></div>
 </div>
 </section>

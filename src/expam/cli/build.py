@@ -189,7 +189,7 @@ class BuildCommand(CommandGroup):
         self.validate_database()
 
         for directory in self.files:
-            self.add_sequences(directory)
+            self.remove_sequences(directory)
 
     def remove_sequences(self, path):
         self._modify_config(path, add=False)

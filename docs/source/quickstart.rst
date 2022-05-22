@@ -148,11 +148,11 @@ Phylogenetic classification
         C       R8975058804953044791    p10     302     p10:21 p2:59 p10:80 p2:59 p10:21
         C       R6052336354009855322    p10     302     p2:53 p10:31 p2:72 p10:31 p2:53
 
-The sample summary file is a tab-separated document where the first element of each row is a phylogenetic node/clade, and the corresponding values are contain details of the raw and cumulative classifications and splits at this particular node.
+The sample summary file is a tab-separated document where the first element of each row is a phylogenetic node/clade, and the corresponding values contain details of the raw and cumulative classifications and splits at this particular node.
 
 The classified summary file is a tab-separated matrix where each row is a phylogenetic clade, each column is an input sample, and the cell value is the raw counts at this clade. The split summary file is an analogous file that contains the raw split count at any given clade. These two files are formatted such that they will always have the same column and row indices, and in the same order.
 
-The raw read-wise output is a sub-directory containing one output file for each input sample, the kraken-formatted read-wise output.
+The raw read-wise output is a sub-directory containing one output file for each input sample, outlining read-wise output in kraken format.
 
 A more comprehensive overview is given :doc:`this tutorial <tutorials/classify>`.
 
@@ -160,7 +160,7 @@ A more comprehensive overview is given :doc:`this tutorial <tutorials/classify>`
 Convert to taxonomy
 -------------------
 
-* First run :code:`expam download_taxonomy` download the taxonomy for all sequences in the database. This will require an internet connection.
+* First run :code:`expam download_taxonomy` to download the taxonomy for all sequences in the database. This will require an internet connection.
 
 .. code-block:: console
 

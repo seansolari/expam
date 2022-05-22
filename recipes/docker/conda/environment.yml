@@ -1,0 +1,8 @@
+name: expam
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python>=3.8
+  - expam
+  
