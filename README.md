@@ -7,23 +7,44 @@
 Conda installation is recommended. Create a new environment before installing expam.
 
 ```console
-$ conda install -c bioconda expam
+conda install -c bioconda expam
 ```
 
 #### From PyPI
 
+***Mac***
+
+You will need a local installation of HDF5. This may already be installed on your machine, but can be installed using Homebrew with the following commands.
+
+```console
+brew install pkg-config
+brew install hdf5
+```
+
+If you encounter any errors, check the FAQ section below for solutions.
+
+Then **upgrade pip** and install expam.
+
+```console
+python3 -m pip install --upgrade pip
+python3 -m pip install expam
+```
+
+
+***Linux***
+
 You may need to update g++ resources on your local machine. For linux, you can run the following.
 
 ```console
-$ apt update
-$ apt-get install build-essential
+apt update
+apt-get install build-essential
 ```
 
-Then install from PyPi.
+Then **upgrade pip** and install expam.
 
 ```console
-$ python3 -m pip install --upgrade pip
-$ python3 -m pip install expam
+python3 -m pip install --upgrade pip
+python3 -m pip install expam
 ```
 
 #### From GitLab source
@@ -35,23 +56,23 @@ most common of which are outlined in the FAQ section below.
 You may need to update g++ resources on your local machine. For linux, you can run the following.
 
 ```console
-$ apt update
-$ apt-get install build-essential
+apt update
+apt-get install build-essential
 ```
 
 First download the source code from the GitLab repository.
 ```console
-$ git clone https://github.com/seansolari/expam.git
+git clone https://github.com/seansolari/expam.git
 
 ```
 
 This can then be installed locally by executing the following command from the
 source code root:
 ```console
-$ cd expam
-$ python3 -m pip install --upgrade pip
-$ python3 -m pip install -r requirements.txt
-$ python3 setup.py install
+cd expam
+python3 -m pip install --upgrade pip
+python3 -m pip install -r requirements.txt
+python3 setup.py install
 ```
 
 <hr style="border:1px solid #ADD8E6"> </hr>
@@ -76,8 +97,8 @@ See the Quick Start Tutorial for a guide to expam's basic usage and download lin
 **error: g++: Command not found**
 
 This is simply a matter of updating the compiler.
-```bash
-$ sudo apt-get install build-essential
+```console
+sudo apt-get install build-essential
 ```
 
 <hr>
@@ -85,11 +106,38 @@ $ sudo apt-get install build-essential
 **fatal error: Python.h: No such file or directory**
 
 This simply means you need to install/update the Python development files for version 3.
-```bash
-$ sudo apt-get install python3-dev
+```console
+sudo apt-get install python3-dev
 ```
 
 (Reference - [SO](https://stackoverflow.com/questions/21530577/fatal-error-python-h-no-such-file-or-directory/21530768))
+
+<hr>
+
+**ERROR:: Could not find a local HDF5 installation** (Mac)
+
+Ensure you have HDF5 installed using Homebrew:
+
+```console
+brew install pkg-config
+brew install hdf5
+```
+
+If you see
+```console
+You may need to explicitly state where your local HDF5 headers and library can be found by setting the ''HDF5_DIR'' environment variable or by using the ''--hdf5'' command-line option.
+```
+you will need to explicitly set the `HDF5_DIR` environment variable. To see where HDF5 has been installed, run
+```console
+brew info hdf5
+```
+You should see something like `/usr/local/Cellar/hdf5/VERSION...` or `/opt/local/Cellar/hdf5/VERSION...` (ie. ignore everything after the complete version, which will have numbers separeted by dots). Then set this environment variable with
+```console
+HDF5_DIR=/opt/local/Cellar/hdf5/VERSION,
+```
+replacing this path with your output from `brew info`.
+
+Now retry the installation having set this environment variable.
 
 <hr>
 
@@ -97,23 +145,47 @@ $ sudo apt-get install python3-dev
 
 For instance, `ImportError: cannot import name 'NodeStyle'`.
 
-The *ete3* module depends on Qt, and for Linux it may take some tweaking to get Python
-to recognise the local installation of Qt. The following seems to work for a broad
-collection of circumstances.
+The *ete3* module depends on Qt to draw things, and there are two stages to getting this to work: first, Qt needs to be installed, and then you need to let Python know that Qt is installed. Follow the following instructions depending on your OS.
+
+***Mac***
+
+Install qt5 using brew.
+
+```bash
+brew install qt5
+brew list --versions qt5
+```
+
+This should show you the precise version that brew installed. We now tell Python which version of Qt5 to link up with. Say we have `qt@5 5.15.3` from the above command, then we would run
+
+```bash
+python3 -m pip install pyqt5==5.15
+```
+
+Had the output been `qt@5 5.12.0`, we would run 
+
+```bash
+python3 -m pip install pyqt5==5.12
+```
+
+ie. the first two parts of the version from brew. This should remedy the problem.
+
+
+***Linux***
 
 First update the local installation of Qt.
 ```bash
-$ sudo apt-get install qt5-default
+sudo apt-get install qt5-default
 ```
 
 Now double-check which version of Qt has been installed.
 ```bash
-$ dpkl -l | grep "pyqt5"
+dpkg -l | grep "pyqt5"
 ```
 
-Install the corresponding Python interface to Qt.
+Take the first two parts of the version output from this, and pass it to this following install with Pip. For instance, if we have `qt5 5.12.0`, take the `5.12` component. Install the corresponding Python interface to Qt.
 ```bash
-$ pip3 install pyqt5==5.12
+python3 -m pip install pyqt5==5.12
 ```
 
 ### OOM Killer
@@ -125,20 +197,20 @@ To prevent this occurring, make prudent use of the `expam_limit` functionality (
 If you suspect that OOM killer has been invoked, this can be confirmed using the following command:
 
 ```bash
-$ dmesg -T | egrep -i 'killed process'
+dmesg -T | egrep -i 'killed process'
 ```
 
 In the event OOM killer has been called, it is prudent to check
 how much shared memory is currently being used by the system.
 
 ```bash
-$ df -h /dev/shm
+df -h /dev/shm
 ```
 
 If the amount of shared memory used is higher than you would expect, you can first check if there are any residual resources that need to be cleaned up.
 
 ```bash
-$ ls -lah /dev/shm
+ls -lah /dev/shm
 ```
 
 If there are files starting with 'psm' and owned by you, these may be residual files that need to be cleaned up. Contact your systems administrator to remove these files.
@@ -148,13 +220,13 @@ It may also be the case that OOM killer has killed some child process, leaving t
 To check for sleeping (expam) processes, run 
 
 ```bash
-$ sudo lsof /dev/shm | grep "expam"
+sudo lsof /dev/shm | grep "expam"
 ```
 
 These sleeping processes should then be killed by running
 
 ```bash
-$ kill -9 <PID>
+kill -9 <PID>
 ```
 
 Confirm that the leaked memory has been freed by running `df -h /dev/shm`.
@@ -167,8 +239,8 @@ Confirm that the leaked memory has been freed by running `df -h /dev/shm`.
 A complete list of available commands can by found by using the `-h`/`--help`
 flags.
 ```console
-$ expam --version
-$ expam --help
+expam --version
+expam --help
 ...
 ```
 

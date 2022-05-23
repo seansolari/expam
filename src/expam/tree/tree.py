@@ -610,9 +610,16 @@ class Index:
                      name_to_taxon=None, use_phyla=False, keep_zeros=True, use_node_names=True, log_scores=False,
                      itol_mode=False):
         counts = pd.read_csv(file_path, sep='\t', index_col=0, header=0, skiprows=skiprows)
-        self.draw_tree(out_dir, counts=counts, groups=groups, cutoff=cutoff, cpm=cpm, colour_list=colour_list,
-                       name_to_taxon=name_to_taxon, use_phyla=use_phyla, keep_zeros=keep_zeros,
-                       use_node_names=use_node_names, log_scores=log_scores, itol_mode=itol_mode)
+
+        # Remove any columns that contain only zeros.
+        counts = counts.loc[:, (counts > 0).any().values]
+
+        if counts.shape[1]:
+            self.draw_tree(out_dir, counts=counts, groups=groups, cutoff=cutoff, cpm=cpm, colour_list=colour_list,
+                        name_to_taxon=name_to_taxon, use_phyla=use_phyla, keep_zeros=keep_zeros,
+                        use_node_names=use_node_names, log_scores=log_scores, itol_mode=itol_mode)
+        else:
+            print("No samples with counts in this matrix. Skipping plotting of %s." % file_path)
 
     def draw_tree(self, out_dir, counts, groups=None, cutoff=None, cpm=None, colour_list=None, name_to_taxon=None,
                   use_phyla=False, keep_zeros=True, use_node_names=True, log_scores=True, itol_mode=False):
@@ -682,7 +689,6 @@ class Index:
 
         if cutoff is None and cpm is None:
             nodes_with_counts = nodes
-
         else:
             nodes_with_counts = set()
 
@@ -763,12 +769,16 @@ class Index:
             # Draw with ete3.
             try:
                 from ete3 import AttrFace, faces, TreeStyle, NodeStyle, TextFace
-
             except ModuleNotFoundError as e:
                 print("Could not import ete3 plotting modules! Error raised:")
                 print(traceback.format_exc())
                 print("Skipping plotting...")
-
+                return
+            except ImportError as e:
+                print("Could not import drawing attributes from ete3. Error raised:")
+                print(traceback.format_exc())
+                print("See FAQ section on GitHub for fix to this problem.\n\t(https://github.com/seansolari/expam#problems-during-installation)")
+                print("Skipping plotting...")
                 return
 
             """
