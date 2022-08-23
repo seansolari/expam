@@ -88,8 +88,9 @@ class TaxonomyNCBI:
             else:
                 taxa_to_be_collected.append(taxon_id)
 
+        requestor = EntrezRequestor()
+
         if accessions_to_be_mapped:
-            requestor = EntrezRequestor()
             accession_to_tax = requestor.request_tax_ids("nuccore", accessions_to_be_mapped)
 
             print("Received %d response(s) for ESummary TaxID request!"

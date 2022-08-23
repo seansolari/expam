@@ -43,10 +43,11 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../commands.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../dependencies.html">Additional Dependencies (optional)</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorials</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="build.html">Database Build</a></li>
 <li class="toctree-l2"><a class="reference internal" href="classify.html">Classifying metagenomic samples</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Tree building with <strong>expam</strong></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#part-one-building-a-tree">Part One: Building a tree</a><ul>
@@ -137,10 +138,13 @@
 in <a class="reference internal" href="../dependencies.html"><span class="doc">Dependencies tutorial</span></a>.</p>
 </div>
 <ul class="simple">
-<li><p>There are three stages to building a distance tree:
-1. sketching the sequences (a compressed form that still contains a lot of the important details),
-2. using these sketches to estimate sequence distance,
-3. apply Neighbour Joining (NJ) to the distance matrix to compute a distance tree.</p></li>
+<li><p>There are three stages to building a distance tree:</p>
+<ol class="arabic simple">
+<li><p>Sketching the sequences (a compressed form that still contains a lot of the important details),</p></li>
+<li><p>Using these sketches to estimate sequence distance,</p></li>
+<li><p>Apply Neighbour Joining (NJ) to the distance matrix to compute a distance tree.</p></li>
+</ol>
+</li>
 <li><p>This process can be done manually, or automated through the <code class="code docutils literal notranslate"><span class="pre">mashtree</span></code> application.</p></li>
 </ul>
 <section id="basic-tree-building">
@@ -277,9 +281,12 @@ are specifically for tree building, not for database construction. Those would s
 not been set, <strong>expam</strong> will automatically use the database build parameters for tree building.</p>
 </div>
 <ul class="simple">
-<li><p>We also need to tell <strong>expam</strong> how these trees will be joined at the end. There are two rules for this template:
-1. It is a Newick format tree, where group names appear in double braces.
-2. The template must be placed at <code class="code docutils literal notranslate"><span class="pre">database_name/phylogeny/tree/database_name.nwk</span></code> (the <code class="code docutils literal notranslate"><span class="pre">phylogeny</span></code> subdirectory in the database folder). Replace <code class="code docutils literal notranslate"><span class="pre">database_name</span></code> with your database name.</p></li>
+<li><p>We also need to tell <strong>expam</strong> how these trees will be joined at the end. There are two rules for this template:</p>
+<ol class="arabic simple">
+<li><p>It is a Newick format tree, where group names appear in double braces.</p></li>
+<li><p>The template must be placed at <code class="code docutils literal notranslate"><span class="pre">database_name/phylogeny/tree/database_name.nwk</span></code> (the <code class="code docutils literal notranslate"><span class="pre">phylogeny</span></code> subdirectory in the database folder). Replace <code class="code docutils literal notranslate"><span class="pre">database_name</span></code> with your database name.</p></li>
+</ol>
+</li>
 <li><p>The template we will use is</p></li>
 </ul>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">({{</span><span class="n">a</span><span class="p">}},{{</span><span class="n">b</span><span class="p">}});</span>

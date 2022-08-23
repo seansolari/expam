@@ -10,7 +10,7 @@ The EXPAM_DEFAULT_DB environment variable defines expam's default database.
     $ expam default_db -db DB_NAME
     export EXPAM_DEFAULT_DB=PATH_TO_DB
 
-As a shortcut, 
+As a shortcut,
 
 .. code-block:: console
 
@@ -110,7 +110,7 @@ Add reference sequences to the database.
 
     Add sequences to particular sequence group.
 
-    See :doc:`Tutorial 1 <tutorials/overview>` for details.
+    See :ref:`here <groups explanation>` for details.
 
 
 Examples
@@ -230,8 +230,7 @@ Run metagenomic reads against a succesfully built database. See :doc:`Tutorial 2
 
 .. option:: --alpha <float>
 
-    Percentage requirement for classification subtrees (see :doc:`Tutorial 1 <tutorials/overview>`
-    and :doc:`Tutorial 2 <tutorials/classify>`).
+    Percentage requirement for classification subtrees (see :doc:`Tutorial 2 <tutorials/classify>`).
 
 .. option:: --itol
 
@@ -300,7 +299,11 @@ Translate phylogenetic classification output to NCBI taxonomy.
 
 .. code-block:: console
 
-    $ expam to_taxonomy --db DB_NAME
+    $ expam to_taxonomy --db DB_NAME --out PATH_TO_RESULTS
+
+.. option:: -o <str>, --out <str>
+
+    Path to retrieve classification results (same as was passed to :code:`expam classify`).
 
 Plotting results on phylotree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

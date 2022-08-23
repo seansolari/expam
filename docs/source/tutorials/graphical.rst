@@ -139,7 +139,7 @@ To use these files,
 
 * Create a new tree in iTOL with :code:`tree.nwk`.
 * Open this tree using the iTOL interface.
-* Drag-and-drop the style.txt into the open tree interface, and iTOL will colour the tree accordingly.
+* Drag-and-drop the :code:`style.txt` into the open tree interface, and iTOL will colour the tree accordingly.
 
 .. note::
 

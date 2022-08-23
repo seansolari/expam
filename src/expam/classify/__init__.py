@@ -13,8 +13,8 @@ TAX_RESULTS = "tax"
 RAW_RESULTS = "raw"
 TEMP_RESULTS = "temp"
 
-CLASSIFIED_NAME = "classified.tsv"
-SPLIT_NAME = "split.tsv"
+CLASSIFIED_NAME = "classified.csv"
+SPLIT_NAME = "split.csv"
 
 PHY_RAW = os.path.join(PHY_RESULTS, RAW_RESULTS)
 TAX_RAW = os.path.join(TAX_RESULTS, RAW_RESULTS)

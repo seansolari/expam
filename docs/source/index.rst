@@ -77,17 +77,47 @@ To confirm an installation, you can run
 
 Conda
 ^^^^^
-Conda installation is recommended.
+Conda installation is recommended, and best practise is to install *expam* in a new environment. Some users may wish to use the ETE3 toolkit for plotting, while others may prefer the iTOL tool. Both commands are included in respective order.
+
+**With ETE3**
 
 .. code-block:: console
 
-   $ conda install -c bioconda expam
+   $ conda create -n expam -c conda-forge -c bioconda -c etetoolkit expam ete3
+
+
+**Without ETE3**
+
+.. code-block:: console
+
+   $ conda create -n expam -c conda-forge -c bioconda expam
 
 
 Python Package Index (pip)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-You may need to update *g++* resources on your local machine. For linux, you can run the following.
+**Mac**
+
+You will need a local installation of HDF5. This may already be installed on your machine, but can be installed using Homebrew with the following commands.
+
+.. code-block:: console
+
+   $ brew install pkg-config
+   $ brew install hdf5
+
+If you encounter any errors, check the FAQ section on GitHub for solutions.
+
+Then **upgrade pip** and install expam.
+
+.. code-block:: console
+
+   $ python3 -m pip install --upgrade pip
+   $ python3 -m pip install expam
+
+
+**Linux**
+
+You may need to update *g++* resources on your local machine.
 
 .. code-block:: console
 
@@ -144,10 +174,6 @@ expam's CLI uses the same structure for all commands and operations:
 
 For a comprehensive list of commands and arguments, see :doc:`commands <commands>`. Practical usage
 of these commands for building and classifying are given in the :doc:`tutorials <tutorials/index>`.
-
-.. image:: expam-figure-v4.2.jpg
-    :align: center
-    :alt: expam Pipeline.
 
 
 **Important** - monitoring memory usage

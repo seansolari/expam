@@ -198,7 +198,7 @@ def prepare_kmer_allocations(rows, cols, n_processes):
         next_arr[:] = 0
 
         # Pass on allocation details to children.
-        allocation_params += (next_shm_allocation.name, allocation_shape)
+        allocation_params += ((next_shm_allocation.name, allocation_shape), )
         next_shm_allocation.close()
 
     return allocation_params

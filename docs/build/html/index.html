@@ -113,14 +113,32 @@ a virtual environment and managing expam’s code and dependencies.</p>
 </div>
 <section id="conda">
 <h3>Conda<a class="headerlink" href="#conda" title="Permalink to this headline"></a></h3>
-<p>Conda installation is recommended.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda install -c bioconda expam
+<p>Conda installation is recommended, and best practise is to install <em>expam</em> in a new environment. Some users may wish to use the ETE3 toolkit for plotting, while others may prefer the iTOL tool. Both commands are included in respective order.</p>
+<p><strong>With ETE3</strong></p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda create -n expam -c conda-forge -c bioconda -c etetoolkit expam ete3
+</pre></div>
+</div>
+<p><strong>Without ETE3</strong></p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda create -n expam -c conda-forge -c bioconda expam
 </pre></div>
 </div>
 </section>
 <section id="python-package-index-pip">
 <h3>Python Package Index (pip)<a class="headerlink" href="#python-package-index-pip" title="Permalink to this headline"></a></h3>
-<p>You may need to update <em>g++</em> resources on your local machine. For linux, you can run the following.</p>
+<p><strong>Mac</strong></p>
+<p>You will need a local installation of HDF5. This may already be installed on your machine, but can be installed using Homebrew with the following commands.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>brew install pkg-config
+<span class="gp">$ </span>brew install hdf5
+</pre></div>
+</div>
+<p>If you encounter any errors, check the FAQ section on GitHub for solutions.</p>
+<p>Then <strong>upgrade pip</strong> and install expam.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python3 -m pip install --upgrade pip
+<span class="gp">$ </span>python3 -m pip install expam
+</pre></div>
+</div>
+<p><strong>Linux</strong></p>
+<p>You may need to update <em>g++</em> resources on your local machine.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>apt update
 <span class="gp">$ </span>apt-get install build-essential
 </pre></div>
@@ -162,7 +180,6 @@ outlined in the FAQ section on the <a class="reference external" href="https://g
 </div>
 <p>For a comprehensive list of commands and arguments, see <a class="reference internal" href="commands.html"><span class="doc">commands</span></a>. Practical usage
 of these commands for building and classifying are given in the <a class="reference internal" href="tutorials/index.html"><span class="doc">tutorials</span></a>.</p>
-<img alt="expam Pipeline." class="align-center" src="_images/expam-figure-v4.2.jpg" />
 </section>
 <section id="important-monitoring-memory-usage">
 <h2><strong>Important</strong> - monitoring memory usage<a class="headerlink" href="#important-monitoring-memory-usage" title="Permalink to this headline"></a></h2>
@@ -191,7 +208,7 @@ outlined <a class="reference internal" href="commands.html#limiting-resource-usa
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/overview.html">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/build.html">Database Build</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/classify.html">Classifying metagenomic samples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/treebuilding.html">Tree building with <strong>expam</strong></a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/graphical.html">Graphical output</a></li>

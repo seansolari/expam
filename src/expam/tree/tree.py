@@ -5,7 +5,6 @@ import re
 import sys
 import traceback
 
-import numpy as np
 import pandas as pd
 from expam.tree import PHYLA_COLOURS
 from expam.tree.location import Location
@@ -51,6 +50,7 @@ class Index:
 
     def __str__(self):
         return f'<Phylogeny Index, length={len(self)}>'
+        
     def use_db(self, db_path: str):
         if not os.path.exists(db_path):
             raise OSError("Can't find database path %s." % db_path)
@@ -89,8 +89,7 @@ class Index:
                 self.taxid_lineage[data[0]] = tuple(data[1:])
 
     def get_node_lineages(self, node):
-        node_leaves = self.get_child_leaves(node)
-        taxids = [self.leaf_taxid[leaf] for leaf in node_leaves]
+        taxids = [self.leaf_taxid[leaf] for leaf in self.get_child_leaves(node)]
         return [self.taxid_lineage[taxa] for taxa in taxids]
 
     @classmethod
@@ -322,47 +321,46 @@ class Index:
 
     @classmethod
     def from_pool(cls, pool, keep_names=False):
-        leaf_names = []
-
-        # Initialise expam Index.
         index = cls()
         index.pool = pool
+        leaf_names = index.update_via_pool(keep_names=keep_names)
+
+        return leaf_names, index
+
+    def update_via_pool(self, keep_names=False, map_children_objects=True):
+        self._pointers = {}
+        leaf_names = []
 
         branch_id = 1
-        for i, node in enumerate(pool):
+        for i, node in enumerate(self.pool):
             if i == 0:
                 continue
 
             if node.type == "Branch":
                 if not keep_names:
                     node.name = str(branch_id)
-
                 branch_id += 1
-
             else:
                 # Store leaf names.
                 leaf_names.append(node.name)
 
             # Set name mapping.
-            index._pointers[node.name] = i
+            self._pointers[node.name] = i
 
-        # Replace children objects with respective names.
-        # Note: This requires the name mapping to be complete...
-        for node in pool[1:]:
-            if node.type == "Branch":
-                i = 0
-                while i < len(node.children):
-                    node.children[i] = node.children[i].name
-
-                    i += 1
+        if map_children_objects:
+            # Replace children objects with respective names.
+            # Note: This requires the name mapping to be complete...
+            for node in self.pool[1:]:
+                if node.type == "Branch":
+                    node.children = [child.name for child in node.children]
 
         # Set (binary) coordinates.
-        index.update_coordinates()
+        self.update_coordinates()
 
         # Update nchildren.
-        index.update_nchildren()
+        self.update_nchildren()
 
-        return leaf_names, index
+        return leaf_names
 
     def append(self, item):
         # Declare an index.
@@ -468,9 +466,7 @@ class Index:
             i += 1
 
     def update_nchildren(self):
-        for j in range(len(self.pool) - 1, 0, -1):
-            node = self.pool[j]
-
+        for node in self.pool[1:][::-1]:
             node.nchildren = len(node.children) + sum([
                 self[child].nchildren
                 for child in node.children
@@ -508,6 +504,9 @@ class Index:
         :return: Newick format tree
         :rtype: str
         """
+        if len(self.pool) == 2:
+            return self.pool[1].name + ";"
+
         NODE_FORMAT = "$node$"
 
         newick = "(%s,%s)%s;" % (NODE_FORMAT, NODE_FORMAT, self.pool[1].name)
@@ -597,6 +596,80 @@ class Index:
         lca_coord = self.right_intersect(self[name_one].coordinate, self[name_two].coordinate)
         return self.coord(lca_coord).name
 
+    def reduce(self, nodes):
+        """reduce Reduce tree until all that remains are these nodes.
+        
+        :param nodes: Names of nodes to keep
+        :type nodes: Iterable[str]
+        """
+        _requested_node_set = {self._format_node_name(node) for node in nodes}
+        child_to_idx = {
+            child: self._pointers[self._format_node_name(child)]
+            for child in {
+                _child
+                for _node in self.pool[1:]
+                for _child in _node.children
+            }
+        }
+        def pop_nodes(*childs):
+            nonlocal child_to_idx
+            _objs = {}
+            for child in childs:
+                idx = child_to_idx[child]
+                _objs[child] = self.pool.pop(idx)
+                self.pool.insert(idx, None)
+            return _objs
+
+        node_to_parent = {}
+        for node in self.pool[1:]:
+            node_name = self._format_node_name(node.name)
+            for child in node.children:
+                if child not in _requested_node_set:
+                    node_to_parent[child] = node_name
+        def replace_parents_child(node, child):
+            nonlocal node_to_parent
+            try:
+                parent_children_list = self[node_to_parent[node]].children
+                parent_children_list[parent_children_list.index(node)] = child
+            except KeyError:    # Root.
+                pass
+
+        # Reset node pool to reflect changes in tree structure.
+        branch_indices = [i for i, node in enumerate(self.pool) if node.type == "Branch"]
+        for branch_idx in branch_indices[::-1]:
+            branch = self.pool[branch_idx]
+            branch_name = self._format_node_name(branch.name)
+            children = branch.children
+            children_with_counts = [child for child in children if child in _requested_node_set]
+
+            if not children_with_counts:
+                # Make this branch into a leaf node.
+                branch.type = "Leaf"
+                pop_nodes(*children)
+                branch.children.clear()
+            elif len(children_with_counts) == 2:
+                # Pass validity of this node - dichotomous tree structure depends on
+                # this node being present.
+                _requested_node_set.add(branch_name)
+            elif branch_name not in _requested_node_set:
+                # Only one child with counts is implied by the previous two cases.
+                # Replace this node with the valid child node.
+                valid_child_name, branch_dist = children_with_counts[0], branch.distance
+                # Remove children from active node pool.
+                removed_children = pop_nodes(*children)
+                # Remove branch from node pool.
+                self.pool.pop(branch_idx)
+                # Insert replacement.
+                removed_children[valid_child_name].distance += branch_dist
+                self.pool.insert(branch_idx, removed_children[valid_child_name])
+                child_to_idx[valid_child_name] = branch_idx
+                # Set this node as replacement child of parent.
+                replace_parents_child(branch_name, valid_child_name)
+                
+        # Reset data structures with the new index.
+        self.pool = [node for node in self.pool if node is not None]
+        self.update_via_pool(keep_names=True, map_children_objects=False)
+
     @staticmethod
     def right_intersect(a_list, b_list):
         for i, (a, b) in enumerate(zip(a_list[::-1], b_list[::-1])):
@@ -608,45 +681,24 @@ class Index:
 
     def draw_results(self, file_path, out_dir, skiprows=None, groups=None, cutoff=None, cpm=None, colour_list=None,
                      name_to_taxon=None, use_phyla=False, keep_zeros=True, use_node_names=True, log_scores=False,
-                     itol_mode=False):
-        counts = pd.read_csv(file_path, sep='\t', index_col=0, header=0, skiprows=skiprows)
+                     itol_mode=False, sep=","):
+        counts = pd.read_csv(file_path, sep=sep, index_col=0, header=0, skiprows=skiprows)
 
         # Remove any columns that contain only zeros.
         counts = counts.loc[:, (counts > 0).any().values]
+        # Modify the index with formatted names.
+        counts.index = [self._format_node_name(v) for v in counts.index]
 
         if counts.shape[1]:
             self.draw_tree(out_dir, counts=counts, groups=groups, cutoff=cutoff, cpm=cpm, colour_list=colour_list,
                         name_to_taxon=name_to_taxon, use_phyla=use_phyla, keep_zeros=keep_zeros,
                         use_node_names=use_node_names, log_scores=log_scores, itol_mode=itol_mode)
         else:
-            print("No samples with counts in this matrix. Skipping plotting of %s." % file_path)
+            print("Skipping plotting of %s - no samples with counts in this matrix." % file_path)
 
-    def draw_tree(self, out_dir, counts, groups=None, cutoff=None, cpm=None, colour_list=None, name_to_taxon=None,
+    def draw_tree(self, out_dir, counts: pd.DataFrame, groups=None, cutoff=None, cpm=None, colour_list=None, name_to_taxon=None,
                   use_phyla=False, keep_zeros=True, use_node_names=True, log_scores=True, itol_mode=False):
         from expam.sequences import format_name
-
-        try:
-            import ete3.coretype.tree
-            from ete3 import Tree
-        except ModuleNotFoundError as e:
-            print("Could not import ete3 plotting modules! Error raised:")
-            print(traceback.format_exc())
-            print("Skipping plotting...")
-
-            return
-
-        """
-        Phylogenetic printing of nodes.
-        """
-        for node in self.pool:
-            if node.type == 'Branch' and not node.name.startswith('p'):
-                node.name = 'p' + node.name
-
-        """
-        Create PhyloTree.
-        """
-        newick_string = self.to_newick()
-        tree = Tree(newick_string, format=1)
 
         """
         Take care of groupings.
@@ -684,35 +736,25 @@ class Index:
         """
         Employ cutoff.
         """
-        sections = list(specified_groups)
-        nodes = counts.index.tolist()
-
-        if cutoff is None and cpm is None:
-            nodes_with_counts = nodes
+        if cutoff is None:
+            if cpm is None:
+                cpm = 0.0
+            # Use cpm cutoff.
+            min_ser = counts.sum(axis=0) * cpm / 1e6
         else:
-            nodes_with_counts = set()
+            if cpm is not None:
+                min_ser = counts.sum(axis=0) * cpm / 1e6
+                min_ser.clip(lower=cutoff)
+            else:
+                # Use raw cutoff.
+                min_ser = cutoff
 
-            for section in sections:
-                total = sum(counts[section])
-                section_cutoff = max(cutoff, (total / 1e6) * cpm)
-
-                for index in nodes:
-                    if index not in nodes_with_counts:
-                        if np.any(counts.loc[index, :] >= section_cutoff):
-                            nodes_with_counts.add(index)
-
-            nodes_with_counts = list(nodes_with_counts)
+        nodes_with_counts = counts.index[(counts >= min_ser).any(axis=1)].tolist()
 
         """
         Attempt pruning of tree.
         """
-        try:
-            if not keep_zeros:
-                tree.prune(nodes_with_counts, preserve_branch_length=True)
-
-        except ete3.coretype.tree.TreeError:
-            print("Tree pruning failed, aborting tree drawing!")
-            return
+        self.reduce(nodes_with_counts)
 
         """
         Colour generation.
@@ -736,13 +778,12 @@ class Index:
                 "DATA",
             ]
 
-            for node in tree.traverse():
-                if node.name in counts.index:
-                    node_counts = tuple(counts.loc[node.name, :])
+            for node in counts.index:
+                node_counts = counts.loc[node, :]
 
-                    if any(node_counts):
-                        colour = colour_generator.generate(node_counts)
-                        itol_data.append("%s\trange\t%s\t%s" % (node.name, colour, node.name.upper()))
+                if node_counts.any():
+                    colour = colour_generator.generate(tuple(node_counts))
+                    itol_data.append("%s\trange\t%s\t%s" % (node, colour, node.upper()))
 
             # Write itol_data and Newick tree to file.
             name_modifier = re.findall(r"phylotree_(\S+).pdf", os.path.basename(out_dir))[0]
@@ -760,26 +801,31 @@ class Index:
 
             # Write Newick file.
             itol_tree_dir = os.path.join(itol_dir, 'itol_tree.nwk')
-            tree.write(format=1, outfile=itol_tree_dir)
+            with open(itol_tree_dir, 'w') as f:
+                f.write(self.to_newick())
 
             print("iTOL tree written to %s. Put this in itol (in your browser)." % itol_tree_dir)
-
 
         else:
             # Draw with ete3.
             try:
-                from ete3 import AttrFace, faces, TreeStyle, NodeStyle, TextFace
+                from ete3 import AttrFace, faces, Tree, TreeStyle, NodeStyle, TextFace
             except ModuleNotFoundError as e:
-                print("Could not import ete3 plotting modules! Error raised:")
-                print(traceback.format_exc())
-                print("Skipping plotting...")
+                print("The ETE3 package is not installed. Either install this module, or use the\n\t--itol flag if you wish to use our native iTOL integration.")
+                print("Skipping plotting of %s..." % out_dir)
                 return
             except ImportError as e:
                 print("Could not import drawing attributes from ete3. Error raised:")
                 print(traceback.format_exc())
                 print("See FAQ section on GitHub for fix to this problem.\n\t(https://github.com/seansolari/expam#problems-during-installation)")
-                print("Skipping plotting...")
+                print("Skipping plotting of %s..." % out_dir)
                 return
+
+            """
+            Create PhyloTree.
+            """
+            newick_string = self.to_newick()
+            tree = Tree(newick_string, format=1)
 
             """
             Function to render any given node.
@@ -802,10 +848,10 @@ class Index:
                                 faces.add_face_to_node(tax_face, node, column=1, position='aligned')
 
                 if node.name in counts.index:
-                    node_counts = tuple(counts.loc[node.name, :])
+                    node_counts = counts.loc[node.name, :]
 
-                    if any(node_counts):
-                        colour = colour_generator.generate(node_counts)
+                    if node_counts.any():
+                        colour = colour_generator.generate(tuple(node_counts))
 
                         ns = NodeStyle()
                         ns['bgcolor'] = colour

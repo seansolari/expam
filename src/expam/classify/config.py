@@ -37,7 +37,14 @@ def load_results_config(out_path: str, create: bool = False) -> ResultsPathConfi
     return proposed_config
 
 def create_results(config: ResultsPathConfig):
-    for path_field in ('phy', 'tax', 'phy_raw', 'tax_raw', 'temp'):
+    for path_field in ('phy', 'phy_raw', 'temp'):
+        path = getattr(config, path_field)
+
+        if not os.path.exists(path):
+            os.mkdir(path)
+
+def create_tax_results(config: ResultsPathConfig):
+    for path_field in ('tax', 'tax_raw'):
         path = getattr(config, path_field)
 
         if not os.path.exists(path):
@@ -45,16 +52,10 @@ def create_results(config: ResultsPathConfig):
 
 def validate_results_configuration(config: ResultsPathConfig, check_taxonomy: bool = True):
     phy_files = (config.phy, config.phy_classified, config.phy_split)
-    tax_files = (config.tax, config.tax_classified, config.tax_split)
 
     for phy_file in phy_files:
         if not os.path.exists(phy_file):
             return False
-
-    if check_taxonomy:
-        for tax_file in tax_files:
-            if not os.path.exists(tax_file):
-                return False
     
     return True
 

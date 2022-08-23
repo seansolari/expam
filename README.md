@@ -4,10 +4,16 @@
 
 #### From Bioconda (Recommended)
 
-Conda installation is recommended. Create a new environment before installing expam.
+Conda installation is recommended, and best practise is to install *expam* in a new environment. Some users may wish to use the ETE3 toolkit for plotting, while others may prefer the iTOL tool. Both commands are included in respective order.
 
+**With ETE3**
 ```console
-conda install -c bioconda expam
+conda create -n expam -c conda-forge -c bioconda -c etetoolkit expam ete3
+```
+
+**Without ETE3**
+```console
+conda create -n expam -c conda-forge -c bioconda expam
 ```
 
 #### From PyPI
@@ -21,7 +27,7 @@ brew install pkg-config
 brew install hdf5
 ```
 
-If you encounter any errors, check the FAQ section below for solutions.
+If you encounter any errors, check the FAQ section on GitHub for solutions.
 
 Then **upgrade pip** and install expam.
 
@@ -29,7 +35,6 @@ Then **upgrade pip** and install expam.
 python3 -m pip install --upgrade pip
 python3 -m pip install expam
 ```
-
 
 ***Linux***
 
@@ -131,7 +136,7 @@ you will need to explicitly set the `HDF5_DIR` environment variable. To see wher
 ```console
 brew info hdf5
 ```
-You should see something like `/usr/local/Cellar/hdf5/VERSION...` or `/opt/local/Cellar/hdf5/VERSION...` (ie. ignore everything after the complete version, which will have numbers separeted by dots). Then set this environment variable with
+You should see something like `/usr/local/Cellar/hdf5/VERSION...` or `/opt/local/Cellar/hdf5/VERSION...` (ie. ignore everything after the complete version, which will have numbers separated by dots). Then set this environment variable with
 ```console
 HDF5_DIR=/opt/local/Cellar/hdf5/VERSION,
 ```

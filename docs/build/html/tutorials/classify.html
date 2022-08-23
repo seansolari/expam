@@ -24,7 +24,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Tree building with expam" href="treebuilding.html" />
-    <link rel="prev" title="Overview" href="overview.html" /> 
+    <link rel="prev" title="Database Build" href="build.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -48,7 +48,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../commands.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../dependencies.html">Additional Dependencies (optional)</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorials</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="build.html">Database Build</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Classifying metagenomic samples</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#the-classification-algorithm">The classification algorithm</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#what-do-i-do-with-splits">What do I do with splits?</a></li>
@@ -56,8 +56,8 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#phylogenetic-classification-results">Phylogenetic classification results</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#sample-summary-files">Sample summary files</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#classification-files-classified-counts-csv">Classification files - <em>classified_counts.csv</em></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#split-classification-files-split-counts-csv">Split classification files - <em>split_counts.csv</em></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#classification-files-classified-csv">Classification files - <em>classified.csv</em></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#split-classification-files-split-csv">Split classification files - <em>split.csv</em></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#raw-read-output">Raw read output</a></li>
 </ul>
 </li>
@@ -116,11 +116,11 @@
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The k-mers of a string are the set of substrings of length k.</p>
-<p>For example, the 5-mers of <code class="code docutils literal notranslate"><span class="pre">ACGTACG</span></code> are <code class="code docutils literal notranslate"><span class="pre">ACGTA</span></code>, <code class="code docutils literal notranslate"><span class="pre">CGTAC</span></code> and <code class="code docutils literal notranslate"><span class="pre">GTACG</span></code>.</p>
+<p>The k-mers of a string are the set of substrings of length k. For example, the 5-mers of
+<code class="code docutils literal notranslate"><span class="pre">ACGTACG</span></code> are <code class="code docutils literal notranslate"><span class="pre">ACGTA</span></code>, <code class="code docutils literal notranslate"><span class="pre">CGTAC</span></code> and <code class="code docutils literal notranslate"><span class="pre">GTACG</span></code>.</p>
 </div>
 <ul class="simple">
-<li><p>We can map the k-mers of metagenomic reads using the <strong>expam</strong> database, which k-mers are mapped to the <em>lowest common ancestor</em> of all reference sequences containing this k-mer.</p></li>
+<li><p>We can map the k-mers of metagenomic reads using the <strong>expam</strong> database, where k-mers are mapped to the <em>lowest common ancestor</em> of all reference sequences containing this k-mer.</p></li>
 <li><p>Due to this mapping, the k-mer distribution of any chunk of sequence from some reference genome should lie along a single lineage in the reference tree.</p></li>
 </ul>
 <div class="admonition note">
@@ -148,7 +148,7 @@ that k-mers from the sequence got mapped to.</p>
 <p class="admonition-title">Note</p>
 <p>Splits can be induced in a read due to sequencing error, which may make some read of a reference genome
 appear as though it does not below to the genome, as a small number of k-mers from this read will be
-impacted by the incorrect base. m</p>
+impacted by the incorrect base.</p>
 <p>To overcome this, <strong>expam</strong> implements an <span class="math notranslate nohighlight">\(\alpha\)</span> parameter, to only consider lineages containing more than <span class="math notranslate nohighlight">\(\alpha\)</span>%
 of the k-mer distribution. This should ignore those lineages in the k-mer distribution that contain
 too few k-mers and are most likely due to sequencing error.</p>
@@ -156,9 +156,7 @@ too few k-mers and are most likely due to sequencing error.</p>
 <a class="reference internal image-reference" href="../_images/figure1.png"><img alt="Classification figure." class="align-center" src="../_images/figure1.png" style="width: 500px;" /></a>
 <section id="what-do-i-do-with-splits">
 <h3>What do I do with splits?<a class="headerlink" href="#what-do-i-do-with-splits" title="Permalink to this headline"></a></h3>
-<span style="color: rgba(0, 0, 0, 0.5);">
-  <p style="border-left: 5px solid rgba(0, 0, 255, 0.1); padding-left: 15px; margin-left: 20px; font-size: 1.1rem; font-family: inherit; font-weight: 200; line-height: 1.4;">"..those that are interested only in a general profile can feel comfortable simply adding classification and split counts together to produce an overall profile."</p>
-</span><ul>
+<ul>
 <li><p>As we mentioned above, splits can occur either as a result of sequencing error, or due to novel sequence.</p></li>
 <li><p><strong>expam</strong> implements two strategies to deal with splits as a result of sequencing error:</p>
 <blockquote>
@@ -181,7 +179,7 @@ The <code class="code docutils literal notranslate"><span class="pre">--cpm</spa
 <ul class="simple">
 <li><p>With both these mechanisms in place, we can be more confident that high split counts in a particular region of the phylogeny is suggestive of novel sequence in the biological sample.</p></li>
 <li><p>The algorithm for classifying splits takes a conservative approach - <strong>those that are interested only in a general profile can feel comfortable simply adding classification and split counts together to produce an overall profile.</strong></p></li>
-<li><p><em>Splits</em> can also be used as a marker for genome discovery however - samples reported with a high split counts are potential targets for culturing novel isolates.</p></li>
+<li><p><em>Splits</em> can also be used as a marker for genome discovery - samples reported with a high split counts are potential targets for culturing novel isolates.</p></li>
 </ul>
 </section>
 </section>
@@ -196,8 +194,8 @@ The <code class="code docutils literal notranslate"><span class="pre">--cpm</spa
 <li><p>In <code class="code docutils literal notranslate"><span class="pre">./sample_one</span></code>, there will be a <code class="code docutils literal notranslate"><span class="pre">phy</span></code> subdirectory containing three files:</p>
 <ul class="simple">
 <li><p><code class="code docutils literal notranslate"><span class="pre">./sample_one/phy/sample_one.csv</span></code> - sample summary file.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">./sample_one/phy/classified_counts.csv</span></code> - complete classifications.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">./sample_one/phy/split_counts.csv</span></code> - split classifications.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">./sample_one/phy/classified.csv</span></code> - complete classifications.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">./sample_one/phy/split.csv</span></code> - split classifications.</p></li>
 <li><p>Within <code class="code docutils literal notranslate"><span class="pre">./sample_one/phy</span></code>, there will be a <code class="code docutils literal notranslate"><span class="pre">raw</span></code> subdirectory containing the output for each read.</p></li>
 </ul>
 </li>
@@ -206,7 +204,7 @@ The <code class="code docutils literal notranslate"><span class="pre">--cpm</spa
 <h3>Sample summary files<a class="headerlink" href="#sample-summary-files" title="Permalink to this headline"></a></h3>
 <ul>
 <li><p>Each input sample file gets a corresponding sample summary file.</p></li>
-<li><p>Tab-delimited file of all results for the sample, both complete and split.</p></li>
+<li><p>Comma-separated file of all results for the sample, both complete and split.</p></li>
 <li><p>There are seven columns:</p>
 <ol class="arabic simple">
 <li><p><strong>Node</strong> - classification point in tree.</p></li>
@@ -228,15 +226,19 @@ The <code class="code docutils literal notranslate"><span class="pre">--cpm</spa
 </ul>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>The first row of this file contols only the first four of the above mentioned seven columns. This line
-represents those that are unclassified - neither classified nor split.</p>
+<p>The first row of this file contols those that are unclassified - neither classified nor split.</p>
 </div>
 <section id="example">
 <h4>Example<a class="headerlink" href="#example" title="Permalink to this headline"></a></h4>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">unclassified    0.000000%       0       0</span>
-<span class="go">p4      100.000000%     1000    3       0.000000%       0       0</span>
-<span class="go">p5      99.700000%      997     232     0.000000%       0       0</span>
-<span class="go">GCF_000005845.2_ASM584v2_genomic        76.500000%      765     765     0.000000%       0       0</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">=================================== =================================== ============================== ======================= ============================== ========================= ==================</span>
+<span class="go">Node                                Cumulative Classified Percentage    Cumulative Classified Count    Raw Classified Count    Cumulative Split Percentage    Cumulative Split Count    Raw Split Count</span>
+<span class="go">=================================== =================================== ============================== ======================= ============================== ========================= ==================</span>
+<span class="go">unclassified                        0.0%                                0                              0                       0.0%                           0                         0</span>
+<span class="go">p1                                  100.0%                              1000                           3                       0.0%                           0                         0</span>
+<span class="go">p2                                  99.7%                               997                            232                     0.0%                           0                         0</span>
+<span class="go">p5                                  76.5%                               765                            0                       0.0%                           0                         0</span>
+<span class="go">GCF_000005845.2_ASM584v2_genomic    76.5%                               765                            765                     0.0%                           0                         0</span>
+<span class="go">=================================== =================================== ============================== ======================= ============================== ========================= ==================</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -246,32 +248,35 @@ add the <code class="code docutils literal notranslate"><span class="pre">--keep
 </div>
 </section>
 </section>
-<section id="classification-files-classified-counts-csv">
-<h3>Classification files - <em>classified_counts.csv</em><a class="headerlink" href="#classification-files-classified-counts-csv" title="Permalink to this headline"></a></h3>
+<section id="classification-files-classified-csv">
+<h3>Classification files - <em>classified.csv</em><a class="headerlink" href="#classification-files-classified-csv" title="Permalink to this headline"></a></h3>
 <ul class="simple">
-<li><p>Tab-delimited matrix - cells contain number of reads classified to specific node (row) within any given sample (column).</p></li>
+<li><p>Comma-separated matrix - cells contain number of reads classified to specific node (row) within any given sample (column).</p></li>
 <li><p>This enables phylogenetic comparison of samples.</p></li>
 <li><p>These classifications correspond to those reads whose k-mer distribution lies on a single lineage (high quality).</p></li>
 </ul>
 <section id="id1">
 <h4>Example<a class="headerlink" href="#id1" title="Permalink to this headline"></a></h4>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">                                        GCF_000005845.2_ASM584v2_genomic.gz_2</span>
-<span class="go">unclassified                            0</span>
-<span class="go">GCF_000005845.2_ASM584v2_genomic        765</span>
-<span class="go">p4                                      3</span>
-<span class="go">p5                                      232</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">=================================== ========================================</span>
+<span class="go">Node                                Sample One</span>
+<span class="go">=================================== ========================================</span>
+<span class="go">unclassified                        0</span>
+<span class="go">p1                                  3</span>
+<span class="go">p2                                  232</span>
+<span class="go">GCF_000005845.2_ASM584v2_genomic    765</span>
+<span class="go">=================================== ========================================</span>
 </pre></div>
 </div>
 </section>
 </section>
-<section id="split-classification-files-split-counts-csv">
-<h3>Split classification files - <em>split_counts.csv</em><a class="headerlink" href="#split-classification-files-split-counts-csv" title="Permalink to this headline"></a></h3>
+<section id="split-classification-files-split-csv">
+<h3>Split classification files - <em>split.csv</em><a class="headerlink" href="#split-classification-files-split-csv" title="Permalink to this headline"></a></h3>
 <ul class="simple">
-<li><p>Tab-delimited matrix with same interpretation as <em>classified_counts.csv</em>, only these results are those classifications whose lineage was split.</p></li>
+<li><p>Comma-separated matrix with same interpretation as <em>classified.csv</em>, only these results are those classifications whose lineage was split.</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The rows and columns of <em>classified_counts.csv</em> and <em>split_counts.csv</em> will always line up with eachother.</p>
+<p>The rows and columns of <em>classified.csv</em> and <em>split.csv</em> will always line up with eachother.</p>
 <p>This is for convenience - those who simply want an overall phylogenetic profile can add these two matrices together without
 needing to pre-process and align the corresponding rows and columns.</p>
 </div>
@@ -301,18 +306,18 @@ needing to pre-process and align the corresponding rows and columns.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam classify -d /path/to/reads --out example --taxonomy
 </pre></div>
 </div>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam classify -d /path/to/reads --out example_one
-<span class="gp">$ </span>expam to_taxonomy --out example_one
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>expam classify -d /path/to/reads --out example
+<span class="gp">$ </span>expam to_taxonomy --out example
 </pre></div>
 </div>
 <ul class="simple">
-<li><p>Where before the results directory contained only a <code class="code docutils literal notranslate"><span class="pre">phy</span></code> subdirectory, it will now also contain a <code class="code docutils literal notranslate"><span class="pre">tax</span></code> folder.</p></li>
+<li><p>Where before the results directory contained only a <code class="code docutils literal notranslate"><span class="pre">phy</span></code> subdirectory, <strong>expam</strong> will now also create a <code class="code docutils literal notranslate"><span class="pre">tax</span></code> folder, which will now be populated with the corresponding taxonomic output.</p></li>
 </ul>
 <section id="taxonomic-sample-summaries">
 <h3>Taxonomic sample summaries<a class="headerlink" href="#taxonomic-sample-summaries" title="Permalink to this headline"></a></h3>
 <ul class="simple">
 <li><p>For each sample input file, <strong>expam</strong> will translate a corresponding taxonomic sample summary.</p></li>
-<li><p>These are tab-delimited matrices with nine columns:</p>
+<li><p>These are comma-separated matrices with nine columns:</p>
 <ol class="arabic simple">
 <li><p><strong>Taxon ID</strong> - NCBI taxon id.</p></li>
 <li><p><strong>Percent classified (cumulative)</strong> - total percentage of reads in this sample classified at or below this taxon id.</p></li>
@@ -328,18 +333,22 @@ needing to pre-process and align the corresponding rows and columns.</p>
 </ul>
 <section id="id2">
 <h4>Example<a class="headerlink" href="#id2" title="Permalink to this headline"></a></h4>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">               c_perc  c_cumul c_count s_perc  s_cumul s_count rank           scientific name</span>
-<span class="go">unclassified   0.0%    0       0       0.0%    0       0       0              0</span>
-<span class="go">1              100.0%  1000    0       0.0%    0       0       root</span>
-<span class="go">131567         100.0%  1000    0       0.0%    0       0       top            cellular organisms</span>
-<span class="go">2              100.0%  1000    0       0.0%    0       0       superkingdom   cellular organisms Bacteria</span>
-<span class="go">1224           100.0%  1000    0       0.0%    0       0       phylum         cellular organisms Bacteria Proteobacteria</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">=============== =================================== ============================== ======================= ============================== ========================= ================== =============== =================================================================</span>
+<span class="go">Node            Cumulative Classified Percentage    Cumulative Classified Count    Raw Classified Count    Cumulative Split Percentage    Cumulative Split Count    Raw Split Count    Rank            Scientific Name</span>
+<span class="go">=============== =================================== ============================== ======================= ============================== ========================= ================== =============== =================================================================</span>
+<span class="go">unclassified    0.0%                                0                              0                       0.0%                           0                         0                  0               0</span>
+<span class="go">1               100.0%                              1000                           0                       0.0%                           0                         0                  root</span>
+<span class="go">131567          100.0%                              1000                           0                       0.0%                           0                         0                  top             cellular organisms</span>
+<span class="go">2               100.0%                              1000                           235                     0.0%                           0                         0                  superkingdom    cellular organisms Bacteria</span>
+<span class="go">1224            76.5%                               765                            0                       0.0%                           0                         0                  phylum          cellular organisms Bacteria Proteobacteria</span>
+<span class="go">1236            76.5%                               765                            0                       0.0%                           0                         0                  class           cellular organisms Bacteria Proteobacteria Gammaproteobacteria</span>
+<span class="go">=============== =================================== ============================== ======================= ============================== ========================= ================== =============== =================================================================</span>
 </pre></div>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p><strong>expam</strong> only supplies taxonomic versions for sample summary files, it does not create any
-taxonomic version of the <code class="code docutils literal notranslate"><span class="pre">classified_counts.csv`</span></code> or <code class="code docutils literal notranslate"><span class="pre">splits_counts.csv</span></code> as in the phylogenetic case.</p>
+taxonomic version of the <code class="code docutils literal notranslate"><span class="pre">classified.csv`</span></code> or <code class="code docutils literal notranslate"><span class="pre">splits.csv</span></code> as in the phylogenetic case.</p>
 </div>
 </section>
 </section>
@@ -381,7 +390,7 @@ not points in the reference tree.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="overview.html" class="btn btn-neutral float-left" title="Overview" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="build.html" class="btn btn-neutral float-left" title="Database Build" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="treebuilding.html" class="btn btn-neutral float-right" title="Tree building with expam" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

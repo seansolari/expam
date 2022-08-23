@@ -15,9 +15,10 @@ Part One: Building a tree
     in :doc:`Dependencies tutorial <../dependencies>`.
 
 * There are three stages to building a distance tree:
-  1. sketching the sequences (a compressed form that still contains a lot of the important details),
-  2. using these sketches to estimate sequence distance,
-  3. apply Neighbour Joining (NJ) to the distance matrix to compute a distance tree.
+
+  1. Sketching the sequences (a compressed form that still contains a lot of the important details),
+  2. Using these sketches to estimate sequence distance,
+  3. Apply Neighbour Joining (NJ) to the distance matrix to compute a distance tree.
 
 * This process can be done manually, or automated through the :code:`mashtree` application.
 
@@ -157,6 +158,7 @@ Part Two: Building a tree in parts
     not been set, **expam** will automatically use the database build parameters for tree building.
 
 * We also need to tell **expam** how these trees will be joined at the end. There are two rules for this template:
+
   1. It is a Newick format tree, where group names appear in double braces.
   2. The template must be placed at :code:`database_name/phylogeny/tree/database_name.nwk` (the :code:`phylogeny` subdirectory in the database folder). Replace :code:`database_name` with your database name.
 

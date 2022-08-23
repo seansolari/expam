@@ -131,7 +131,7 @@ class TreeCommand(CommandGroup):
         if self.results_config is None:
             die("Results not specified!")
 
-        if not validate_results_configuration(self.config):
+        if not validate_results_configuration(self.results_config):
             die("Invalid results configuration!")
 
     @staticmethod
@@ -189,8 +189,7 @@ class TreeCommand(CommandGroup):
         results = ClassificationResults(
             index=index,
             phylogeny_index=phylogenyIndex,
-            in_dir=self.results_config.phy,
-            out_dir=self.out_dir,
+            results_config=self.results_config,
             groups=self.groups,
             keep_zeros=self.keep_zeros,
             cutoff=self.cutoff,

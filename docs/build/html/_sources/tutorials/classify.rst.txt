@@ -14,11 +14,10 @@ The classification algorithm
 
 .. note:: 
 
-    The k-mers of a string are the set of substrings of length k.
+    The k-mers of a string are the set of substrings of length k. For example, the 5-mers of
+    :code:`ACGTACG` are :code:`ACGTA`, :code:`CGTAC` and :code:`GTACG`.
 
-    For example, the 5-mers of :code:`ACGTACG` are :code:`ACGTA`, :code:`CGTAC` and :code:`GTACG`.
-
-* We can map the k-mers of metagenomic reads using the **expam** database, which k-mers are mapped to the *lowest common ancestor* of all reference sequences containing this k-mer.
+* We can map the k-mers of metagenomic reads using the **expam** database, where k-mers are mapped to the *lowest common ancestor* of all reference sequences containing this k-mer.
 * Due to this mapping, the k-mer distribution of any chunk of sequence from some reference genome should lie along a single lineage in the reference tree.
 
 .. note:: 
@@ -43,7 +42,7 @@ The classification algorithm
 
   Splits can be induced in a read due to sequencing error, which may make some read of a reference genome
   appear as though it does not below to the genome, as a small number of k-mers from this read will be 
-  impacted by the incorrect base. m
+  impacted by the incorrect base.
   
   To overcome this, **expam** implements an :math:`\alpha` parameter, to only consider lineages containing more than :math:`\alpha`\% 
   of the k-mer distribution. This should ignore those lineages in the k-mer distribution that contain
@@ -57,12 +56,6 @@ The classification algorithm
 
 What do I do with splits?
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. raw:: html
-
-  <span style="color: rgba(0, 0, 0, 0.5);">
-    <p style="border-left: 5px solid rgba(0, 0, 255, 0.1); padding-left: 15px; margin-left: 20px; font-size: 1.1rem; font-family: inherit; font-weight: 200; line-height: 1.4;">"..those that are interested only in a general profile can feel comfortable simply adding classification and split counts together to produce an overall profile."</p>
-  </span>
 
 * As we mentioned above, splits can occur either as a result of sequencing error, or due to novel sequence.
 * **expam** implements two strategies to deal with splits as a result of sequencing error:
@@ -83,7 +76,7 @@ What do I do with splits?
 
 * With both these mechanisms in place, we can be more confident that high split counts in a particular region of the phylogeny is suggestive of novel sequence in the biological sample.
 * The algorithm for classifying splits takes a conservative approach - **those that are interested only in a general profile can feel comfortable simply adding classification and split counts together to produce an overall profile.**
-* *Splits* can also be used as a marker for genome discovery however - samples reported with a high split counts are potential targets for culturing novel isolates.
+* *Splits* can also be used as a marker for genome discovery - samples reported with a high split counts are potential targets for culturing novel isolates.
 
 
 Phylogenetic classification results
@@ -98,8 +91,8 @@ Phylogenetic classification results
 * In :code:`./sample_one`, there will be a :code:`phy` subdirectory containing three files:
 
   * :code:`./sample_one/phy/sample_one.csv` - sample summary file.
-  * :code:`./sample_one/phy/classified_counts.csv` - complete classifications.
-  * :code:`./sample_one/phy/split_counts.csv` - split classifications.
+  * :code:`./sample_one/phy/classified.csv` - complete classifications.
+  * :code:`./sample_one/phy/split.csv` - split classifications.
   * Within :code:`./sample_one/phy`, there will be a :code:`raw` subdirectory containing the output for each read.
 
 
@@ -107,7 +100,7 @@ Sample summary files
 ^^^^^^^^^^^^^^^^^^^^
 
 * Each input sample file gets a corresponding sample summary file.
-* Tab-delimited file of all results for the sample, both complete and split.
+* Comma-separated file of all results for the sample, both complete and split.
 * There are seven columns:
 
   1. **Node** - classification point in tree.
@@ -127,18 +120,22 @@ Sample summary files
 
 .. warning:: 
 
-  The first row of this file contols only the first four of the above mentioned seven columns. This line 
-  represents those that are unclassified - neither classified nor split.
+  The first row of this file contols those that are unclassified - neither classified nor split.
 
 Example
 """""""
 
 .. code-block:: console
 
-  unclassified    0.000000%       0       0                       
-  p4      100.000000%     1000    3       0.000000%       0       0
-  p5      99.700000%      997     232     0.000000%       0       0
-  GCF_000005845.2_ASM584v2_genomic        76.500000%      765     765     0.000000%       0       0
+    =================================== =================================== ============================== ======================= ============================== ========================= ================== 
+    Node                                Cumulative Classified Percentage    Cumulative Classified Count    Raw Classified Count    Cumulative Split Percentage    Cumulative Split Count    Raw Split Count   
+    =================================== =================================== ============================== ======================= ============================== ========================= ================== 
+    unclassified                        0.0%                                0                              0                       0.0%                           0                         0                 
+    p1                                  100.0%                              1000                           3                       0.0%                           0                         0                 
+    p2                                  99.7%                               997                            232                     0.0%                           0                         0                 
+    p5                                  76.5%                               765                            0                       0.0%                           0                         0                 
+    GCF_000005845.2_ASM584v2_genomic    76.5%                               765                            765                     0.0%                           0                         0                 
+    =================================== =================================== ============================== ======================= ============================== ========================= ================== 
 
 .. note:: 
 
@@ -146,10 +143,10 @@ Example
   add the :code:`--keep-zeros` flag at classification.
 
 
-Classification files - *classified_counts.csv*
+Classification files - *classified.csv*
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* Tab-delimited matrix - cells contain number of reads classified to specific node (row) within any given sample (column).
+* Comma-separated matrix - cells contain number of reads classified to specific node (row) within any given sample (column).
 * This enables phylogenetic comparison of samples.
 * These classifications correspond to those reads whose k-mer distribution lies on a single lineage (high quality).
 
@@ -158,21 +155,24 @@ Example
 
 .. code-block:: console
 
-                                          GCF_000005845.2_ASM584v2_genomic.gz_2
-  unclassified                            0
-  GCF_000005845.2_ASM584v2_genomic        765
-  p4                                      3
-  p5                                      232
+    =================================== ======================================== 
+    Node                                Sample One   
+    =================================== ======================================== 
+    unclassified                        0                                       
+    p1                                  3                                       
+    p2                                  232                                     
+    GCF_000005845.2_ASM584v2_genomic    765                                     
+    =================================== ======================================== 
 
 
-Split classification files - *split_counts.csv*
+Split classification files - *split.csv*
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* Tab-delimited matrix with same interpretation as *classified_counts.csv*, only these results are those classifications whose lineage was split.
+* Comma-separated matrix with same interpretation as *classified.csv*, only these results are those classifications whose lineage was split.
 
 .. note:: 
 
-  The rows and columns of *classified_counts.csv* and *split_counts.csv* will always line up with eachother.
+  The rows and columns of *classified.csv* and *split.csv* will always line up with eachother.
 
   This is for convenience - those who simply want an overall phylogenetic profile can add these two matrices together without
   needing to pre-process and align the corresponding rows and columns.
@@ -203,17 +203,17 @@ Taxonomic results
 
 .. code-block:: console
 
-  $ expam classify -d /path/to/reads --out example_one
-  $ expam to_taxonomy --out example_one
+  $ expam classify -d /path/to/reads --out example
+  $ expam to_taxonomy --out example
 
-* Where before the results directory contained only a :code:`phy` subdirectory, it will now also contain a :code:`tax` folder.
+* Where before the results directory contained only a :code:`phy` subdirectory, **expam** will now also create a :code:`tax` folder, which will now be populated with the corresponding taxonomic output.
 
 
 Taxonomic sample summaries
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * For each sample input file, **expam** will translate a corresponding taxonomic sample summary.
-* These are tab-delimited matrices with nine columns:
+* These are comma-separated matrices with nine columns:
   
   1. **Taxon ID** - NCBI taxon id.
   2. **Percent classified (cumulative)** - total percentage of reads in this sample classified at or below this taxon id.
@@ -230,16 +230,21 @@ Example
 
 .. code-block:: console
 
-                 c_perc  c_cumul c_count s_perc  s_cumul s_count rank           scientific name
-  unclassified   0.0%    0       0       0.0%    0       0       0              0
-  1              100.0%  1000    0       0.0%    0       0       root    
-  131567         100.0%  1000    0       0.0%    0       0       top            cellular organisms
-  2              100.0%  1000    0       0.0%    0       0       superkingdom   cellular organisms Bacteria
-  1224           100.0%  1000    0       0.0%    0       0       phylum         cellular organisms Bacteria Proteobacteria
+    =============== =================================== ============================== ======================= ============================== ========================= ================== =============== ================================================================= 
+    Node            Cumulative Classified Percentage    Cumulative Classified Count    Raw Classified Count    Cumulative Split Percentage    Cumulative Split Count    Raw Split Count    Rank            Scientific Name                                                  
+    =============== =================================== ============================== ======================= ============================== ========================= ================== =============== ================================================================= 
+    unclassified    0.0%                                0                              0                       0.0%                           0                         0                  0               0                                                                
+    1               100.0%                              1000                           0                       0.0%                           0                         0                  root                                                                             
+    131567          100.0%                              1000                           0                       0.0%                           0                         0                  top             cellular organisms                                               
+    2               100.0%                              1000                           235                     0.0%                           0                         0                  superkingdom    cellular organisms Bacteria                                      
+    1224            76.5%                               765                            0                       0.0%                           0                         0                  phylum          cellular organisms Bacteria Proteobacteria                       
+    1236            76.5%                               765                            0                       0.0%                           0                         0                  class           cellular organisms Bacteria Proteobacteria Gammaproteobacteria   
+    =============== =================================== ============================== ======================= ============================== ========================= ================== =============== ================================================================= 
 
 .. note:: 
+  
   **expam** only supplies taxonomic versions for sample summary files, it does not create any 
-  taxonomic version of the :code:`classified_counts.csv`` or :code:`splits_counts.csv` as in the phylogenetic case.
+  taxonomic version of the :code:`classified.csv`` or :code:`splits.csv` as in the phylogenetic case.
 
 
 Taxonomic raw output
