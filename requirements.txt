@@ -1,6 +1,7 @@
 numpy>=1.22.0
 Cython
 matplotlib
+multiprocess
 pandas
 psutil
 tables

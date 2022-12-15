@@ -1,4 +1,7 @@
+from collections import namedtuple
+from functools import partial
 from math import floor
+from multiprocess import Pool   # Uses dill for serialising.
 from multiprocessing import shared_memory
 import os
 import re
@@ -65,11 +68,12 @@ def run_classifier(
             temp_dir=output_config.temp,
             paired_end=paired_end,
             alpha=alpha,
-            sep=sep
+            sep=sep,
+            n_processes=n
         )
 
         # Run the classification with n processes.
-        d.run(n)
+        d.run()
 
         # Load accession ids.
         sequence_ids = list(yield_csv(database_config.accession_id))
@@ -140,16 +144,14 @@ def name_to_id(phylogeny_path: str):
     return index, index_map
 
 
+ResultsColumns = namedtuple("ResultsColumns", ["c_perc", "c_cumul", "c_count", "s_perc", "s_cumul", "s_count"])
+
 class Distribution:
-    _c_perc = "Cumulative Classified Percentage"
-    _c_cumul = "Cumulative Classified Count"
-    _c_count = "Raw Classified Count"
-    _s_perc = "Cumulative Split Percentage"
-    _s_cumul = "Cumulative Split Count"
-    _s_count = "Raw Split Count"
+    _cols = ResultsColumns("Cumulative Classified Percentage", "Cumulative Classified Count", "Raw Classified Count",
+                           "Cumulative Split Percentage", "Cumulative Split Count", "Raw Split Count")
 
     def __init__(self, k, kmer_db, index: Index, lca_matrix, read_paths, out_dir, temp_dir, logging_dir, alpha,
-                 keep_zeros=False, cutoff=0.0, cpm=0.0, paired_end=False, sep=","):
+                 keep_zeros=False, cutoff=0.0, cpm=0.0, paired_end=False, sep=",", n_processes: int = 1):
         """
 
         :param k: Int
@@ -180,8 +182,9 @@ class Distribution:
         self.paired_end = paired_end
 
         self.SEP = sep
+        self.n_processes = n_processes
 
-    def run(self, n):
+    def run(self):
         """
         Begin processing reads in self.url.
         We have some collection of processes accessing reads from storage
@@ -189,8 +192,8 @@ class Distribution:
 
         """
         file_queue = self.prepare_queue(self.paired_end)
-        n_classifiers = floor(UNION_RATIO * n)
-        n_readers = n - n_classifiers
+        n_classifiers = floor(UNION_RATIO * self.n_processes)
+        n_readers = self.n_processes - n_classifiers
 
         mp_config = {
             "name": "expam",
@@ -254,61 +257,103 @@ class Distribution:
         return result_files
 
     def create_sample_summaries(self, result_files):
-        # Sample-wise summary of counts in kraken-like format.
-        # Create matrix of counts.
-        sample_names = [sample_name for _, sample_name in result_files]
-        sldf = pd.DataFrame(0, index=self.node_names, columns=sample_names)
-        mldf = pd.DataFrame(0, index=self.node_names, columns=sample_names)
-
-        # Import counts into DataFrame.
-        for result_file, sample_name in result_files:
-            slser = sldf.loc[:, sample_name]
-            mlser = mldf.loc[:, sample_name]
-
-            with open(result_file, 'r') as f:
+        nprocs = min(self.n_processes, len(result_files))
+        ###
+        ### Import raw counts into DataFrame.
+        def _raw_sample_to_series(results_file, sample_name, node_names):
+            sl = pd.Series(0, index=node_names, name=sample_name)
+            ml = pd.Series(0, index=node_names, name=sample_name)
+            with open(results_file, 'r') as f:
                 for line in f:
                     parts = line.split("\t")
                     idx = int(parts[2].lstrip("p"))
-
                     if parts[0] == "S":
-                        mlser.iloc[idx] += 1
+                        ml.iloc[idx] += 1
                     else:
-                        slser.iloc[idx] += 1
+                        sl.iloc[idx] += 1
+            return sample_name, sl, ml
 
-        # Create sample-wise summaries.
-        for _, sample_name in result_files:
-            df = pd.DataFrame(0, index=self.node_names, columns=[self._c_perc, self._c_cumul, self._c_count, self._s_perc, self._s_cumul, self._s_count])
-            # Insert single-lineage classifications.
-            df.loc[:, self._c_cumul] = sldf.loc[:, sample_name]
-            df.loc[:, self._c_count] = sldf.loc[:, sample_name]
-            # Insert split-lineage classifications.
-            df.loc[:, self._s_cumul] = mldf.loc[:, sample_name]
-            df.loc[:, self._s_count] = mldf.loc[:, sample_name]
+        ###
+        with Pool(processes=nprocs) as mp_pool:
+            raw_sample_series = sorted(
+                mp_pool.starmap_async(
+                    partial(_raw_sample_to_series, node_names=self.node_names),
+                    result_files).get(),
+                key = lambda t: t[0])   # Sorted in order of sample names.
+        
+        ###
+        ###
 
-            self.make_cumulative(df)
-            total_reads = df.loc[:, self._c_count].sum() + df.loc[:, self._s_count].sum()
+        ###
+        ### Create sample-wise summaries.
+        def remove_zeros(*dfs):
+            mask = None
+            for df in dfs:
+                non_zero = df.apply(lambda r: ((r > 0).any()) | (r.name == 'unclassified'), axis=1)
+                mask = non_zero if mask is None else mask | non_zero
+            for df in dfs:
+                yield df.loc[mask, :]
+
+        ###
+        def _sample_summary(
+            sample_name: str, sl: pd.Series, ml: pd.Series, out_base: str,
+            node_names: List[str], cols: ResultsColumns, index: Index,
+            cutoff: int, cpm: float, sep: str):
+            df = pd.DataFrame(0, index=node_names, columns=tuple(cols))
+            df.loc[:, cols.c_cumul] = sl.loc[:]
+            df.loc[:, cols.c_count] = sl.loc[:]
+            df.loc[:, cols.s_cumul] = ml.loc[:]
+            df.loc[:, cols.s_count] = ml.loc[:]
+
+            # Make counts cumulative.
+            cumulative_columns = [cols.c_cumul, cols.s_cumul]
+            for node in index.pool[1:][::-1]:
+                df.loc[node.name, cumulative_columns] += df.loc[node.children, cumulative_columns].sum(axis=0)
 
             # Employ cutoff.
-            if self.cutoff > 0 or self.cpm > 0:
-                cutoff = max((total_reads / 1e6) * self.cpm, self.cutoff)
-                mask = (df.loc[:, self._c_cumul] < cutoff) & (df.loc[:, self._s_cumul])
+            total_reads = df.loc[:, cols.c_count].sum() + df.loc[:, cols.s_count].sum()
+            if cutoff > 0 or cpm > 0.0:
+                cutoff = max((total_reads / 1e6) * cpm, cutoff)
+                mask = (df.loc[:, cols.c_cumul] < cutoff) & (df.loc[:, cols.s_cumul])
                 mask[0] = True  # Keep unclassified counts.
                 df.loc[mask, :] = 0
 
             # Check for removal of zero rows.
             if not self.keep_zeros:
-                (df, ) = self.remove_zeros(df)
+                (df, ) = remove_zeros(df)
 
             # Insert percentage form.
-            self.insert_percentages(df, total_reads)
+            df.loc[:, cols.c_perc] = round(100 * df.loc[:, cols.c_cumul] / total_reads, 3).map(str) + "%"
+            df.loc[:, cols.s_perc] = round(100 * df.loc[:, cols.s_cumul] / total_reads, 3).map(str) + "%"
 
             # Write to disk.
-            out_file = os.path.join(self.results_config.phy, sample_name + ".csv")
-            self.save_df(df, out_file)
+            out_file = os.path.join(out_base, sample_name + ".csv")
+            fixer = lambda name: 'p' + name if (name != "unclassified") and (index[name].type == "Branch") else name
+            df.index = [fixer(n) for n in df.index]
+            df.to_csv(out_file, sep=sep)
+
+        ###
+        ###
+
+        with Pool(processes=nprocs) as mp_pool:
+            f = partial(
+                _sample_summary,
+                out_base=self.results_config.phy,
+                node_names=self.node_names, cols=self._cols, index=self.index,
+                cutoff=self.cutoff, cpm=self.cpm, sep=self.SEP
+            )
+            mp_pool.starmap_async(f, raw_sample_series).get()
+
+
+        ###
+        ### Save summarised results to disk.
+        (_, sl_series_list, ml_series_list) = zip(*raw_sample_series)
+        sldf = pd.concat(sl_series_list, axis=1)
+        mldf = pd.concat(ml_series_list, axis=1)
 
         # Remove null rows.
         if not self.keep_zeros:
-            (sldf, mldf) = self.remove_zeros(sldf, mldf)
+            (sldf, mldf) = remove_zeros(sldf, mldf)
 
         # Drop unclassified from split DataFrame.
         try:
@@ -320,33 +365,13 @@ class Distribution:
         self.save_df(sldf, self.results_config.phy_classified)
         self.save_df(mldf, self.results_config.phy_split)
 
-    def save_df(self, df, out_file):
+    def save_df(self, df: pd.DataFrame, out_file: str):
         self.fix_df_index(df)
         df.to_csv(out_file, sep=self.SEP)
 
-    def fix_df_index(self, df):
+    def fix_df_index(self, df: pd.DataFrame):
         fixer = lambda name: 'p' + name if (name != "unclassified") and (self.index[name].type == "Branch") else name
         df.index = [fixer(n) for n in df.index]
-
-    def make_cumulative(self, df):
-        cumulative_columns = [self._c_cumul, self._s_cumul]
-
-        for node in self.index.pool[1:][::-1]:
-            df.loc[node.name, cumulative_columns] += df.loc[node.children, cumulative_columns].sum(axis=0)
-
-    def insert_percentages(self, df, total_counts):
-        df.loc[:, self._c_perc] = round(100 * df.loc[:, self._c_cumul] / total_counts, 3).map(str) + "%"
-        df.loc[:, self._s_perc] = round(100 * df.loc[:, self._s_cumul] / total_counts, 3).map(str) + "%"
-
-    @staticmethod
-    def remove_zeros(*dfs):
-        mask = None
-        for df in dfs:
-            non_zero = df.apply(lambda r: ((r > 0).any()) | (r.name == 'unclassified'), axis=1)
-            mask = non_zero if mask is None else mask | non_zero
-
-        for df in dfs:
-            yield df.loc[mask, :]
 
     @staticmethod
     def concatenate_files(dest, *files):

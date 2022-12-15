@@ -163,10 +163,10 @@ class CommandGroup:
         return {}
 
     def run(self, command) -> None:
-        try:
-            getattr(self, command)()
-        except AttributeError:
+        if not hasattr(self, command):
             raise AttributeError("Command %s not found!" % command)
+        else:
+            getattr(self, command)()
 
     @classmethod
     def parse_ints(cls, *params):

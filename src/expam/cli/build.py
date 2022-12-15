@@ -144,6 +144,9 @@ class BuildCommand(CommandGroup):
     def add(self):
         self.validate_database()
 
+        if self.files is None:
+            die("No input directory provided!")
+        
         for directory in self.files:
             self.add_sequences(directory)
 

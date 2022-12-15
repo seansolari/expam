@@ -4,7 +4,6 @@ import os
 import re
 import sys
 import traceback
-
 import pandas as pd
 from expam.tree import PHYLA_COLOURS
 from expam.tree.location import Location
@@ -320,14 +319,14 @@ class Index:
             i += 1
 
     @classmethod
-    def from_pool(cls, pool, keep_names=False):
+    def from_pool(cls, pool, keep_names=False, map_children_objects=True, update_nchildren=True):
         index = cls()
         index.pool = pool
-        leaf_names = index.update_via_pool(keep_names=keep_names)
+        leaf_names = index.update_via_pool(keep_names=keep_names, map_children_objects=map_children_objects, update_nchildren=update_nchildren)
 
         return leaf_names, index
 
-    def update_via_pool(self, keep_names=False, map_children_objects=True):
+    def update_via_pool(self, keep_names=False, map_children_objects=True, update_nchildren=True):
         self._pointers = {}
         leaf_names = []
 
@@ -357,8 +356,9 @@ class Index:
         # Set (binary) coordinates.
         self.update_coordinates()
 
-        # Update nchildren.
-        self.update_nchildren()
+        if update_nchildren:
+            # Update nchildren.
+            self.update_nchildren()
 
         return leaf_names
 
@@ -429,16 +429,30 @@ class Index:
 
     @staticmethod
     def _format_node_name(node_name):
-        return str(node_name).lstrip('p')
+        if node_name[0] == 'p':
+            return str(node_name[1:])
+        else:
+            return str(node_name)
+
+    def give_branch_name(self, node_name):
+        node = self[node_name]
+        if node.type == "Branch" and node.name[0] != 'p':
+            return 'p' + node_name
+        else:
+            return node_name
 
     def __setitem__(self, key, value):
-        key = self._format_node_name(key)  # Delete node identifier from results file.
-        pool_index = self._pointers[key]
+        try:
+            pool_index = self._pointers[key]
+        except KeyError:
+            pool_index = self._pointers[self._format_node_name(key)]
         self.pool[pool_index] = value
 
     def __getitem__(self, key):
-        key = self._format_node_name(key)
-        pool_index = self._pointers[key]
+        try:
+            pool_index = self._pointers[key]
+        except KeyError:
+            pool_index = self._pointers[self._format_node_name(key)]
         return self.pool[pool_index]
 
     def __delitem__(self, key):
@@ -583,7 +597,7 @@ class Index:
         """
         return list(self.yield_leaves(node_name))
 
-    def lca(self, name_one, name_two):
+    def lca(self, *names):
         """lca Return name of the lowest common ancestor of these two nodes.
 
         Note that coordinates are read from right-to-left.
@@ -593,7 +607,7 @@ class Index:
         :param name_two: name of node
         :type name_two: str
         """
-        lca_coord = self.right_intersect(self[name_one].coordinate, self[name_two].coordinate)
+        lca_coord = self.right_intersect(*(self[name].coordinate for name in names))
         return self.coord(lca_coord).name
 
     def reduce(self, nodes):
@@ -671,13 +685,20 @@ class Index:
         self.update_via_pool(keep_names=True, map_children_objects=False)
 
     @staticmethod
-    def right_intersect(a_list, b_list):
-        for i, (a, b) in enumerate(zip(a_list[::-1], b_list[::-1])):
-            if a != b:
-                if i == 0:
-                    return []
-                else:
-                    return a_list[-i:]
+    def right_intersect(*lists) -> list:
+        lists = [l for l in lists if len(l) > 0]
+        L = min(len(l) for l in lists)
+        for i in range(L):
+            rev_index = i + 1
+            ref = lists[0][-rev_index]
+            for other in lists[1:]:
+                if other[-rev_index] != ref:
+                    if i == 0:
+                        return []
+                    else:
+                        return lists[0][-i:]
+        else:
+            return lists[0][-L:]
 
     def draw_results(self, file_path, out_dir, skiprows=None, groups=None, cutoff=None, cpm=None, colour_list=None,
                      name_to_taxon=None, use_phyla=False, keep_zeros=True, use_node_names=True, log_scores=False,

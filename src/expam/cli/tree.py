@@ -290,11 +290,13 @@ class TreeCommand(CommandGroup):
     def tree(self):
         conf: JSONConfig = self.get_conf()
 
-        entry_points = (self.do_sketches, self.do_distances, self.do_trees)
-        entry_stage = self.argmax(self.check_sketches(), self.check_distances(), self.check_trees())
-
-        for stage in range(entry_stage, len(entry_points)):
-            entry_points[stage]()
+        for task, task_check in [
+            (self.do_sketches, self.check_sketches),
+            (self.do_distances, self.check_distances),
+            (self.do_trees, self.check_trees)
+        ]:
+            if not task_check():
+                task()
 
         tree_dir = self.finalise_tree()
         conf.set(phylogeny_path=tree_dir)
@@ -302,19 +304,15 @@ class TreeCommand(CommandGroup):
 
         print("Phylogeny set to %s." % tree_dir)
 
-    @staticmethod
-    def argmax(*checks):
-        if not any(checks):
-            return 0
-
-        return max(i for i, val in enumerate(checks + (True, )) if val is True)
 
     def finalise_tree(self):
         print("Finalising tree...")
         conf: JSONConfig = self.get_conf()
 
         tree_dir = os.path.join(self.config.phylogeny, 'tree')
+        template_name = "template.nwk"
         tree_name = "%s.nwk" % os.path.basename(self.config.phylogeny.rstrip(os.sep))
+        template_path = os.path.join(tree_dir, template_name)
         tree_path = os.path.join(tree_dir, tree_name)
 
         tree_files = [
@@ -336,10 +334,9 @@ class TreeCommand(CommandGroup):
                 f.write(nwk_data)
         else:
             try:
-                template = get_tree_data(tree_path) + ";"
-
+                template = get_tree_data(template_path) + ";"
             except FileNotFoundError:
-                raise Exception("No template found! Please write a template to %s!" % tree_path)
+                die("No template found! Please write a template to %s!\n See expam.readthedocs.io/en/latest/tutorials/treebuilding.html#part-two-building-a-tree-in-parts for details." % template_path)
 
             template_groups = re.findall(r"{{(\S+?)}}", template)
 
@@ -509,8 +506,6 @@ class TreeCommand(CommandGroup):
 
     def check_distances(self):
         conf: JSONConfig = self.get_conf()
-
-        sketch_dir = os.path.join(self.config.phylogeny, 'sketch')
         dist_dir = os.path.join(self.config.phylogeny, 'distance')
 
         if not os.path.exists(dist_dir):
@@ -519,10 +514,10 @@ class TreeCommand(CommandGroup):
         dist_name_fmt = "%s.k%d.s%d.tab"
 
         for group_name in conf.get_groups(self.group):
-            k, s, _ = self.get_group_or_raise(group_name)
+            k, s, _ = self.get_group_or_die(group_name)
             file_name = dist_name_fmt % (group_name, k, s)
 
-            dest = os.path.join(sketch_dir, file_name)
+            dest = os.path.join(dist_dir, file_name)
             if not os.path.exists(dest):
                 return False
 
@@ -532,11 +527,11 @@ class TreeCommand(CommandGroup):
         print("Calculating pairwise distances...")
         conf: JSONConfig = self.get_conf()
 
-        sketch_dir = os.path.join(self.config.phylogeny, 'sketch')
-        dist_dir = os.path.join(self.config.phylogeny, 'distance')
+        sketch_base = os.path.join(self.config.phylogeny, 'sketch')
+        dist_base = os.path.join(self.config.phylogeny, 'distance')
 
-        if not os.path.exists(dist_dir):
-            os.mkdir(dist_dir)
+        if not os.path.exists(dist_base):
+            os.mkdir(dist_base)
 
         dist_name_fmt = "%s.k%d.s%d.%s"
 
@@ -545,21 +540,18 @@ class TreeCommand(CommandGroup):
             sketch_name = dist_name_fmt % (group_name, k, s, '%s')
 
             matrix_name = dist_name_fmt % (group_name, k, s, 'tab')
-            matrix_file = os.path.join(dist_dir, matrix_name)
+            matrix_file = os.path.join(dist_base, matrix_name)
 
             if self.use_sourmash:
-                sketch_dir = os.path.join(sketch_dir, sketch_name % 'sour')
+                sketch_dir = os.path.join(sketch_base, sketch_name % 'sour')
                 self.sour_dist(sig_dir=sketch_dir, matrix_dir=matrix_file)
-
             else:
                 self.check_mash()
 
-                sketch_file = os.path.join(sketch_dir, sketch_name % 'msh')
+                sketch_file = os.path.join(sketch_base, sketch_name % 'msh')
                 self.mash_dist(sketch_file, matrix_file)
 
     def mash_dist(self, sketch_dir, matrix_dir):
-        self.check_mash()
-
         cmd_fmt = "mash dist -p %d -t %s %s"
         cmd = cmd_fmt % (
             self.get_n_processes(),
