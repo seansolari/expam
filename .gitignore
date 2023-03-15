@@ -33,4 +33,6 @@ src/expam/ext/map/_build/src
 src/expam/ext/sets/_build/src
 
 
+/.luarc.json
+
 buildandtwine.sh
