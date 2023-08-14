@@ -2,6 +2,7 @@ import os
 import re
 import shutil
 import subprocess
+from tempfile import TemporaryDirectory
 from typing import List, Set, Tuple, Union
 from expam.classify import ResultsPathConfig
 from expam.classify.classify import ClassificationResults, name_to_id
@@ -10,6 +11,7 @@ from expam.classify.taxonomy import TaxonomyNCBI
 from expam.cli.main import CommandGroup, ExpamOptions
 from expam.database import FileLocationConfig
 from expam.database.config import JSONConfig, make_database_config, validate_database_file_configuration
+from expam.sequences import format_tree_string
 from expam.tree import PHYLA_COLOURS
 from expam.tree.tree import RandomColour
 from expam.utils import die, is_hex, ls, make_path_absolute
@@ -314,7 +316,6 @@ class TreeCommand(CommandGroup):
         tree_name = "%s.nwk" % os.path.basename(self.config.phylogeny.rstrip(os.sep))
         template_path = os.path.join(tree_dir, template_name)
         tree_path = os.path.join(tree_dir, tree_name)
-
         tree_files = [
             name
             for name in ls(tree_dir, ext='.nwk')
@@ -322,14 +323,15 @@ class TreeCommand(CommandGroup):
         ]
 
         def get_tree_data(file_url):
+            # read tree data
             with open(file_url, 'r') as f:
                 tree_data = f.read().strip().rstrip(";")
-
+            # format tree node names
+            tree_data = format_tree_string(tree_data)
             return tree_data
 
         if len(tree_files) == 1:
             nwk_data = get_tree_data(tree_files[0]).rstrip(";") + ";"
-
             with open(tree_path, 'w') as f:
                 f.write(nwk_data)
         else:
@@ -339,7 +341,6 @@ class TreeCommand(CommandGroup):
                 die("No template found! Please write a template to %s!\n See expam.readthedocs.io/en/latest/tutorials/treebuilding.html#part-two-building-a-tree-in-parts for details." % template_path)
 
             template_groups = re.findall(r"{{(\S+?)}}", template)
-
             tree_data = {
                 group_name: get_tree_data(tree_file)
                 for group_name in conf.groups()
@@ -370,11 +371,10 @@ class TreeCommand(CommandGroup):
     def do_mashtree(self):
         print("Creating mashtree...")
         self.check_mashtree()
-        conf: JSONConfig = self.get_conf()
-
+        conf = self.get_conf()
         tree_dir = os.path.join(self.config.phylogeny, 'tree')
         temp_dir = os.path.join(self.config.phylogeny, 'tmp')
-        n: int = self.get_n_processes()
+        n = self.get_n_processes()
 
         if not os.path.exists(tree_dir):
             os.mkdir(tree_dir)
@@ -382,7 +382,6 @@ class TreeCommand(CommandGroup):
         for group_name in conf.get_groups(self.group):
             k, s, sequences = self.get_group_or_die(group_name)
             tree_path = os.path.join(tree_dir, "%s.nwk" % group_name)
-
             self.make_mashtree(k, s, n, sequences, tree_path, temp_dir)
 
     def make_mashtree(self, k, s, n, sequences, tree_dir, temp_dir):
@@ -390,7 +389,6 @@ class TreeCommand(CommandGroup):
 
         def delete_temp():
             nonlocal temp_dir
-
             shutil.rmtree(temp_dir)
             print("Deleted temporary directory %s." % temp_dir)
 
@@ -403,7 +401,6 @@ class TreeCommand(CommandGroup):
                 delete_temp()
             except FileNotFoundError:
                 pass
-
             die("Could not create temporary directory!")
 
         # Write file of files.
@@ -418,13 +415,10 @@ class TreeCommand(CommandGroup):
         print("Making mashtree...")
         cmd = "mashtree --numcpus %d --kmerlength %d --sketch-size %d --file-of-files %s" \
             % (n, k, s, _names_file)
-
         try:
             return_val = self.shell(cmd, cwd=temp_dir)
-
             with open(tree_dir, "w") as f:
                 f.write(return_val)
-
             print("Phylogeny created in %s." % tree_dir)
         finally:
             try:
@@ -492,9 +486,14 @@ class TreeCommand(CommandGroup):
         make_signatures(self.get_n_processes(), sequences, sig_dir, k, s)
 
     def mash_sketch(self, k, s, p, sequences, out_dir):
-        cmd_fmt = "mash sketch -k %d -p %d -s %d -o %s %s"
-        cmd = cmd_fmt % (k, p, s, out_dir, ' '.join(sequences))
-        self.shell(cmd)
+        # prepare temporary directory to link files
+        with TemporaryDirectory() as tmp_dir:
+            for seq in sequences:
+                os.symlink(seq, os.path.join(tmp_dir, os.path.basename(seq)))
+            # run mash on temp directory
+            cmd_fmt = "mash sketch -k %d -p %d -s %d -o %s %s/*"
+            cmd = cmd_fmt % (k, p, s, out_dir, tmp_dir)
+            self.shell(cmd)
 
     """
     Compute pairwise distances between sketched sequences

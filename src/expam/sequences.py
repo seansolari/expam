@@ -38,6 +38,18 @@ def check_suffix(string, sfx):
     return False
 
 
+def format_tree_string(nwk: str) -> str:
+    seq_types = [".fna", ".faa"]
+    comp_types = [".tar.gz", ".gz", ""]
+    nwk = nwk.replace("'", "")
+    for seq_type in seq_types:
+        for comp_type in comp_types:
+            ext = seq_type + comp_type + ":"
+            if ext in nwk:
+                nwk = nwk.replace(ext, ":")
+    return nwk
+
+
 def format_name(name, remove_comp=False):
     name = os.path.basename(name)
     # Must not be a digit. If it is, add 'ref' to the start.

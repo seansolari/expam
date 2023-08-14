@@ -85,7 +85,7 @@ setup(
     # Metadata.
     #
     name="expam",
-    version="%d.%d.%d" % __version__,
+    version="%d.%d.%d.%d" % __version__,
     description="Metagenomic profiling using a reference phylogeny",
     long_description=long_description,
     long_description_content_type="text/markdown",

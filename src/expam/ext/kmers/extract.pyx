@@ -26,7 +26,7 @@ cpdef void reverse_complement(uint64_t[::1] kmers, uint64_t[::1] r_kmers, int k)
     cdef:
         int j
         int m = kmers.shape[0]-1, b = 2 * ((k % 32) + (32 * (k % 32 == 0)))
-        uint64_t r, mask = ((2**b) - 1)
+        uint64_t r, mask = (1<<b) - 1
 
     for j in range(m):
         if j == m-1:
