@@ -27,7 +27,7 @@ class TreeCommand(CommandGroup):
         self, config: FileLocationConfig,
         out_dir: str, cutoff: int, cpm: float, groups: List[Tuple[str]],
         use_node_names: bool, keep_zeros: bool, plot_phyla: bool,
-        colour_list: List[str], log_scores: bool, itol_mode: bool,
+        colour_list: List[str], log_scores: bool, itol_mode: bool, flat_colour: bool,
         at_rank: str, use_sourmash: bool, use_quicktree: bool
     ) -> None:
         super().__init__()
@@ -49,6 +49,7 @@ class TreeCommand(CommandGroup):
 
         self.log_scores = log_scores
         self.itol_mode = itol_mode
+        self.flat_colour = flat_colour
 
         self.at_rank = at_rank
 
@@ -94,6 +95,7 @@ class TreeCommand(CommandGroup):
             'colour_list': colour_list,
             'log_scores': args.log_scores,
             'itol_mode': args.itol_mode,
+            'flat_colour': args.flat_colour,
             'at_rank': args.rank,
             'use_sourmash': args.use_sourmash,
             'use_quicktree': args.use_quicktree
@@ -202,7 +204,7 @@ class TreeCommand(CommandGroup):
             colour_list=self.colour_list,
             log_scores=self.log_scores
         )
-        results.draw_results(itol_mode=self.itol_mode)
+        results.draw_results(itol_mode=self.itol_mode, flat_colour=self.flat_colour)
 
     """
     Draw phylogenetic tree

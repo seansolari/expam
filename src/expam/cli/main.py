@@ -23,7 +23,7 @@ ExpamOptions = namedtuple(
         # Summary arguments
         'plot', 'cutoff', 'cpm', 'taxonomy',
         # Plot arguments
-        'groups', 'phyla', 'keep_zeros', 'ignore_names', 'colour_list', 'rank', 'log_scores', 'itol_mode',
+        'groups', 'phyla', 'keep_zeros', 'ignore_names', 'colour_list', 'rank', 'log_scores', 'itol_mode', 'flat_colour',
         # Tree arguments
         'use_sourmash', 'use_rapidnj', 'use_quicktree'
     ]
@@ -122,6 +122,8 @@ def retrieve_arguments() -> ExpamOptions:
                         help="Log transformation to opacity scores on phylotree (think uneven distributions).")
     parser.add_argument("--itol", dest="itol_mode", default=False, action="store_true",
                         help="Output plotting data in ITOL format.")
+    parser.add_argument("--flat-colour", dest="flat_colour", default=False, action="store_true",
+                        help="Do not use abundance to make phylotree colours opaque.")
 
     # Parse arguments.
     args: Namespace = parser.parse_args()

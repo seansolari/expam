@@ -657,7 +657,7 @@ class ClassificationResults:
 
         return intersection
 
-    def draw_results(self, itol_mode=False):
+    def draw_results(self, itol_mode=False, flat_colour=False):
         # Draw classified tree.
         self.phylogeny_index.draw_results(
             self.results_config.phy_classified,
@@ -673,6 +673,7 @@ class ClassificationResults:
             use_node_names=self.use_node_names,
             log_scores=self.log_scores,
             itol_mode=itol_mode,
+            flat_colour=flat_colour,
             sep=self.SEP
         )
 
@@ -690,5 +691,6 @@ class ClassificationResults:
             use_node_names=self.use_node_names,
             log_scores=self.log_scores,
             itol_mode=itol_mode,
+            flat_colour=flat_colour,
             sep=self.SEP
         )

@@ -702,7 +702,7 @@ class Index:
 
     def draw_results(self, file_path, out_dir, skiprows=None, groups=None, cutoff=None, cpm=None, colour_list=None,
                      name_to_taxon=None, use_phyla=False, keep_zeros=True, use_node_names=True, log_scores=False,
-                     itol_mode=False, sep=","):
+                     itol_mode=False, flat_colour=False, sep=","):
         counts = pd.read_csv(file_path, sep=sep, index_col=0, header=0, skiprows=skiprows)
 
         # Remove any columns that contain only zeros.
@@ -713,12 +713,12 @@ class Index:
         if counts.shape[1]:
             self.draw_tree(out_dir, counts=counts, groups=groups, cutoff=cutoff, cpm=cpm, colour_list=colour_list,
                         name_to_taxon=name_to_taxon, use_phyla=use_phyla, keep_zeros=keep_zeros,
-                        use_node_names=use_node_names, log_scores=log_scores, itol_mode=itol_mode)
+                        use_node_names=use_node_names, log_scores=log_scores, itol_mode=itol_mode, flat_colour=flat_colour)
         else:
             print("Skipping plotting of %s - no samples with counts in this matrix." % file_path)
 
     def draw_tree(self, out_dir, counts: pd.DataFrame, groups=None, cutoff=None, cpm=None, colour_list=None, name_to_taxon=None,
-                  use_phyla=False, keep_zeros=True, use_node_names=True, log_scores=True, itol_mode=False):
+                  use_phyla=False, keep_zeros=True, use_node_names=True, log_scores=True, itol_mode=False, flat_colour=False):
         from expam.sequences import format_name
 
         """
@@ -803,7 +803,7 @@ class Index:
                 node_counts = counts.loc[node, :]
 
                 if node_counts.any():
-                    colour = colour_generator.generate(tuple(node_counts))
+                    colour = colour_generator.generate(tuple(node_counts), flat_colour=flat_colour)
                     itol_data.append("%s\trange\t%s\t%s" % (node, colour, node.upper()))
 
             # Write itol_data and Newick tree to file.
@@ -872,7 +872,7 @@ class Index:
                     node_counts = counts.loc[node.name, :]
 
                     if node_counts.any():
-                        colour = colour_generator.generate(tuple(node_counts))
+                        colour = colour_generator.generate(tuple(node_counts), flat_colour=flat_colour)
 
                         ns = NodeStyle()
                         ns['bgcolor'] = colour
@@ -1030,12 +1030,16 @@ class ColourGenerator:
         # Calculate normalisation factors.
         self._log_norm_factor = [log(mx / mn) for mx, mn in zip(self.max_vector, self.min_vector)] if self.make_log_score else None
 
-    def generate(self, score_vector):
+    def generate(self, score_vector, flat_colour = False):
         colour = HexColour("#FFFFFF")  # White background.
         scorer = self._linear_scores if not self.make_log_score else self._log_scores
 
-        for next_colour, opacity in scorer(score_vector):
-            colour = colour + next_colour.opaque(opacity)
+        if not flat_colour:
+            for next_colour, opacity in scorer(score_vector):
+                colour = colour + next_colour.opaque(opacity)
+        else:
+            for next_colour, _ in scorer(score_vector):
+                colour = colour + next_colour
 
         return str(colour)
 
