@@ -25,7 +25,9 @@ ExpamOptions = namedtuple(
         # Plot arguments
         'groups', 'phyla', 'keep_zeros', 'ignore_names', 'colour_list', 'rank', 'log_scores', 'itol_mode', 'flat_colour',
         # Tree arguments
-        'use_sourmash', 'use_rapidnj', 'use_quicktree'
+        'use_sourmash', 'use_rapidnj', 'use_quicktree',
+        # Logging arguments
+        'debug'
     ]
 )
 
@@ -124,6 +126,8 @@ def retrieve_arguments() -> ExpamOptions:
                         help="Output plotting data in ITOL format.")
     parser.add_argument("--flat-colour", dest="flat_colour", default=False, action="store_true",
                         help="Do not use abundance to make phylotree colours opaque.")
+    parser.add_argument("--debug", dest="debug", default=False, action="store_true",
+                        help="Set logging level to DEBUG (as opposed to INFO).")
 
     # Parse arguments.
     args: Namespace = parser.parse_args()

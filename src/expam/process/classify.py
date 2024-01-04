@@ -75,30 +75,39 @@ class ClassifyWorker(JobWorker):
         # Continue to get reads without checking for errors; only check for errors when there is a break in workflow.
         while True:
             read_id = read_id.decode("utf8")
+            self.log_debug("processing read %s" % read_id)
 
             max_n_kmers = len(read) - self.k + 1
             if max_n_kmers > self.read_array.shape[0]:
+                self.log_debug("adjusting read array due to read size (max_n_kmers=%d)" % max_n_kmers)
                 self.read_array = np.ndarray((max_n_kmers, self.chunks + 1), dtype=self.dtypes.keys_dtype)
 
             if new_file_name != self.current_file_data[reader_id][0]:
+                self.log_debug("reached new input file, saving temporary data")
                 if len(self.current_file_data[reader_id][1]) > 0:
                     self.save_temp_data(reader_id)
+                self.log_debug("temporary data saved")
 
                 self.current_file_data[reader_id] = (new_file_name, [])
 
+            self.log_debug("calling classification method")
             result, best_clade, read_length, result_string = self.process_read(read)
+            self.log_debug("classification complete, appending results to stack")
             self.current_file_data[reader_id][1].append(
                 [result, read_id, "p" + str(best_clade), str(read_length), result_string]
             )
 
             # Get a head start on any available work.
             try:
+                self.log_debug("attempting early request")
                 command_code, data = self.work_queue.get(block=True, timeout=self._timeout)
 
                 if command_code != COMMAND_CODES["ACTIVE"]:
+                    self.log_debug("early request unsuccessful")
                     self.work_queue.put((command_code, data))
                     break
-
+                
+                self.log_debug("early request successful")
                 new_file_name, read_id, read, reader_id = data
             except queue.Empty:
                 break
@@ -119,6 +128,7 @@ class ClassifyWorker(JobWorker):
     def process_read(self, read):
         read_length = len(read)
         n_kmers = get_raw_kmers(read, self.k, self.read_array)
+        self.log_debug("extracted %d kmers from read of length %d" % (n_kmers, read_length))
 
         # Control for reads that don't have long enough good regions for kmers to be extracted.
         if n_kmers == 0:
@@ -127,6 +137,7 @@ class ClassifyWorker(JobWorker):
         # Map the kmers.
         cls, common_clade, kmer_string = classify(self.read_array[:n_kmers], self.keys, self.values,
                                                   self.lca_matrix, NULL_VALUE, self.alpha)
+        self.log_debug("C classification call complete")
 
         if cls == -1:
             result = "U"

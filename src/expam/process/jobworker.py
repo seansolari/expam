@@ -501,6 +501,9 @@ class JobWorker(Process):
     def log(self, msg):
         self.logger.info(msg)
 
+    def log_debug(self, msg):
+        self.logger.debug(msg)
+
     def run(self):
         # Activate logging.
         self.logger = new_logger(self.logging_dir, str(self.pid) + "_" + self.job_name)

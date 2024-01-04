@@ -1,3 +1,4 @@
+import logging
 import os
 from typing import List, Set, Tuple
 from expam.classify import ResultsPathConfig
@@ -7,8 +8,8 @@ from expam.classify.taxonomy import TaxonomyNCBI
 from expam.cli.main import CommandGroup, ExpamOptions, clear_logs
 from expam.database import FileLocationConfig
 from expam.database.config import JSONConfig, make_database_config, validate_database_file_configuration
-from expam.utils import die, is_hex, make_path_absolute
-
+from expam.utils import die, is_hex
+import expam.logger
 
 class ClassifyCommand(CommandGroup):
     commands: Set[str] = {
@@ -21,7 +22,7 @@ class ClassifyCommand(CommandGroup):
         convert_to_taxonomy: bool, cutoff: int, cpm: float, groups: List[Tuple[str]],
         use_node_names: bool, keep_zeros: bool, plot_phyla: bool,
         colour_list: List[str], paired_end: bool, alpha: float,
-        log_scores: bool, itol_mode: bool
+        log_scores: bool, itol_mode: bool, debug: bool
     ) -> None:
         super().__init__()
 
@@ -45,6 +46,9 @@ class ClassifyCommand(CommandGroup):
         self.alpha = alpha
         self.log_scores = log_scores
         self.itol_mode = itol_mode
+
+        if debug:
+            expam.logger.current_logging_level = logging.DEBUG
 
     @classmethod
     def take_args(cls: CommandGroup, args: ExpamOptions) -> dict:
@@ -90,7 +94,8 @@ class ClassifyCommand(CommandGroup):
             'paired_end': args.paired_end,
             'alpha': alpha,
             'log_scores': args.log_scores,
-            'itol_mode': args.itol_mode
+            'itol_mode': args.itol_mode,
+            'debug': args.debug
         }
 
     def check_database_exists(self):

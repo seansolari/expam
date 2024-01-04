@@ -3,6 +3,9 @@ import os
 from timeit import default_timer
 from expam.database import LOG_FORMAT
 
+# global variable
+current_logging_level = logging.INFO
+
 class Timer:
     def __init__(self):
         self.start = None
@@ -25,8 +28,6 @@ class Timer:
         if self.elapsed is None:
             return "<not_measured>"
         return str(self.elapsed) + "s"
-
-
 
 def timeit(func):
     def inner(*args, **kwargs):
@@ -77,13 +78,13 @@ def new_logger(logs_dir, logger_name):
     log_file_url = os.path.join(logs_dir, logger_name + ".log")
 
     logger = logging.getLogger(logger_name)
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(current_logging_level)
     logger.propagate = False  # Don't propagate to root logger.
 
     if not logger.hasHandlers():  # Don't duplicate logger file handlers.
         # Let each process log to a unique file.
         fh = logging.FileHandler(log_file_url)
-        fh.setLevel(logging.DEBUG)
+        fh.setLevel(current_logging_level)
         fh.setFormatter(LOG_FORMAT)
 
         logger.addHandler(fh)
