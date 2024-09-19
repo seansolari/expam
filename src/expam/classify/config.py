@@ -3,7 +3,6 @@ import os
 from expam.classify import PHY_CLASSIFIED_FILE, PHY_RAW, PHY_RESULTS, PHY_SPLIT_FILE, TAX_CLASSIFIED_FILE, TAX_RAW, TAX_RESULTS, TAX_SPLIT_FILE, TEMP_RESULTS, ResultsPathConfig
 from expam.utils import die
 
-
 def make_results_config(out_path: str) -> ResultsPathConfig:
     output_file_locations = {
         'base': out_path,

@@ -1,50 +1,45 @@
+# version: 2
 import os
 import re
 import shutil
 import subprocess
 from tempfile import TemporaryDirectory
-from typing import List, Set, Tuple, Union
-from expam.classify import ResultsPathConfig
-from expam.classify.classify import ClassificationResults, name_to_id
+from typing import List, Tuple, Union
+from expam.classify.classify import PhylogeneticResults
 from expam.classify.config import make_results_config, validate_results_configuration
-from expam.classify.taxonomy import TaxonomyNCBI
+from expam.classify.taxonomy import TaxonomyInterface
 from expam.cli.main import CommandGroup, ExpamOptions
 from expam.database import FileLocationConfig
 from expam.database.config import JSONConfig, make_database_config, validate_database_file_configuration
 from expam.sequences import format_tree_string
-from expam.tree import PHYLA_COLOURS
-from expam.tree.tree import RandomColour
-from expam.utils import die, is_hex, ls, make_path_absolute
+from expam.tree.tree import Index, RandomColour
+from expam.utils import die, is_hex, ls
 
 
 class TreeCommand(CommandGroup):
-    commands: Set[str] = {
+    commands = {
         'phylotree', 'draw_tree', 'tree', 
         'mashtree', 'sketch', 'distance', 'nj'
     }
 
-    def __init__(
-        self, config: FileLocationConfig,
-        out_dir: str, cutoff: int, cpm: float, groups: List[Tuple[str]],
-        use_node_names: bool, keep_zeros: bool, plot_phyla: bool,
-        colour_list: List[str], log_scores: bool, itol_mode: bool, flat_colour: bool,
-        at_rank: str, use_sourmash: bool, use_quicktree: bool
-    ) -> None:
+    def __init__(self, config: FileLocationConfig,
+                 out_dir: str, cpm: float, groups: List[Tuple[str, Tuple[str, ...]]],
+                 use_node_names: bool, keep_zeros: bool, colour_list: List[str],
+                 log_scores: bool, itol_mode: bool, flat_colour: bool,
+                 at_rank: str, use_sourmash: bool, use_quicktree: bool) -> None:
         super().__init__()
 
-        self.config: FileLocationConfig = config
-        self.results_config: ResultsPathConfig = None if out_dir is None else make_results_config(out_dir)
+        self.config = config
+        self.results_config = None if out_dir is None else make_results_config(out_dir)
         self.json_conf = None
         self.out_dir = out_dir
 
-        self.cutoff = cutoff
         self.cpm = cpm
         self.group = None if groups is None else groups[0][0]
         self.groups = groups
 
         self.use_node_names = use_node_names
         self.keep_zeros = keep_zeros
-        self.plot_phyla = plot_phyla
         self.colour_list = colour_list
 
         self.log_scores = log_scores
@@ -59,7 +54,6 @@ class TreeCommand(CommandGroup):
 
     @classmethod
     def take_args(cls, args: ExpamOptions) -> dict:
-        cutoff, n = cls.parse_ints(args.cutoff, args.n)
         cpm = cls.parse_floats(args.cpm)
 
         # Format groups.
@@ -86,12 +80,10 @@ class TreeCommand(CommandGroup):
         return {
             'config': make_database_config(args.db_name),
             'out_dir': args.out_url,
-            'cutoff': cutoff,
             'cpm': cpm,
             'groups': groups,
             'use_node_names': not args.ignore_names,
             'keep_zeros': args.keep_zeros,
-            'plot_phyla': args.phyla,
             'colour_list': colour_list,
             'log_scores': args.log_scores,
             'itol_mode': args.itol_mode,
@@ -161,15 +153,9 @@ class TreeCommand(CommandGroup):
         if cwd is None:
             cwd = os.getcwd()
 
-        p = subprocess.run(
-            command,
-            shell=True,
-            capture_output=True,
-            cwd=cwd
-        )
+        p = subprocess.run(command, shell=True, capture_output=True, cwd=cwd)
         if p.returncode != 0:
             raise Exception("\n" + p.stderr.decode("utf-8"))
-
         return p.stdout.decode("utf-8")
     
     """
@@ -179,32 +165,19 @@ class TreeCommand(CommandGroup):
     """
     def phylotree(self):
         self.check_results_exist()
-        config: JSONConfig = self.get_conf()
-        _, _, phylogeny_path, _, _ = config.get_build_params()
-        index, phylogenyIndex = name_to_id(phylogeny_path)
-
-        try:
-            tax_obj: TaxonomyNCBI = TaxonomyNCBI(self.config)
-            name_to_lineage, _ = tax_obj.load_taxonomy_map()
-        except FileNotFoundError:
-            name_to_lineage = None
+        config = self.get_conf()
+        phylogeny_path = config.get_phylogeny_path()
+        _, tree = Index.load_newick(phylogeny_path)
 
         # Load phylogenetic results.
-        results = ClassificationResults(
-            index=index,
-            phylogeny_index=phylogenyIndex,
-            results_config=self.results_config,
-            groups=self.groups,
-            keep_zeros=self.keep_zeros,
-            cutoff=self.cutoff,
-            cpm=self.cpm,
-            use_node_names=self.use_node_names,
-            phyla=self.plot_phyla,
-            name_taxa=name_to_lineage, 
-            colour_list=self.colour_list,
-            log_scores=self.log_scores
-        )
-        results.draw_results(itol_mode=self.itol_mode, flat_colour=self.flat_colour)
+        phy = PhylogeneticResults.from_tables(self.results_config.phy_classified,
+                                              self.results_config.phy_split,
+                                              tree=tree)
+        phy.draw_results(self.results_config.base,
+                         groups=self.groups, cpm=self.cpm,
+                         colour_list=self.colour_list, keep_zeros=self.keep_zeros,
+                         use_node_names=self.use_node_names, log_scores=self.log_scores,
+                         itol_mode=self.itol_mode, flat_colour=self.flat_colour)
 
     """
     Draw phylogenetic tree
@@ -217,12 +190,10 @@ class TreeCommand(CommandGroup):
         except ImportError:
             die("First install ete3 tools...`pip install ete3`.")
         
-        config: JSONConfig = self.get_conf()
-        _, _, phylogeny_path, _, _ = config.get_build_params()
-
+        config = self.get_conf()
+        phylogeny_path = config.get_phylogeny_path()
         if phylogeny_path is None:
             die("Phylogeny not set!")
-
         try:
             with open(phylogeny_path, "r") as f:
                 newick_string = f.read().strip()
@@ -231,40 +202,25 @@ class TreeCommand(CommandGroup):
 
         tree = Tree(newick_string, format=1)
         rank_colours = {}
-
-        tax_obj: TaxonomyNCBI = TaxonomyNCBI(self.config)
-        name_to_lineage, name_to_rank = tax_obj.load_taxonomy_map()
-
-        random_colour_maker: RandomColour = RandomColour()
+        random_colour_maker = RandomColour()
+        taxonomy = TaxonomyInterface(self.config, phylogeny_path=phylogeny_path)
 
         def layout(node):
-            nonlocal name_to_lineage, name_to_rank, random_colour_maker
+            nonlocal taxonomy, random_colour_maker
 
             if node.is_leaf():
                 if self.use_node_names:
                     faces.add_face_to_node(AttrFace("name", fsize=20), node, column=0, position="aligned")
 
                 if self.at_rank is not None:
-                    lineage = name_to_lineage[node.name]
-
-                    for name in lineage:
-                        rank = name_to_rank[name][1]
-
-                        if rank == self.at_rank:
-                            if name not in rank_colours:
-                                rank_colours[name] = next(random_colour_maker)
-
+                    lineage = taxonomy.clade_lineage(node.name)
+                    ranks = taxonomy.get_ranks(*lineage)
+                    for taxid in lineage:
+                        if ranks[taxid] == self.at_rank:
+                            if taxid not in rank_colours:
+                                rank_colours[taxid] = next(random_colour_maker)
                             node_style = NodeStyle()
-                            node_style['bgcolor'] = rank_colours[name]
-                            node.set_style(node_style)
-
-                elif self.plot_phyla:
-                    for phyla, phyla_colour in PHYLA_COLOURS:
-                        lineage = name_to_lineage[node.name]
-
-                        if phyla in lineage:
-                            node_style = NodeStyle()
-                            node_style['bgcolor'] = phyla_colour
+                            node_style['bgcolor'] = rank_colours[taxid]
                             node.set_style(node_style)
 
         # Print tree to file.
@@ -278,12 +234,7 @@ class TreeCommand(CommandGroup):
         ts.root_opening_factor = 1
 
         phy_path = "phylotree.pdf" if not self.out_dir else os.path.join(self.out_dir, "phylotree.pdf")
-        tree.render(
-            phy_path,
-            tree_style=ts,
-            w=4000,
-            units="px"
-        )
+        tree.render(phy_path, tree_style=ts, w=4000, units="px")
         print("Phylogenetic tree written to %s!" % phy_path)
 
     """
@@ -307,7 +258,6 @@ class TreeCommand(CommandGroup):
         conf.save()
 
         print("Phylogeny set to %s." % tree_dir)
-
 
     def finalise_tree(self):
         print("Finalising tree...")
@@ -451,6 +401,8 @@ class TreeCommand(CommandGroup):
             file_name = sketch_name_fmt % (group_name, k, s, "%s")
 
             dest = os.path.join(sketch_dir, file_name % ("sour" if self.use_sourmash else "msh"))
+            if self.use_sourmash:
+                dest = os.path.join(dest, "mysigs.sig")
             if not os.path.exists(dest):
                 return False
 

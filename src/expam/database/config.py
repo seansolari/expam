@@ -1,11 +1,13 @@
 import json
 import os
-from posixpath import isabs
 
 import numpy as np
-from expam.database import ACCESSION_ID_RELATIVE_PATH, CONF_RELATIVE_PATH, DATABASE_FILE_RELATIVE_PATH, DATABASE_RELATIVE_PATH, LCA_MATRIX_RELATIVE_PATH, LOG_RELATIVE_PATH, PHYLOGENY_RELATIVE_PATH, TAXID_LINEAGE_MAP_RELATIVE_PATH, TAXON_RANK_MAP_RELATIVE_PATH, FileLocationConfig
+from expam.database import (
+    ACCN_ID, CLADE_TABLE, CLADE_TAX, CONF_RELATIVE_PATH, DATABASE_FILE_RELATIVE_PATH,
+    DATABASE_RELATIVE_PATH, LCA_MATRIX_RELATIVE_PATH, LOG_RELATIVE_PATH,
+    PHYLOGENY_RELATIVE_PATH, TAX_CHILDS, TAX_POOL, FileLocationConfig
+)
 from expam.utils import die
-
 
 class JSONConfig:
     _parse_data_type = {
@@ -16,7 +18,7 @@ class JSONConfig:
         "int8": np.int8,
         "int16": np.int16,
         "int32": np.int32,
-        "int64": np.int64,
+        "int64": np.int64
     }
 
     def __init__(self, url=None, name: str = ""):
@@ -66,7 +68,6 @@ class JSONConfig:
         data_line = "phylogeny\t-->\t%s\nk\t\t-->\t%s\nn\t\t-->\t%s" % (self.params['phylogeny_path'],
                                                                     self.params['k'], self.params['n'])
         par_line = "sketch\t\t-->\t%s\npile\t\t-->\t%s" % (self.params['s'], self.params['pile'])
-
         group_fmt = "\n----------------\ngroup name: %s\n\tk\t\t-->\t%s\n\tsketch\t\t-->\t%s\n\tsequences\t-->\t%d\n"
         group_line = "\n".join([
             group_fmt % (name, group['k'], group['s'], len(group['sequence_files']))
@@ -207,20 +208,22 @@ class JSONConfig:
         with open(url, 'w') as f:
             json.dump(self.params, f)
 
-    def get_build_params(self):
-        """Returns k, n, phylogeny_path, genome_paths, pile_size"""
-        genome_paths, phylogeny_path, k, n, pile_size = self.get_paths(), self["phylogeny_path"], int(self["k"]), int(self["n"]), self["pile"]
-
+    def get_phylogeny_path(self) -> str:
+        phylogeny_path = self.params["phylogeny_path"]
         if not os.path.exists(phylogeny_path):
             assert self.url is not None
             db_path = self.url.rstrip(CONF_RELATIVE_PATH)
             full_path = os.path.join(db_path, phylogeny_path)
-
             if not os.path.join(full_path):
                 die("Can't find phylogeny! Original path is %s." % phylogeny_path)
             else:
                 phylogeny_path = full_path
+        return phylogeny_path
 
+    def get_build_params(self):
+        """Returns k, n, phylogeny_path, genome_paths, pile_size"""
+        genome_paths, k, n, pile_size = self.get_paths(), int(self.params["k"]), int(self.params["n"]), self.params["pile"]        
+        phylogeny_path = self.get_phylogeny_path()
         return k, n, phylogeny_path, genome_paths, pile_size
 
     def get_groups(self, input_group: str = None):
@@ -236,13 +239,11 @@ class JSONConfig:
     def get_n_processes(self):
         return self['n']
 
-
 class ExpamDatabaseDoesNotExistError(Exception):
     pass
 
 class ExpamDatabaseExistsError(Exception):
     pass
-
 
 def make_database_config(db_path: str) -> FileLocationConfig:
     database_file_locations = {
@@ -251,47 +252,41 @@ def make_database_config(db_path: str) -> FileLocationConfig:
         'phylogeny': os.path.join(db_path, PHYLOGENY_RELATIVE_PATH),
         'logs': os.path.join(db_path, LOG_RELATIVE_PATH),
         'conf': os.path.join(db_path, CONF_RELATIVE_PATH),
-        'accession_id': os.path.join(db_path, ACCESSION_ID_RELATIVE_PATH),
-        'taxid_lineage': os.path.join(db_path, TAXID_LINEAGE_MAP_RELATIVE_PATH),
-        'taxon_rank': os.path.join(db_path, TAXON_RANK_MAP_RELATIVE_PATH),
+        'accn_id': os.path.join(db_path, ACCN_ID),
+        'clade_tax': os.path.join(db_path, CLADE_TAX),
+        'tax_pool': os.path.join(db_path, TAX_POOL),
+        'tax_childs': os.path.join(db_path, TAX_CHILDS),
+        'clade_table': os.path.join(db_path, CLADE_TABLE),
         'lca_matrix': os.path.join(db_path, LCA_MATRIX_RELATIVE_PATH),
         'database_file': os.path.join(db_path, DATABASE_FILE_RELATIVE_PATH),
     }
     return FileLocationConfig(**database_file_locations)
 
-
 def load_database_config(db_path: str) -> FileLocationConfig:
     proposed_config: FileLocationConfig = make_database_config(db_path)
-
     validate_database_file_configuration(proposed_config)
     return proposed_config
-
 
 def create_database(config: FileLocationConfig) -> None:
     for field_to_check in ('base', 'database', 'phylogeny', 'logs'):
         path: str = getattr(config, field_to_check)
-
         if not os.path.exists(path):
             os.mkdir(path)
         else:
             raise ExpamDatabaseExistsError("Database %s already exists!" % config.database)
-
     # Create new configuration file.
     conf: JSONConfig = JSONConfig()
     conf.save(url=config.conf)
 
-
 def validate_database_file_configuration(proposed_config: FileLocationConfig) -> bool:
     for field_to_check in ('base', 'database', 'phylogeny', 'conf'):
         path_to_check = getattr(proposed_config, field_to_check)
-
         if not os.path.exists(path_to_check):
             print(path_to_check)
             raise ExpamDatabaseDoesNotExistError("Database does not exist at %s" % path_to_check)
 
-
 def validate_taxonomy_files(config: FileLocationConfig) -> bool:
-    for field_to_check in ('accession_id', 'taxid_lineage', 'taxon_rank'):
+    for field_to_check in ('accn_id', 'clade_tax', 'tax_pool', 'tax_childs'):
         if not os.path.exists(getattr(config, field_to_check)):
             return False
     else:

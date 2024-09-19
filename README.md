@@ -1,4 +1,23 @@
+## <span style="color:red">Important bug notice:</span>
+
+There was a bug identified in the taxonomic mapping modules due to the pressence of multiple NCBI taxa with the name *"environmental samples"*. This bug has been fixed in version 1.4.0.0, however versions previous to this may contain errors in the taxonomic output. **Please update to at least version 1.4.0.0.** Note phylogenetic output can be re-mapped using the `expam to_taxonomy` command.
+
 ![expam logo](docs/source/expam-logo.png)
+
+### Updates since version 1.2
+
+- Now using ETE3 for interfacing with NCBI taxonomy. This fixes a bug with taxonomic conversion of phylogenetic results. **This is a critical bug - results from any version behind Expam 1.4 may contain errors with current versions of the NCBI taxonomy. Please update to Expam 1.4.**
+- Added ‘total’ counts column to phylogenetic and taxonomic output – combines SL and ML counts.
+- Create cumulative cutoff summary file, which combines sample outputs after accumulation and cutoff into a single table.
+    - This occurs for both phylogenetic and taxonomic output. The taxonomic output also contains taxonomic metadata in the final column.
+- Employ cutoff based on total counts, not SL and ML separately.
+- Taxonomic IDs for each input sequence must now be specified manually in the third column of ‘accession_ids.csv’ after a successful database build.
+- Fixed a bug in employing cutoff in phylogenetic output.
+- Only the taxonomic name associated with the ID is reported in taxonomic sample summaries, where previously the entire lineage was reported.
+- Removed `--phyla` flag.
+- Fixed bug in `expam tree ... --sourmash` which would not check for presence of signatures file before attempting distance matrix calculation.
+- Added `CountUniqueKmers.py` script.
+- Remove the `--cutoff` flag. Automated cutoffs can now only be applied in terms of `--cpm`.
 
 ## **Install**.
 

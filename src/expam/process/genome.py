@@ -4,10 +4,10 @@ import numpy as np
 from expam.database import CHUNK_SIZE, TIMEOUT, DataTypeConfig, expam_dtypes
 from expam.ext.kmers import get_raw_kmers, remove_duplicates, to_32bit, import_mask, map_kmers
 from expam.ext.map import binarysearch
-from expam.logger import log_timer
+from expam.logger import log_timer, new_stdout_logger
 from expam.process import COMMAND_CODES
 from expam.process.jobworker import JobWorker
-from expam.sequences import MaskStore, SequenceStore
+from expam.sequences import DiskMaskStore, DiskSequenceStore
 
 
 class ExtractWorker(JobWorker):
@@ -39,8 +39,8 @@ class ExtractWorker(JobWorker):
         self.node_map = node_map
 
         # Hold the sequences and masks that I have extracted.
-        self.sequence_store = SequenceStore(k, out_dir)
-        self.mask_store = MaskStore()
+        self.sequence_store = DiskSequenceStore(k, out_dir, logger=new_stdout_logger("build_main"))
+        self.mask_store = DiskMaskStore()
 
         shm_kmer_name, shm_kmer_shape = shm_kmer_params
         allocation_shape = (shm_kmer_shape[0], shm_kmer_shape[1] + 1)

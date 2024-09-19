@@ -1,10 +1,16 @@
 import gzip
 import io
+import logging
 import os
 import random
 import re
+from tempfile import NamedTemporaryFile
+import warnings
+import tables as tb
 from expam.ext.kmers import reverse_complement_combine
 from expam.logger import timeit
+
+warnings.filterwarnings('ignore', category=tb.NaturalNameWarning)
 
 COMPRESSION_EXTNS = ['.tar.gz', '.tar', '.gz']
 DEFAULT_MODE = "rb"
@@ -13,7 +19,6 @@ COMP_PARSE = {
     ".tar.gz": {"mode": "rb", "opener": gzip.open},
     ".gz": {"mode": "rb", "opener": gzip.open}
 }
-
 
 def get_opener(file_name):
     for suffix in COMP_PARSE:
@@ -30,10 +35,10 @@ def get_opener(file_name):
     return file_name, (mode, opener)
 
 
-def check_suffix(string, sfx):
+def check_suffix(string: str, sfx: str):
     string = string.strip()
 
-    if string[-len(sfx):] == sfx:
+    if string.endswith(sfx):
         return True
     return False
 
@@ -160,22 +165,57 @@ class MaskStore:
     def __delitem__(self, key):
         del self.store[key]
 
+class DiskMaskStore:
+    def __init__(self):
+        self._file = NamedTemporaryFile(mode="w", suffix=".h5")
+        self._dbh = tb.open_file(self._file.name, mode="w")
 
-class SequenceStore:
-    def __init__(self, k, out_dir):
-        self._store = {}
+    def __setitem__(self, key, value):
+        # string key maps to UInt32 array
+        self._dbh.create_array(self._dbh.root, key, value)
+
+    def __getitem__(self, key):
+        return self._dbh.root[key].read()
+    
+    def __delitem__(self, *args, **kwargs):
+        # PyTables does not support on-disk array deletion
+        pass
+
+    def __del__(self):
+        self._dbh.close()
+        self._file.close()
+
+class _SequenceStore:
+    def __init__(self, k: int, out_dir: str, logger: logging.Logger) -> None:
         self.stream = io.BytesIO()
         self.k = k
         self.out_dir = out_dir
-
         self.accession_ids = {}
+        self.logger = logger
 
-    def add_sequence(self, file_path):
+    @staticmethod
+    def extract_accession_id(string):
+        def try_convert(byte_string):
+            try:
+                return byte_string.decode("utf8")
+
+            except AttributeError:
+                return byte_string
+
+        accn_id = re.findall(b'(?:^\s*\>)(.*?)(?:\s+|\|)', string)
+        tax_id = re.findall(b'(?:\|kraken:taxid\||\|taxid\|)(\d+)(?:\s+|\|)', string)
+
+        accn_id = None if not accn_id else try_convert(accn_id[0])
+        tax_id = None if not tax_id else try_convert(tax_id[0])
+
+        return accn_id, tax_id
+
+    def _read_sequence(self, file_path: str):
         # Check it is a valid file.
         if not os.path.isfile(file_path):
             raise ValueError("Directory %s is not a file!" % file_path)
-
-        print("Extracting sequences from %s..." % file_path)
+        
+        self.logger.info("extracting sequences from %s" % file_path)
 
         # Determine opening mode based on compression of sequence file.
         file_name = format_name(file_path)
@@ -201,7 +241,6 @@ class SequenceStore:
 
         # Convert to numeric sequence and put in store.
         sequence_view = self.stream.getvalue()
-        self._store[file_name] = sequence_view
 
         # Save accession ID for this file.
         self.accession_ids[file_name] = [accession_id, tax_id]
@@ -210,41 +249,7 @@ class SequenceStore:
         self.stream.seek(0)
         self.stream.truncate()
 
-        return file_name, len(self._store[file_name])
-
-    def __getitem__(self, key):
-        # If it is a branch, this is a valid request,
-        # but no information from the Sequence Store is required.
-        if key.isdigit():
-            return None
-        else:
-            return self._store.__getitem__(key)
-
-    def __setitem__(self, key, value):
-        self._store.__setitem__(key, value)
-
-    def __delitem__(self, key):
-        self._store.__delitem__(key)
-
-    def keys(self):
-        return self._store.keys()
-
-    @staticmethod
-    def extract_accession_id(string):
-        def try_convert(byte_string):
-            try:
-                return byte_string.decode("utf8")
-
-            except AttributeError:
-                return byte_string
-
-        accn_id = re.findall(b'(?:^\s*\>)(.*?)(?:\s+|\|)', string)
-        tax_id = re.findall(b'(?:\|kraken:taxid\||\|taxid\|)(\d+)(?:\s+|\|)', string)
-
-        accn_id = None if not accn_id else try_convert(accn_id[0])
-        tax_id = None if not tax_id else try_convert(tax_id[0])
-
-        return accn_id, tax_id
+        return file_name, sequence_view
 
     def save_accession_ids(self, suffix=""):
         id_data = "\n".join([
@@ -254,6 +259,59 @@ class SequenceStore:
 
         with open(os.path.join(self.out_dir, "phylogeny", "accession_ids_%s.csv" % suffix), "w") as f:
             f.write(id_data)
+
+class SequenceStore(_SequenceStore):
+    def __init__(self, k: int, out_dir: str, logger: logging.Logger):
+        super().__init__(k, out_dir, logger=logger)
+        self._store = {}
+
+    def add_sequence(self, file_path):
+        file_name, sequence = self._read_sequence(file_path)
+        self._store[file_name] = sequence
+        return file_name, len(sequence)
+
+    def __getitem__(self, key):
+        # If it is a branch, this is a valid request,
+        # but no information from the Sequence Store is required.
+        if key.isdigit():
+            return None
+        else:
+            return self._store.__getitem__(key)
+
+    def __delitem__(self, key):
+        self._store.__delitem__(key)
+
+    def keys(self):
+        return self._store.keys()
+
+class DiskSequenceStore(_SequenceStore):
+    def __init__(self, k: int, out_dir: str, logger: logging.Logger):
+        super().__init__(k, out_dir, logger=logger)
+        self._file = NamedTemporaryFile(mode="w", suffix=".h5")
+        self._dbh = tb.open_file(self._file.name, mode="w")
+
+    def add_sequence(self, file_path):
+        file_name, sequence = self._read_sequence(file_path)
+        self._dbh.create_array(self._dbh.root, file_name, sequence)
+        return file_name, len(sequence)
+    
+    def __getitem__(self, key: str):
+        # If it is a branch, this is a valid request,
+        # but no information from the Sequence Store is required.
+        if key.isdigit():
+            return None
+        else:
+            return self._dbh.root[key].read()
+
+    def __delitem__(self, *args, **kwargs):
+        pass
+
+    def keys(self):
+        return self._dbh.root._v_leaves.keys()
+
+    def __del__(self):
+        self._dbh.close()
+        self._file.close()
 
 
 def make_reads(in_url, l, n, out_url, e=0.0):

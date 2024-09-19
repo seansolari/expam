@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 from timeit import default_timer
 from expam.database import LOG_FORMAT
 
@@ -88,5 +89,33 @@ def new_logger(logs_dir, logger_name):
         fh.setFormatter(LOG_FORMAT)
 
         logger.addHandler(fh)
+
+    return logger
+
+def new_stdout_logger(logger_name, logging_file = None):
+    """
+    Create a fresh Logger instance that doesn't propagate
+    to the root logger. Prints to stdout.
+
+    :param logger_name:
+    :return:
+    """
+    logger = logging.getLogger(logger_name)
+    logger.setLevel(current_logging_level)
+    logger.propagate = False
+
+    if not logger.hasHandlers():
+        osh = logging.StreamHandler(sys.stdout)
+        osh.setLevel(current_logging_level)
+        osh.setFormatter(LOG_FORMAT)
+
+        logger.addHandler(osh)
+
+        if logging_file is not None:
+            fh = logging.FileHandler(logging_file)
+            fh.setLevel(current_logging_level)
+            fh.setFormatter(LOG_FORMAT)
+
+            logger.addHandler(fh)
 
     return logger

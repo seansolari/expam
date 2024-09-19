@@ -5,14 +5,3 @@ RANK_ORDER = [
     "species subgroup", "superspecies", "species", "subspecies", "serogroup", "serotype", "superstrain",
     "strain", "substrain", "no rank"
 ]
-TAX_RESULTS_HEADER = [
-    "taxid", "%ClassifiedCumulative", "ClassifiedCumulative", "ClassifiedCount",
-    "%SplitCumulative", "SplitCumulative", "SplitCount", "Rank", "Lineage"
-]
-
-PHYLA_COLOURS = [
-    ("Proteobacteria", "#E85343"),
-    ("Bacteroidetes", "#30B674"),
-    ("Firmicutes", "#6585C3"),
-    ("Actinobacteria", "#FEDB45")
-]

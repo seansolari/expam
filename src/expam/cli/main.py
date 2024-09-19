@@ -1,3 +1,4 @@
+# version 2
 from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
 from collections import namedtuple
 import datetime
@@ -21,9 +22,9 @@ ExpamOptions = namedtuple(
         # Parameter arguments
         'length', 'pile', 'error_rate', 'first_n', 'paired_end',
         # Summary arguments
-        'plot', 'cutoff', 'cpm', 'taxonomy',
+        'plot', 'cpm', 'taxonomy',
         # Plot arguments
-        'groups', 'phyla', 'keep_zeros', 'ignore_names', 'colour_list', 'rank', 'log_scores', 'itol_mode', 'flat_colour',
+        'groups', 'keep_zeros', 'ignore_names', 'colour_list', 'rank', 'log_scores', 'itol_mode', 'flat_colour',
         # Tree arguments
         'use_sourmash', 'use_rapidnj', 'use_quicktree',
         # Logging arguments
@@ -93,14 +94,10 @@ def retrieve_arguments() -> ExpamOptions:
                         help="Plot timing data of database build.")
     parser.add_argument("--first", dest="first_n", default=None,
                         help="Add first n genomes in folder.")
-    parser.add_argument("--cutoff", dest="cutoff", default=0,
-                        help="Ignore organisms with less than `cutoff` reads in results.")
     parser.add_argument("--cpm", dest="cpm", default=100,
                         help="Counts/million cutoff for read-count to be non-negligible.")
     parser.add_argument("--taxonomy", dest="taxonomy", default=False, action="store_true",
                         help="Convert phylogenetic results to taxonomic results.")
-    parser.add_argument("--phyla", dest="phyla", default=False, action="store_true",
-                        help="Colour phylotree results by phyla.")
     parser.add_argument("--rank", dest="rank", default=None,
                         help="Rank at which to sort results.")
     parser.add_argument("--keep-zeros", dest="keep_zeros", default=False, action="store_true",

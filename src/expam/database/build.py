@@ -1,12 +1,17 @@
 from ctypes import c_uint64
+import getpass
 import math
 from multiprocessing import Pipe, Value, shared_memory
 import os
 import subprocess
+import sys
+import time
 from typing import List, Mapping
 import numpy as np
+from expam import __version__
 from expam.database import CHUNK_SIZE, TIMEOUT, UNION_RATIO, FileLocationConfig, expam_dtypes
 from expam.database.config import load_database_config
+from expam.logger import new_stdout_logger
 from expam.process.genome import ExtractWorker
 from expam.process.manager import ControlCenter, ExpamProcesses
 from expam.process.piler import UnionWorker
@@ -19,6 +24,14 @@ def main(
     db_path: str, genome_paths: List[str], phylogeny_path: str, k: int,
     n=None, n_extract=None, n_union=None, pile_size=None,
 ):
+    # configure logger
+    main_log_file = "expam-build-%s-%s.log" % (getpass.getuser(), time.strftime("%d:%m:%Y", time.localtime())) 
+    logger = new_stdout_logger("build_main", logging_file=main_log_file)
+
+    # print config information
+    logger.info("Expam version %s" % ".".join(str(v) for v in __version__))
+    logger.info("calling command: %s" % " ".join(sys.argv))
+
     # Configure number of processes.
     if n_union is not None and n_extract is not None:
         n_union, n_extract = int(n_union), int(n_extract)
@@ -26,11 +39,14 @@ def main(
         n_union, n_extract = distribute_processes(n)
     else:
         raise ValueError("Number of processes is can't be defined!")
+    logger.info("using %d union jobs and %d extract jobs" % (n_union, n_extract))
 
     # Processing parameter details.
     num_cols = calculate_n_chunks(k)
     ranges = make_ranges(n_union, k)
+    logger.info("sorting %d genomes by size" % len(genome_paths))
     genome_paths, maxsize = sort_by_size(genome_paths)
+    config: FileLocationConfig = load_database_config(db_path)
 
     # Create shm_allocations for in-place kmer processing.
     shm_allocations = prepare_kmer_allocations(maxsize, num_cols, n_extract)
@@ -39,15 +55,20 @@ def main(
     _, index = import_phylogeny(phylogeny_path)
     # Create LCA matrix.
     node_to_index = {node.name: i for i, node in enumerate(index.pool) if i > 0}
-    lca_matrix = make_lca_matrix(index, node_to_index)
+    if os.path.exists(config.lca_matrix):
+        logger.info("loading lca matrix from %s" % config.lca_matrix)
+        lca_matrix = np.load(config.lca_matrix)
+    else:
+        logger.info("creating lowest common ancestor matrix")
+        lca_matrix = make_lca_matrix(index, node_to_index)
+        logger.info("saving lca matrix to %s" % config.lca_matrix)
+        np.save(config.lca_matrix, lca_matrix)
 
     # Prepare pipes between main and union workers.
     main_cons, union_cons = make_pipes(n_union)
     # Lock system to prevent concurrent access to HDF5 file.
     lock_value = Value(c_uint64, lock=True)
-
     # Multiprocessing configuration.
-    config: FileLocationConfig = load_database_config(db_path)
     mp_config = {
         "name": "expam",    # Job system title.
         "phases": [         # Two-pass algorithm.
@@ -92,13 +113,12 @@ def main(
             job=file_dir
         )
 
+    logger.info("commencing database build")
     process_network.run()
-
-    # Save LCA matrix.
-    np.save(config.lca_matrix, lca_matrix)
 
     # Concatenate accession ID files.
     concatenate_accession_ids(config.phylogeny)
+    logger.info("finalising database build")
 
 def distribute_processes(n):
     n_union = max(math.floor(UNION_RATIO * n), 1)
@@ -217,8 +237,6 @@ def compute_lca(i, j, coord_one, coord_two):
     return i, j, propose_lca(coord_one, coord_two)
 
 def make_lca_matrix(index: Index, node_to_index: Mapping[str, str]):
-    print("Creating LCA matrix...")
-
     def get_children(fixed_node, flexible_index_list):
         nonlocal index, matrix, node_to_index
 

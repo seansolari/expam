@@ -1,334 +1,300 @@
+# version: 2
+from __future__ import annotations
 import os
-import re
-import time
-import requests
+from typing import List, Mapping, Set, Tuple, Type, TypeVar
+from ete3 import NCBITaxa
 
-from expam.classify import _STEP, ENTREZ_API, ENTREZ_EMAIL, ENTREZ_TOOL
 from expam.database import FileLocationConfig
-from expam.database.config import validate_taxonomy_files
-from expam.utils import yield_csv
+from expam.database.config import JSONConfig
+from expam.tree.tree import Index
+from expam.utils import work_in_directory
 
+# NCBI -----------------------------------------------------------------------
 
-class TaxonomyNCBI:
-    def __init__(self, file_config: FileLocationConfig) -> None:
-        self.config: FileLocationConfig = file_config
+class ncbi_taxdump:
+    _remote_dump_url = "http://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz"
+    _sqlite_file_name = "ncbi.sqlite"
+    _taxdump_file_name = "ncbi.dmp.tar.gz"
 
-    def find_downloaded_taxonomy(self):
-        if not validate_taxonomy_files(self.config):
-            raise OSError("Taxonomy files not located!")
+    # initialisation --------------------------------------------------------
 
-    def load_taxonomy_map(self, convert_to_name=True):
-        self.find_downloaded_taxonomy()
+    def __init__(self, taxonomy_dir: str, force_update: bool = False) -> None:
+        self.taxdump = os.path.abspath(os.path.join(taxonomy_dir, self._taxdump_file_name))
+        self.sqlite = os.path.abspath(os.path.join(taxonomy_dir, self._sqlite_file_name))
+        self._check_sql_db(force_update)
 
-        # Create map from scientific name --> (taxid, rank).
-        taxon_data = {}
-        for data in yield_csv(self.config.taxon_rank):
-            taxon_data[",".join(data[0:-2])] = tuple(data[-2:])
+    def log(self, msg: str) -> None:
+        print("[taxdump] %s" % msg)
+        return
 
-        # Create map from tax_id --> lineage (tuple).
-        tax_id_to_lineage = {}
-        for data in yield_csv(self.config.taxid_lineage):
-            tax_id_to_lineage[data[0]] = tuple(data[1:])
+    @staticmethod
+    def contains_taxonomic_database(taxonomy_dir: str) -> bool:
+        sqlite_file = os.path.abspath(os.path.join(taxonomy_dir,
+                                                   ncbi_taxdump._sqlite_file_name))
+        return os.path.exists(sqlite_file)
 
-        if not convert_to_name:
-            return tax_id_to_lineage, taxon_data
+    def _check_sql_db(self, force_update: bool) -> None:
+        if not os.path.exists(self.sqlite) or force_update:
+            from ete3.ncbi_taxonomy.ncbiquery import update_db
+            with work_in_directory(os.path.dirname(self.taxdump)):
+                self._download_taxonomy_dump()
+                update_db(self.sqlite, targz_file=self.taxdump)
+                os.remove(self.taxdump)
+        return
 
-        # Create map from name --> lineage (tuple).
-        name_to_lineage = {}
-        for data in yield_csv(self.config.accession_id):
-            name_to_lineage[data[0]] = tax_id_to_lineage[data[2]]
+    def _download_taxonomy_dump(self) -> None:
+        try:
+            from urllib import urlretrieve
+        except ImportError:
+            from urllib.request import urlretrieve
+        self.log('downloading taxdump.tar.gz from NCBI FTP site (via HTTP) to %s' % self.taxdump)
+        urlretrieve(self._remote_dump_url, self.taxdump)
+        self.log('done. Parsing...')
+        return
 
-        return name_to_lineage, taxon_data
+    # load ----------------------------------------------------------------
 
-    def load_sequence_map(self):
-        return list(yield_csv(self.config.accession_id))
+    def load(self) -> NCBITaxa:
+        return NCBITaxa(self.sqlite)
 
-    def load_taxid_lineage_map(self):
-        if os.path.exists(self.config.taxid_lineage):
-            return list(yield_csv(self.config.taxid_lineage))
-        else:
-            return []
+class ncbi:
+    def __init__(self,
+                 taxonomy_dir: str,
+                 force_update: bool = False):
+        # parse taxdump
+        dmp = ncbi_taxdump(taxonomy_dir, force_update=force_update)
+        self._sql_handle = dmp.load()
 
-    def load_rank_map(self):
-        name_to_rank = {}
-        
-        if os.path.exists(self.config.taxon_rank):
-            for data in yield_csv(self.config.taxon_rank):
-                if len(data) > 1:
-                    name_to_rank[data[0]] = ",".join(data[1:])
-        
-        return name_to_rank
+    def get_lineage(self, taxid: str | int) -> List[str]:
+        return [str(v) for v in self._sql_handle.get_lineage(taxid)]
 
-    def accession_to_taxonomy(self):
-        """
-        Map accession IDs to taxonomic labels.
+    def get_lineages(self, *taxids: str | int) -> Mapping[str, List[str]]:
+        return {taxid: self.get_lineage(taxid) for taxid in taxids}
 
-        :sequence_ids: List - (sequence_id, accession_id, taxon_id)
-        :taxon_ranks: List - (taxon_id, taxonomic ranks)
-        :taxa_to_rank: Dict - taxon --> rank
-        """
+    def get_ranks(self, *taxids: str) -> Mapping[str, str]:
+        return self._sql_handle.get_rank(taxids)
 
-        def tuples_to_disk(lst):
-            return "\n".join([",".join(item) for item in lst])
+    def get_names(self, *taxids: str) -> Mapping[str, str]:
+        return self._sql_handle.get_taxid_translator(taxids)
 
-        def dict_to_disk(dct):
-            return "\n".join([",".join((key, value)) for key, value in dct.items()])
+# mapping ------------------------------------------------------------------------
 
-        sequence_ids = self.load_sequence_map()
-        taxon_ranks = self.load_taxid_lineage_map()
-        taxa_to_rank = self.load_rank_map()
+T = TypeVar('T')
 
-        # Collect taxon ids for unknown organisms.
-        accessions_to_be_mapped = []
-        taxa_to_be_collected = []
+class NodeMapper:
+    def __init__(self,
+                 name2taxid: Mapping[str, str],
+                 taxid2lineage: Mapping[str, List[str]],
+                 tree: Index = None,
+                 db: FileLocationConfig = None,
+                 phylogeny_path: str = None) -> None:
+        self.name2taxid = name2taxid
+        self.taxid2lineage = taxid2lineage
+        self.tree = NodeMapper.load_tree(db=db, tree=tree, phylogeny_path=phylogeny_path)
+        # auxilliary data strutures
+        self.taxid_pool: List[str] = []
+        self.taxid2child_taxids: Mapping[str, Set[str]] = {}
 
-        for (sequence_id, accession_id, taxon_id) in sequence_ids:
-            if taxon_id == "None":
-                accessions_to_be_mapped.append(accession_id)
+    @classmethod
+    def from_ncbi(cls: Type[NodeMapper],
+                  ncbi_handle: ncbi,
+                  tree: Index = None,
+                  db: FileLocationConfig = None,
+                  phylogeny_path: str = None)-> NodeMapper:
+        name2taxid = NodeMapper.load_genome_taxids(db.accn_id)
+        taxid2lineage = ncbi_handle.get_lineages(*set(name2taxid.values()))
+        return cls(name2taxid, taxid2lineage, tree=tree, db=db, phylogeny_path=phylogeny_path)
+
+    @staticmethod
+    def load_tree(db: FileLocationConfig = None, tree: Index = None, phylogeny_path: str = None):
+        # load tree
+        if db is None and tree is None and phylogeny_path is None:
+            raise ValueError("Must supply a tree!")
+        elif tree is None:
+            if phylogeny_path is None:
+                conf = JSONConfig(db.conf)
+                phylogeny_path = conf.get_phylogeny_path()
+            _, tree = Index.load_newick(phylogeny_path)
+        return tree
+
+    @staticmethod
+    def load_genome_taxids(accession_ids_file: str) -> Mapping[str, str]:
+        name2taxid = {}
+        missing_taxids = 0
+        with open(accession_ids_file, 'r') as f:
+            for line in f:
+                try:
+                    genome, _, taxid = line.strip() \
+                        .split(",")
+                except KeyError:
+                    continue
+                if (len(taxid) == 0) or (taxid == "None"):
+                    missing_taxids += 1
+                else:
+                    name2taxid[genome] = taxid
+        if missing_taxids > 0:
+            raise ValueError("%d genomes missing taxonomic assignments. \
+                             Update %s accordingly." % (missing_taxids, accession_ids_file))
+        return name2taxid
+
+    def _init_taxid_aux(self):
+        self.taxid_pool = []
+        self.taxid2child_taxids = {}
+
+    def map_all_nodes(self) -> Tuple[Mapping[str, str], List[str], Mapping[str, Set[str]]]:
+        nodes = [node.name for node in self.tree.pool[1:]]
+        return self.map_nodes(nodes)
+
+    def map_nodes(self, phy_nodes) -> Tuple[Mapping[str, str], List[str], Mapping[str, Set[str]]]:
+        # Map phylogeny index to taxonomy.
+        clade2taxid: Mapping[str, str] = {}
+        for clade in phy_nodes:
+            taxid = self.map_phylogeny_node(clade)
+            clade2taxid[clade] = taxid
+        # shift container owners
+        taxid_pool__export = self.taxid_pool
+        taxid2child_taxids__export = self.taxid2child_taxids
+        self._init_taxid_aux()
+        return clade2taxid, taxid_pool__export, taxid2child_taxids__export
+    
+    def map_phylogeny_node(self, node_name: str) -> str:
+        # get leaves within this clade and their taxids
+        taxids = [self.name2taxid[leaf] for leaf in self.tree.yield_leaves(node_name)]
+        lineages = [self.taxid2lineage[taxid] for taxid in taxids]
+        # find intersection of lineages of these taxids
+        common_lineage = self.tuple_intersect(*lineages)
+        assert len(common_lineage) >= 1
+        taxid = common_lineage[-1]
+        # insert lineage into taxid pool
+        pool_index = 0
+        for i, parent_taxid in enumerate(common_lineage):
+            # insert into taxid pool
+            try:
+                pool_index = self.taxid_pool.index(parent_taxid) + 1
+            except ValueError:
+                self.taxid_pool.insert(pool_index, parent_taxid)
+                pool_index += 1
+            # track immediate child nodes
+            if i + 1 < len(common_lineage):
+                child_taxid = common_lineage[i + 1]
+                try:
+                    self.taxid2child_taxids[parent_taxid].add(child_taxid)
+                except KeyError:
+                    self.taxid2child_taxids[parent_taxid] = {child_taxid}
+            elif parent_taxid not in self.taxid2child_taxids:
+                self.taxid2child_taxids[parent_taxid] = set()
+        return taxid
+    
+    @staticmethod
+    def tuple_intersect(*tuples: List[T]) -> Tuple[T, ...]:
+        intersection = ()
+        length = min(len(tup) for tup in tuples)
+        for i in range(length):
+            item = tuples[0][i]
+            for j in range(1, len(tuples)):
+                if tuples[j][i] != item:
+                    return intersection
             else:
-                taxa_to_be_collected.append(taxon_id)
+                intersection += (item,)
+        return intersection
 
-        requestor = EntrezRequestor()
+# Expam -----------------------------------------------------------------------
 
-        if accessions_to_be_mapped:
-            accession_to_tax = requestor.request_tax_ids("nuccore", accessions_to_be_mapped)
+class TaxonomyInterface:
+    def __init__(self,
+                 conf: FileLocationConfig,
+                 tree: Index = None,
+                 phylogeny_path: str = None,
+                 force_download: bool = False,
+                 force_remap: bool = False):
+        self._ncbi = ncbi(conf.phylogeny, force_update=force_download)
+        if force_download \
+            or force_remap \
+            or any(not os.path.exists(getattr(conf, attr)) \
+                   for attr in ('clade_tax', 'tax_pool', 'tax_childs')):
+            # create and save map files
+            op = NodeMapper.from_ncbi(self._ncbi, tree=tree, db=conf, phylogeny_path=phylogeny_path)
+            self.clade2taxid, self.taxid_pool, self.taxid2child_taxids = op.map_all_nodes()
+            self.clade2taxid["unclassified"] = "unclassified"
+            self.export(conf, op.tree)
+        else:
+            # load map files
+            self.clade2taxid = self.load__clade2taxid(conf)
+            self.taxid_pool = self.load__taxid_pool(conf)
+            self.taxid2child_taxids = self.load__taxid2child_taxids(conf)
 
-            print("Received %d response(s) for ESummary TaxID request!"
-                % len(accession_to_tax))
-
-            for i in range(len(sequence_ids)):
-                if sequence_ids[i][1] in accession_to_tax:
-                    sequence_ids[i][2] = accession_to_tax[sequence_ids[i][1]]
-                    taxa_to_be_collected.append(sequence_ids[i][2])
-
-        # Collect taxonomic lineages for taxa.
-        current_taxa = {taxa[0] for taxa in taxon_ranks}
-        taxa_to_be_collected = {  # Set so that we collect unique values.
-            taxon_id
-            for taxon_id in taxa_to_be_collected
-            if taxon_id not in current_taxa
-        }
-
-        if taxa_to_be_collected:
-            taxid_to_taxon, taxon_to_rank = requestor.request_labels("taxonomy", "xml", list(taxa_to_be_collected))
-
-            print("Received %d response(s) for EFetch Taxon request!"
-                % len(taxid_to_taxon))
-
-            taxon_ranks.extend(taxid_to_taxon)
-            taxa_to_rank.update(taxon_to_rank)
-
-        # Save update maps to disk.
-        with open(self.config.accession_id, "w") as f:
-            f.write(tuples_to_disk(sequence_ids))
-
-        with open(self.config.taxid_lineage, "w") as f:
-            f.write(tuples_to_disk(taxon_ranks))
-
-        print("Taxonomic lineages written to %s!" % self.config.taxid_lineage)
-
-        with open(self.config.taxon_rank, "w") as f:
-            f.write(dict_to_disk(taxa_to_rank))
-
-        print("Taxonomic ranks written to %s!" % self.config.taxon_rank)
-
-
-class EntrezRequestor:
-    def __init__(self, entrez_tool: str = None, entrez_email: str = None, api_key: str = None) -> None:
-        self.entrez_tool = ENTREZ_TOOL if entrez_tool is None else entrez_tool
-        self.entrez_email = ENTREZ_EMAIL if entrez_email is None else entrez_email
-        self.api_key = ENTREZ_API if api_key is None else api_key
-
-    def request_tax_ids(self, db, id_list):
-        POST_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi"
-        taxids, upto = {}, 0
-
-        PARAMS = {
-            "tool": self.entrez_tool,
-            "email": self.entrez_email,
-            "api_key": self.api_key,
-            "db": db,
-        }
-
-        while upto < len(id_list):
-            next_requests = id_list[upto:upto + _STEP]
-
-            print("Posting %d UIDs to NCBI Entrez %s."
-                % (len(next_requests), db))
-
-            PARAMS["id"] = ",".join(next_requests)
-            esummary_request = requests.post(
-                url=POST_URL,
-                data=PARAMS
-            )
-
-            # Parse TaxonIDs from raw results.
-            accn_id = tax_id = None
-
-            for line in esummary_request.text.split("\n"):
-                if "<DocSum>" in line:  # Start new record.
-                    accn_id = tax_id = None
-
-                elif 'AccessionVersion' in line:
-                    accn_id = self.parse_id(line)
-
-                elif 'TaxId' in line:
-                    tax_id = self.parse_tax_id(line)
-
-                elif "</DocSum>" in line:  # Only save complete records.
-                    if accn_id is not None and tax_id is not None:
-                        taxids[accn_id] = tax_id
-
-            upto += _STEP
-
-            time.sleep(1.0)  # Allow server time to breath.
-
-        return taxids
+    def export(self, conf: FileLocationConfig, tree: Index) -> None:
+        # CLADE_TAX
+        with open(conf.clade_tax, "w") as f:
+            for clade, taxid in self.clade2taxid.items():
+                f.write("%s,%s\n" % (clade, taxid))
+        # TAX_POOL
+        with open(conf.tax_pool, "w") as f:
+            f.write("\n".join(self.taxid_pool))
+        # TAX_CHILDS
+        with open(conf.tax_childs, "w") as f:
+            for taxid, children in self.taxid2child_taxids.items():
+                f.write("%s,%s\n" % (taxid, ";".join(children)))
+        # CLADE_TABLE
+        self.write_clade_table(conf.clade_table, tree)
 
     @staticmethod
-    def parse_id(string):
-        new_id = re.findall(r'\<Item Name\="AccessionVersion" Type\="String"\>(.*?)\<\/Item\>', string)
-
-        if not new_id:
-            raise ValueError("No taxids found!")
-        else:
-            return new_id[0]
-
+    def load__clade2taxid(conf: FileLocationConfig) -> Mapping[str, str]:
+        clade2tax = {}
+        with open(conf.clade_tax, "r") as f:
+            for line in f:
+                try:
+                    clade, taxid = line.strip()\
+                        .split(',')
+                except ValueError:
+                    continue
+                clade2tax[clade] = taxid
+        return clade2tax
+    
     @staticmethod
-    def parse_tax_id(string):
-        taxids = re.findall(r'\<Item Name\="TaxId" Type\="Integer"\>(.*?)\<\/Item\>', string)
-
-        if not taxids:
-            raise ValueError("No taxids found!")
-        else:
-            return taxids[0]
-
-    def request_labels(self, db, retmode, id_list):
-        POST_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
-        taxon_labels, ranks, upto = [], {}, 0
-
-        PARAMS = {
-            "tool": self.entrez_tool,
-            "email": self.entrez_email,
-            "api_key": self.api_key,
-            "db": db,
-            "retmode": retmode,
-        }
-
-        while upto < len(id_list):
-            next_requests = id_list[upto:upto + _STEP]
-
-            print("Posting %d UIDs to NCBI Entrez %s."
-                % (len(next_requests), db))
-
-            PARAMS["id"] = ",".join(next_requests)
-            efetch_request = requests.post(
-                url=POST_URL,
-                data=PARAMS
-            )
-
-            # Parse taxonomic labels from raw results.
-            tax_id = taxa = rank = name = None
-            sub_tax_id = sub_rank = sub_name = None
-            collect = True
-
-            for line in efetch_request.text.split("\n"):
-                if "<Taxon>" in line and collect:  # Start new record.
-                    tax_id = taxa = name = rank = None
-
-                elif "<Taxon>" in line and not collect:
-                    sub_tax_id = sub_rank = sub_name = None
-
-                elif "<TaxId>" in line and collect:
-                    tax_id = self.parse_single_tax_id(line)
-
-                elif "<TaxId>" in line and not collect:
-                    sub_tax_id = self.parse_single_tax_id(line)
-
-                elif "<Lineage>" in line and collect:
-                    taxa = self.parse_lineage(line).replace(",", "")
-
-                elif "<Rank>" in line and not collect:
-                    if sub_name == "cellular organisms":
-                        sub_rank = "top"
-
-                    else:
-                        sub_rank = self.parse_rank(line)
-
-                elif "<Rank>" in line and collect:
-                    if name == "cellular organisms":
-                        rank = "top"
-
-                    else:
-                        rank = self.parse_rank(line)
-
-                elif "<ScientificName>" in line and not collect:
-                    sub_name = self.parse_name(line)
-
-                elif "<ScientificName>" in line and collect:
-                    name = self.parse_name(line)
-
-                elif "<LineageEx>" in line:
-                    collect = False
-
-                elif "</Taxon>" in line and not collect:
-                    ranks[sub_name] = sub_tax_id + "," + sub_rank
-
-                elif "</LineageEx>" in line:
-                    collect = True
-
-                elif "</Taxon>" in line and collect:
-                    if tax_id is not None and taxa is not None:
-                        lineage = taxa.strip().split("; ")
-                        if name not in lineage and name is not None:
-                            lineage += [name]
-
-                        taxon_labels.append([tax_id, ",".join(lineage)])
-
-                    ranks[name] = tax_id + ',' + rank
-
-            upto += _STEP
-
-            time.sleep(1.0)  # Allow server time to breath.
-
-        return taxon_labels, ranks
-
+    def load__taxid_pool(conf: FileLocationConfig) -> List[str]:
+        with open(conf.tax_pool, "r") as f:
+            return [line.strip() for line in f]
+        
     @staticmethod
-    def parse_single_tax_id(string):
-        taxids = re.findall(r'\<TaxId\>(.*?)\<\/TaxId\>', string)
+    def load__taxid2child_taxids(conf: FileLocationConfig) -> Mapping[str, Set[str]]:
+        taxid2child_taxids = {}
+        with open(conf.tax_childs, "r") as f:
+            for line in f:
+                try:
+                    taxid, childs = line.strip()\
+                        .split(',')
+                except ValueError:
+                    continue
+                taxid2child_taxids[taxid] = set(childs.split(";"))
+        return taxid2child_taxids
 
-        if not taxids:
-            raise ValueError("No taxids found!")
-        else:
-            return taxids[0]
+    def get_ranks(self, *taxids: str) -> Mapping[str, str]:
+        result = self._ncbi.get_ranks(*taxids)
+        return {str(k): v for k, v in result.items()}
 
-    @staticmethod
-    def parse_lineage(string):
-        lineage = re.findall(r'\<Lineage\>(.*?)\<\/Lineage\>', string)
+    def get_names(self, *taxids: str) -> Mapping[str, str]:
+        result = self._ncbi.get_names(*taxids)
+        return {str(k): v for k, v in result.items()}
 
-        if not lineage:
-            raise ValueError("No lineages found!")
-        else:
-            return lineage[0]
-
-    @staticmethod
-    def parse_rank(string):
-        rank = re.findall(r'\<Rank\>(.*?)\<\/Rank\>', string)
-
-        if not rank:
-            raise ValueError("No rank found!")
-        else:
-            return rank[0]
-
-    @staticmethod
-    def parse_name(string):
-        name = re.findall(r'\<ScientificName\>(.*?)\<\/ScientificName\>', string)
-
-        if not name:
-            raise ValueError("No rank found!")
-        else:
-            name = re.sub(r"[,]", "", name[0])
-            return name
-
-
-
+    def clade_lineage(self, clade: str) -> List[str]:
+        return self.get_lineage(self.clade2taxid[clade])
+        
+    def get_lineage(self, taxid: str) -> List[str]:
+        result = self._ncbi.get_lineage(taxid)
+        return [str(x) for x in result]
+    
+    def write_clade_table(self, file: str, tree: Index):
+        # get taxonomic data for all taxids
+        all_taxids = set(self.clade2taxid.values())
+        all_taxids.discard("unclassified")
+        taxid2name = self.get_names(*all_taxids)
+        taxid2rank = self.get_ranks(*all_taxids)
+        # write to disk
+        with open(file, "w") as f:
+            f.write("clade,taxid,taxa,rank\n")
+            f.write("unclassified,unclassified,unclassified,no rank\n")
+            for node in tree.pool[1:]:
+                node_name = tree.give_branch_name(node.name)
+                taxid = self.clade2taxid[node.name]
+                f.write("%s,%s,%s,%s\n" % (node_name, taxid, taxid2name[taxid], taxid2rank[taxid]))

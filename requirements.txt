@@ -1,7 +1,9 @@
 numpy>=1.22.0
 Cython
+ete3
 matplotlib
 multiprocess
 pandas
 psutil
+sourmash
 tables

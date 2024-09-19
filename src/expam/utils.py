@@ -15,7 +15,18 @@ def yield_csv(path):
                 line = line.split(",")
                 yield line
 
-def ls(path, ext=None):
+class work_in_directory:
+    def __init__(self, path: str) -> None:
+        self._old_wd = os.getcwd()
+        self._new_wd = path
+
+    def __enter__(self):
+        os.chdir(self._new_wd)
+
+    def __exit__(self, *args, **kwargs):
+        os.chdir(self._old_wd)
+
+def ls(path: str, ext: str = None):
     # Get list of files.
     if os.path.isfile(path):
         files = [path]
@@ -25,9 +36,8 @@ def ls(path, ext=None):
             for file in os.listdir(path)
             if not file.startswith(".")
         ]
-        
         # Filter for files not subdirectories.
-        files = [file for file in files if os.path.isfile(file)]
+        files = [file for file in files if not os.path.isdir(file)]
 
     if ext is not None:
         # Reduce list to those that have the right file extension.
@@ -38,6 +48,12 @@ def ls(path, ext=None):
         files = [file for file in files if fcheck(file, ext)]
 
     return files
+
+def abspath(file: str) -> str:
+    file__nolink = file
+    while os.path.islink(file__nolink):
+        file__nolink = os.readlink(file__nolink)
+    return os.path.abspath(file__nolink)
 
 def isfiletype(path: str, ext: str, check_compressed=False):
     if check_compressed:

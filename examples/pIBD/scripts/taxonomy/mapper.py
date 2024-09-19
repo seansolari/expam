@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# based on Expam version 1.0.4
 import click
 from expam.classify.taxonomy import TaxonomyNCBI
 from expam.database import FileLocationConfig

@@ -116,10 +116,11 @@ class ClassifyWorker(JobWorker):
         def format_result(result_list):
             return "\n".join(["\t".join(item) for item in result_list])
 
-        def base_name(file_url):
-            return re.match(r"(\S+)\.(?:fa|fq|fasta|fastq)(?:\.tar)*(?:\.gz)*$", file_url).group(1)
+        def base_name(file_url: str) -> str:
+            return re.match(r"(\S+)\.(?:fa|fq|fasta|fastq|fna)$", file_url).group(1)
 
         file_name, file_data = self.current_file_data[reader_id]
+        self.log("saving data from %s" % file_name)
 
         my_file_name = os.path.join(self.temp_dir, base_name(file_name) + (self.RAW % self.pid))
         with open(my_file_name, "a+") as f:

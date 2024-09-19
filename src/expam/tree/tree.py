@@ -4,8 +4,8 @@ import os
 import re
 import sys
 import traceback
+from typing import List, Tuple
 import pandas as pd
-from expam.tree import PHYLA_COLOURS
 from expam.tree.location import Location
 
 
@@ -429,10 +429,8 @@ class Index:
 
     @staticmethod
     def _format_node_name(node_name):
-        if node_name[0] == 'p':
-            return str(node_name[1:])
-        else:
-            return str(node_name)
+        node_name = str(node_name)
+        return node_name[1:] if (node_name[1:].isdigit() and node_name.startswith('p')) else node_name
 
     def give_branch_name(self, node_name):
         node = self[node_name]
@@ -700,30 +698,16 @@ class Index:
         else:
             return lists[0][-L:]
 
-    def draw_results(self, file_path, out_dir, skiprows=None, groups=None, cutoff=None, cpm=None, colour_list=None,
-                     name_to_taxon=None, use_phyla=False, keep_zeros=True, use_node_names=True, log_scores=False,
-                     itol_mode=False, flat_colour=False, sep=","):
-        counts = pd.read_csv(file_path, sep=sep, index_col=0, header=0, skiprows=skiprows)
-
-        # Remove any columns that contain only zeros.
-        counts = counts.loc[:, (counts > 0).any().values]
-        # Modify the index with formatted names.
-        counts.index = [self._format_node_name(v) for v in counts.index]
-
-        if counts.shape[1]:
-            self.draw_tree(out_dir, counts=counts, groups=groups, cutoff=cutoff, cpm=cpm, colour_list=colour_list,
-                        name_to_taxon=name_to_taxon, use_phyla=use_phyla, keep_zeros=keep_zeros,
-                        use_node_names=use_node_names, log_scores=log_scores, itol_mode=itol_mode, flat_colour=flat_colour)
-        else:
-            print("Skipping plotting of %s - no samples with counts in this matrix." % file_path)
-
-    def draw_tree(self, out_dir, counts: pd.DataFrame, groups=None, cutoff=None, cpm=None, colour_list=None, name_to_taxon=None,
-                  use_phyla=False, keep_zeros=True, use_node_names=True, log_scores=True, itol_mode=False, flat_colour=False):
+    def draw_counts(self,
+                    counts: pd.DataFrame, out_file: str,
+                    groups: List[Tuple[str, Tuple[str, ...]]] = None,
+                    colour_list: List[str] = None, keep_zeros: bool = True,
+                    use_node_names: bool = True, log_scores: bool = True,
+                    itol_mode: bool = False, flat_colour: bool = False):
+        ## specified sample groupings
+        #
         from expam.sequences import format_name
 
-        """
-        Take care of groupings.
-        """
         if groups is None:
             groups = [(None, (section,)) for section in counts.columns]
         else:
@@ -743,7 +727,6 @@ class Index:
         for _, group in groups:
             if len(group) > 1:
                 group_name = group[0]
-
                 counts.loc[:, group_name] = counts[list(group)].sum(axis=1)
                 counts.drop(labels=list(group[1:]), axis=1, inplace=True)
 
@@ -751,35 +734,20 @@ class Index:
         all_groups = counts.columns.tolist()
         specified_groups = set(group[0] for _, group in groups)
         unspecified_groups = [group for group in all_groups if group not in specified_groups]
-
         counts.drop(labels=unspecified_groups, axis=1, inplace=True)
 
-        """
-        Employ cutoff.
-        """
-        if cutoff is None:
-            if cpm is None:
-                cpm = 0.0
-            # Use cpm cutoff.
-            min_ser = counts.sum(axis=0) * cpm / 1e6
-        else:
-            if cpm is not None:
-                min_ser = counts.sum(axis=0) * cpm / 1e6
-                min_ser.clip(lower=cutoff)
-            else:
-                # Use raw cutoff.
-                min_ser = cutoff
+        ## prune tree
+        #
+        if not keep_zeros:
+            # reduce counts dataframe
+            msk = (counts >= 0).any(axis=1)
+            counts = counts.loc[msk, :]
+            # reduce tree
+            nodes_with_counts = counts.index.tolist()
+            self.reduce(nodes_with_counts)
 
-        nodes_with_counts = counts.index[(counts >= min_ser).any(axis=1)].tolist()
-
-        """
-        Attempt pruning of tree.
-        """
-        self.reduce(nodes_with_counts)
-
-        """
-        Colour generation.
-        """
+        ## configure colour generator from count scores
+        #
         max_vector = tuple(counts.max())
         min_vector = tuple(int(v) for v in counts[counts > 0].min())
         colours = [colour for colour, _ in groups]
@@ -792,6 +760,8 @@ class Index:
         )
  
         if itol_mode:
+            ## plot using iTOL
+            #
             itol_data = [
                 "TREE_COLORS",
                 "# Drag me onto the iTOL tree (in browser) to apply me!",
@@ -807,8 +777,8 @@ class Index:
                     itol_data.append("%s\trange\t%s\t%s" % (node, colour, node.upper()))
 
             # Write itol_data and Newick tree to file.
-            name_modifier = re.findall(r"phylotree_(\S+).pdf", os.path.basename(out_dir))[0]
-            itol_dir = os.path.join(os.path.dirname(out_dir), 'itol_%s' % name_modifier)
+            name_modifier = re.findall(r"phylotree_(\S+).pdf", os.path.basename(out_file))[0]
+            itol_dir = os.path.join(os.path.dirname(out_file), 'itol_%s' % name_modifier)
             if not os.path.exists(itol_dir):
                 os.mkdir(itol_dir)
                 print("iTOL output directory created at %s." % itol_dir)
@@ -828,45 +798,31 @@ class Index:
             print("iTOL tree written to %s. Put this in itol (in your browser)." % itol_tree_dir)
 
         else:
-            # Draw with ete3.
+            ## plot with ete3
+            #
             try:
-                from ete3 import AttrFace, faces, Tree, TreeStyle, NodeStyle, TextFace
+                from ete3 import AttrFace, faces, Tree, TreeStyle, NodeStyle
             except ModuleNotFoundError as e:
                 print("The ETE3 package is not installed. Either install this module, or use the\n\t--itol flag if you wish to use our native iTOL integration.")
-                print("Skipping plotting of %s..." % out_dir)
+                print("Skipping plotting of %s..." % out_file)
                 return
             except ImportError as e:
                 print("Could not import drawing attributes from ete3. Error raised:")
                 print(traceback.format_exc())
                 print("See FAQ section on GitHub for fix to this problem.\n\t(https://github.com/seansolari/expam#problems-during-installation)")
-                print("Skipping plotting of %s..." % out_dir)
+                print("Skipping plotting of %s..." % out_file)
                 return
 
-            """
-            Create PhyloTree.
-            """
+            # phylotree obj
             newick_string = self.to_newick()
             tree = Tree(newick_string, format=1)
 
-            """
-            Function to render any given node.
-            """
-
+            ## renderer
+            #
             def layout(node):
-                nonlocal name_to_taxon
-
                 if node.is_leaf():
                     if use_node_names:
                         faces.add_face_to_node(AttrFace('name', fsize=20), node, column=0, position='aligned')
-
-                    if use_phyla:
-                        for phyla, colour in PHYLA_COLOURS:
-                            lineage = name_to_taxon[node.name]
-
-                            if phyla in lineage:
-                                tax_face = TextFace("   ")
-                                tax_face.background.color = colour
-                                faces.add_face_to_node(tax_face, node, column=1, position='aligned')
 
                 if node.name in counts.index:
                     node_counts = counts.loc[node.name, :]
@@ -878,9 +834,8 @@ class Index:
                         ns['bgcolor'] = colour
                         node.set_style(ns)
 
-            """
-            Render tree.
-            """
+            ## execute rendering
+            #
             ts = TreeStyle()
             ts.mode = "c"
             ts.show_leaf_name = False
@@ -890,12 +845,11 @@ class Index:
             ts.draw_guiding_lines = True
             ts.root_opening_factor = 1
             tree.render(
-                out_dir,
+                out_file,
                 tree_style=ts,
                 dpi=300
             )
-            print("Phylogenetic tree written to %s!" % out_dir)
-
+            print("Phylogenetic tree written to %s!" % out_file)
 
 class HexColour:
     def __init__(self, hex_string):
@@ -929,7 +883,6 @@ class HexColour:
         rgb = self.to_rgb().opaque(q)
 
         return rgb.to_hex()
-
 
 class RGBColour:
     def __init__(self, tup):
@@ -970,11 +923,10 @@ class RGBColour:
             for v in self.colour
         ))
 
-
 class RandomColour:
-    def __init__(self, rng=None, seed=1):
-        self.alpha = "0123456789ABCDEF"
+    alpha =  "0123456789ABCDEF"
 
+    def __init__(self, rng=None, seed=1):
         if rng is not None:
             if not isinstance(rng, random.Random):
                 raise TypeError("rng must be instance of random.Random!")
@@ -988,7 +940,6 @@ class RandomColour:
 
     def __next__(self):
         return "#" + "".join(self.rng.choices(self.alpha, k=6))
-
 
 class ColourGenerator:
     def __init__(self, colours, max_vector, min_vector=None, colour_list=None, log_scores=False):

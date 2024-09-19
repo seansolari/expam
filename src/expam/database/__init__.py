@@ -3,7 +3,6 @@ import logging
 import os
 import numpy as np
 
-
 KEYS_DATA_TYPE = np.uint64
 KEYS_DATA_TYPE_SIZE = np.dtype(KEYS_DATA_TYPE).itemsize
 KEYS_DTYPE_STR = "uint64"
@@ -20,9 +19,17 @@ PHYLOGENY_RELATIVE_PATH = "phylogeny"
 LOG_RELATIVE_PATH = "logs"
 CONF_RELATIVE_PATH = "conf.json"
 
-ACCESSION_ID_RELATIVE_PATH = os.path.join(PHYLOGENY_RELATIVE_PATH, "accession_ids.csv")
-TAXID_LINEAGE_MAP_RELATIVE_PATH = os.path.join(PHYLOGENY_RELATIVE_PATH, "taxid_lineage.csv")
-TAXON_RANK_MAP_RELATIVE_PATH = os.path.join(PHYLOGENY_RELATIVE_PATH, "taxa_rank.csv")
+# There are five taxonomy data files:
+#   - ACCN_ID       ... Maps genome sequences to taxonomy IDs.
+ACCN_ID = os.path.join(PHYLOGENY_RELATIVE_PATH, "accession_ids.csv")
+#   - CLADE_TAX     ... Maps phylogenetic clades to taxonomy IDs - depends on ACCN_ID.
+CLADE_TAX = os.path.join(PHYLOGENY_RELATIVE_PATH, "clade_taxids.csv")
+#   - TAX_POOL      ... Lists taxonomy IDs such that parent taxids always occur before children.
+TAX_POOL = os.path.join(PHYLOGENY_RELATIVE_PATH, "taxid_pool.txt")
+#   - TAX_CHILDS    ... Maps taxids to immediate child node taxids.
+TAX_CHILDS = os.path.join(PHYLOGENY_RELATIVE_PATH, "child_taxids.csv")
+#   - CLADE_TABLE   ... Lists taxonomy IDs for clades, with taxonomic data
+CLADE_TABLE = os.path.join(PHYLOGENY_RELATIVE_PATH, "clade_taxonomy.csv")
 
 LCA_MATRIX_RELATIVE_PATH = os.path.join(PHYLOGENY_RELATIVE_PATH, "lca_matrix.npy")
 DATABASE_FILE_RELATIVE_PATH = os.path.join(DATABASE_RELATIVE_PATH, "expam_db.h5")
@@ -31,7 +38,7 @@ FileLocationConfig = namedtuple(
     'FileLocationConfig',
     [
         'base', 'database', 'phylogeny', 'logs', 'conf',
-        'accession_id', 'taxid_lineage', 'taxon_rank',
+        'accn_id', 'clade_tax', 'tax_pool', 'tax_childs', 'clade_table',
         'lca_matrix',
         'database_file'
     ]
@@ -49,4 +56,3 @@ LOG_FORMAT = logging.Formatter(
     fmt='%(asctime)s... %(message)s',
     datefmt='%m/%d/%Y %I:%M:%S %p'
 )
-

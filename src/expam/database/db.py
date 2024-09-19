@@ -6,7 +6,6 @@ import tables as tb
 from expam.database import DataTypeConfig, FileLocationConfig, expam_dtypes
 from expam.database.config import load_database_config
 
-
 class TablesDb:
     def __init__(self, db_url, shape=None, keys_type=None, values_type=None, create=False, edit=False):
         self.url = db_url
@@ -134,4 +133,3 @@ class SharedDB:
         # Close my access.
         keys_shm.close()
         values_shm.close()
-

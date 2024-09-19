@@ -1,10 +1,11 @@
 import io
+import os
 import re
 from expam.database import TIMEOUT
 from expam.ext.kmers import bytes_intersect
 from expam.process import COMMAND_CODES
 from expam.process.jobworker import JobWorker
-from expam.sequences import format_name, get_opener
+from expam.sequences import get_opener
 
 
 class ReadWorker(JobWorker):
@@ -98,15 +99,13 @@ class ReadWorker(JobWorker):
         file_names, file_modes, file_openers, file_types = [], [], [], []
 
         for file_url in file_urls:
-            file_name = format_name(file_url)
-            file_name, (mode, opener) = get_opener(file_name)
+            file_name = os.path.basename(file_url)
+            file_name, (mode, opener) = get_opener(file_name)   # removes compression suffixes
 
-            if self.check_suffix(file_url, ".fasta", ".fa"):
+            if self.check_suffix(file_name, ".fasta", ".fna", ".fa"):
                 file_type = "fasta"
-
-            elif self.check_suffix(file_url, ".fastq", ".fq"):
+            elif self.check_suffix(file_name, ".fastq", ".fq"):
                 file_type = "fastq"
-
             else:
                 raise ValueError("Unknown sequence format for %s!" % file_url)
 
@@ -118,11 +117,10 @@ class ReadWorker(JobWorker):
         return file_names, file_modes, file_openers, file_types
 
     @staticmethod
-    def check_suffix(string, *suffixes):
+    def check_suffix(string: str, *suffixes: str):
         for suffix in suffixes:
-            if re.findall(r"(%s)(?:.tar)*(?:.gz)*$" % suffix, string):
+            if string.endswith(suffix):
                 return True
-
         return False
 
     @staticmethod

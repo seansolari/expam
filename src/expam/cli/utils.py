@@ -1,14 +1,16 @@
+# version 2
 import os
 from typing import Set
 import matplotlib.pyplot as plt
-from expam.classify import ResultsPathConfig
-from expam.classify.config import make_results_config, validate_classification_results, validate_results_configuration
-from expam.classify.taxonomy import TaxonomyNCBI
+from expam.classify.classify import PhylogeneticResults, TaxonomicResults
+from expam.classify.config import create_tax_results, make_results_config, validate_classification_results, validate_results_configuration
+from expam.classify.taxonomy import TaxonomyInterface, ncbi_taxdump
 from expam.cli.main import CommandGroup, ExpamOptions
 from expam.database import FileLocationConfig
 from expam.database.config import JSONConfig, make_database_config, validate_database_file_configuration
 from expam.sequences import format_name
 from expam.tree.simulate import simulate_balanced_phylogeny
+from expam.tree.tree import Index
 from expam.utils import die, ls
 
 
@@ -17,29 +19,25 @@ class UtilsCommand(CommandGroup):
         'download_taxonomy', 'cutoff', 'fake_phylogeny', 'plot_memory'
     }
 
-    def __init__(
-        self, config: FileLocationConfig, out_dir: str, cutoff: int, cpm: float
-    ) -> None:
+    def __init__(self, config: FileLocationConfig, out_dir: str, convert_to_taxonomy: bool, cpm: float) -> None:
         super().__init__()
 
-        self.config: FileLocationConfig = config
-        self.out_dir: str = out_dir
-        self.results_config: ResultsPathConfig = None if out_dir is None else make_results_config(out_dir)
+        self.config = config
+        self.out_dir = out_dir
+        self.results_config = None if out_dir is None else make_results_config(out_dir)
 
         self.json_conf = None
 
-        self.count_cutoff = cutoff
+        self.convert_to_taxonomy = convert_to_taxonomy
         self.cpm = cpm
 
     @classmethod
     def take_args(cls, args: ExpamOptions) -> dict:
-        cutoff = cls.parse_ints(args.cutoff)
         cpm = cls.parse_floats(args.cpm)
-
         return {
             'config': make_database_config(args.db_name),
             'out_dir': args.out_url,
-            'cutoff': cutoff,
+            'convert_to_taxonomy': args.taxonomy,
             'cpm': cpm
         }
 
@@ -60,70 +58,46 @@ class UtilsCommand(CommandGroup):
     """
     def download_taxonomy(self):
         self.check_database_exists()
-
-        tax_obj: TaxonomyNCBI = TaxonomyNCBI(self.config)
-        tax_obj.accession_to_taxonomy()
+        if ncbi_taxdump.contains_taxonomic_database(self.config.phylogeny):
+            resp = input("Current taxonomic database detected. Overwrite? [y/remap/n] ").lower()
+            if resp in {'y', 'yes'}:
+                TaxonomyInterface(self.config, force_download=True)
+            elif resp == "remap":
+                TaxonomyInterface(self.config, force_remap=True)
+        else:
+            TaxonomyInterface(self.config)
 
     """
-    Employ cutoff on taxonomic classification output
-    ================================================
+    Employ cutoff on classification output
+    ======================================
     
     """
     def cutoff(self):
         if self.out_dir is None:
             die("Must supply -o/--out!")
-
-        validate_results_configuration(self.results_config, check_taxonomy=True)
-
+        # database parameters
+        self.check_database_exists()
+        conf = JSONConfig(self.config.conf)
+        phylogeny_path = conf.get_phylogeny_path()
+        _, tree = Index.load_newick(phylogeny_path)
+        # check output files exist
+        validate_results_configuration(self.results_config)
         if os.path.exists(self.out_dir):
             validate_classification_results(self.out_dir)
         else:
             raise ValueError("Results path %s doesn't exist!")
-
-        file_names = [
-            file_dir
-            for file_dir in ls(self.results_config.tax)
-            if file_dir != self.results_config.tax_classified and file_dir != self.results_config.tax_split
-        ]
-
-        for summary_file in file_names:
-            print("Employing cutoff on sample %s..." % summary_file)
-
-            with open(summary_file, "r") as f:
-                data = [line.strip().split('\t') for line in f]
-
-            total_classifications = sum(int(line[3]) for line in data[1:])
-            total_splits = sum(int(line[6]) for line in data[1:])
-            total_reads = total_classifications + total_splits
-
-            if self.cpm is not None:
-                cutoff = self.cpm * (total_reads / 1e6)
-            elif cutoff is None:
-                raise Exception("Require a cutoff value!")
-
-            def valid_line(line):
-                if int(line[2]) >= cutoff or int(line[5]) >= cutoff:
-                    return True
-
-            valid_taxids = [line[0] for line in data[1:] if valid_line(line)]
-            valid_data = [line for i, line in enumerate(data) if i == 0 or valid_line(line)]
-
-            # Overwrite summary.
-            with open(summary_file, "w") as f:
-                f.write("\n".join("\t".join(line) for line in valid_data))
-
-            # Overwrite raw output.
-            raw_sample_output: str = os.path.join(self.results_config.tax_raw, os.path.basename(summary_file))
-            with open(raw_sample_output, "r") as f:
-                valid_data = []
-
-                for line in f:
-                    current_data = line.strip().split('\t')
-                    if current_data[2] in valid_taxids:
-                        valid_data.append('\t'.join(current_data))
-
-            with open(raw_sample_output, "w") as f:
-                f.write('\n'.join(valid_data))
+        # load phylogenetic results
+        phy = PhylogeneticResults.from_tables(self.results_config.phy_classified,
+                                              self.results_config.phy_split,
+                                              tree=tree)
+        phy.summarise(self.results_config.phy,
+                      cpm=self.cpm)
+        if self.convert_to_taxonomy:
+            create_tax_results(self.results_config)
+            my_ncbi = TaxonomyInterface(self.config, tree=tree)
+            tax = TaxonomicResults.from_phylogenetic(phy, my_ncbi)
+            tax.summarise(self.results_config.tax,
+                          cpm=self.cpm)
 
     """
     Generate a fake phylogeny
