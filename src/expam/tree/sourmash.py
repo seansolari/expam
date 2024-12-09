@@ -49,7 +49,7 @@ def make_signatures(n_processes, genome_dirs, sig_dir, k, s):
         ]
 
     # Calculate chunksize.
-    chunksize = 100 if (len(genome_dirs) // n_processes) > 100 else (len(genome_dirs) // n_processes)
+    chunksize = min(max(len(genome_dirs) // n_processes, 1), 100)
 
     print("Starting process pool...")
 
